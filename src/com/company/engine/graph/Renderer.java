@@ -33,7 +33,7 @@ public class Renderer {
         mSceneShaderProgram.createFragmentShader(Utils.loadResource("/shaders/scene_fragment.fs"));
         mSceneShaderProgram.link();
 
-        mSceneShaderProgram.createUniform("textureSampler");
+        //mSceneShaderProgram.createUniform("textureSampler");
         //mSceneShaderProgram.createUniform("projectionMatrix");
 
     }
@@ -107,5 +107,9 @@ public class Renderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-
+    public void cleanUp() {
+        if (mSceneShaderProgram != null) {
+            mSceneShaderProgram.cleanUp();
+        }
+    }
 }

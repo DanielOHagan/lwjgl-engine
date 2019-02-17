@@ -2,20 +2,20 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.Window;
-import com.company.engine.graph.Material;
-import com.company.engine.graph.Mesh;
-import com.company.engine.graph.Renderer;
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
+import com.company.engine.scene.ui.IHud;
 
 public class TestGame implements IGameLogic {
 
     private final Renderer mRenderer;
 
     private Scene mScene;
+    private Camera mCamera;
+    private IHud mHud;
 
     public TestGame() {
         mRenderer = new Renderer();
@@ -23,7 +23,9 @@ public class TestGame implements IGameLogic {
 
     @Override
     public void init(Window window) throws Exception {
+        mRenderer.init(window);
         mScene = new Scene();
+        mCamera = new Camera();
 
         float[] positions = new float[] {
                 -0.5f, 0.5f, 0, //top left
@@ -65,7 +67,7 @@ public class TestGame implements IGameLogic {
 
     @Override
     public void render(Window window) {
-
+        mRenderer.render(window, mCamera, mScene, mHud);
     }
 
     @Override
