@@ -48,7 +48,8 @@ public class TestGame implements IGameLogic {
 
         Mesh mesh = new Mesh(positions, textCoords, indices);
         Texture texture = new Texture("/textures/test.png");
-        Material material = new Material(texture);
+        Material material = new Material();
+        material.setColour(1.0f, 1.0f, 1.0f, 1.0f);
         mesh.setMaterial(material);
         GameItem gameItem = new GameItem(mesh);
 

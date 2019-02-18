@@ -103,7 +103,7 @@ public class Material {
         mColour.x = red;
         mColour.y = green;
         mColour.z = blue;
-        mColour.z = alpha;
+        mColour.w = alpha;
     }
 
     public Vector4f getColour() {
