@@ -104,7 +104,7 @@ public class ObjLoader {
         int[] indicesArr = Utils.listToIntArray(indices);
 
         //TODO: Add normal support in Mesh, maybe add a constructor that takes normals for the Mesh to use
-        return new Mesh(positionsArr, textureCoordinatesArr, indicesArr);
+        return new Mesh(positionsArr, textureCoordinatesArr, normalsArr, indicesArr);
     }
 
     private static void processFaceVertex(

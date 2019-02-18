@@ -6,6 +6,7 @@ import com.company.engine.graph.*;
 import com.company.engine.input.IMouseEventHandler;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
+import com.company.engine.loaders.ObjLoader;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import com.company.engine.scene.items.ui.IHud;
@@ -50,8 +51,8 @@ public class TestGame implements IGameLogic {
                 2, 3, 0
         };
 
-//        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
-        testMesh = new Mesh(positions, textCoords, indices);
+        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
+        testMesh = ObjLoader.loadMesh("/models/bunny.obj");
         Texture texture = new Texture("/textures/test.png");
         Material material = new Material(texture);
         material.setColour(1.0f, 0.0f, 1.0f, 1.0f);

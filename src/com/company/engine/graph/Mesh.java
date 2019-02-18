@@ -13,19 +13,35 @@ public class Mesh {
 
     private static int POSITION_VBO_INDEX = 0;
     private static int TEXTURE_COORDINATES_VBO_INDEX = 1;
+
+    //TODO: Add Normals support in this class
     private static int NORMALS_VBO_INDEX = 2;
 
-    private final int mVaoId;
-    private final List<Integer> mVboIdList;
-    private final int mVertexCount;
-
+    private int mVaoId;
+    private List<Integer> mVboIdList;
+    private int mVertexCount;
     private Material mMaterial;
+    private boolean mUsingTextCoords;
+    private boolean mUsingNormals;
 
-    public Mesh(float[] positions, float[] texCoords, int[] indices) {
+    public Mesh(float[] positions, float[] textCoords, float[] normals, int[] indices) {
+        mUsingNormals = normals != null;
+        mUsingTextCoords = textCoords != null;
+        initialiseMesh(positions, textCoords, normals, indices);
+    }
+
+    private void initialiseMesh(
+            float[] positions,
+            float[] textCoords,
+            float[] normals,
+            int[] indices
+    ) {
         ArrayList<FloatBuffer> floatBuffers = new ArrayList<>();
         ArrayList<IntBuffer> intBuffers = new ArrayList<>();
+
         FloatBuffer posBuffer;
         FloatBuffer textCoordsBuffer;
+        FloatBuffer normalsBuffer;
         IntBuffer indicesBuffer;
 
         try {
@@ -46,16 +62,28 @@ public class Mesh {
             glVertexAttribPointer(POSITION_VBO_INDEX, 3, GL_FLOAT, false, 0, 0);
 
             //texture coordinates VBO
-            vboId = glGenBuffers();
-            mVboIdList.add(vboId);
-            textCoordsBuffer = MemoryUtil.memAllocFloat(texCoords.length);
-            floatBuffers.add(textCoordsBuffer);
-            textCoordsBuffer.put(texCoords).flip();
-            glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
-            glVertexAttribPointer(TEXTURE_COORDINATES_VBO_INDEX, 2, GL_FLOAT, false, 0, 0);
+            if (textCoords != null) {
+                vboId = glGenBuffers();
+                mVboIdList.add(vboId);
+                textCoordsBuffer = MemoryUtil.memAllocFloat(textCoords.length);
+                floatBuffers.add(textCoordsBuffer);
+                textCoordsBuffer.put(textCoords).flip();
+                glBindBuffer(GL_ARRAY_BUFFER, vboId);
+                glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
+                glVertexAttribPointer(TEXTURE_COORDINATES_VBO_INDEX, 2, GL_FLOAT, false, 0, 0);
+            }
 
-            //TODO: normals VBO
+            //normals VBO
+            if (normals != null) {
+                vboId = glGenBuffers();
+                mVboIdList.add(vboId);
+                normalsBuffer = MemoryUtil.memAllocFloat(normals.length);
+                floatBuffers.add(normalsBuffer);
+                normalsBuffer.put(normals).flip();
+                glBindBuffer(GL_ARRAY_BUFFER, vboId);
+                glBufferData(GL_ARRAY_BUFFER, normals, GL_STATIC_DRAW);
+                glVertexAttribPointer(NORMALS_VBO_INDEX, 3, GL_FLOAT, false, 0, 0);
+            }
 
             //indices VBO
             vboId = glGenBuffers();
@@ -104,13 +132,22 @@ public class Mesh {
         //draw the mesh
         glBindVertexArray(mVaoId);
         glEnableVertexAttribArray(POSITION_VBO_INDEX);
-        glEnableVertexAttribArray(TEXTURE_COORDINATES_VBO_INDEX);
-
+        if (mUsingTextCoords) {
+            glEnableVertexAttribArray(TEXTURE_COORDINATES_VBO_INDEX);
+        }
+        if (mUsingNormals) {
+            glEnableVertexAttribArray(NORMALS_VBO_INDEX);
+        }
     }
 
     private void endRender() {
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(POSITION_VBO_INDEX);
+        if (mUsingTextCoords) {
+            glDisableVertexAttribArray(TEXTURE_COORDINATES_VBO_INDEX);
+        }
+        if (mUsingNormals) {
+            glDisableVertexAttribArray(NORMALS_VBO_INDEX);
+        }
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
