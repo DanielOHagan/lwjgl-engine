@@ -11,6 +11,7 @@ public class Main {
         try {
             IGameLogic gameLogic = new TestGame();
             Window.WindowOptions options = new Window.WindowOptions();
+            //options.showMeshLines = true;
             GameEngine gameEngine = new GameEngine(
                     "Game",
                     "",

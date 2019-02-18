@@ -3,11 +3,13 @@ package com.company.game;
 import com.company.engine.IGameLogic;
 import com.company.engine.Window;
 import com.company.engine.graph.*;
+import com.company.engine.input.IMouseEventHandler;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import com.company.engine.scene.items.ui.IHud;
+import org.lwjgl.glfw.GLFW;
 
 public class TestGame implements IGameLogic {
 
@@ -16,6 +18,8 @@ public class TestGame implements IGameLogic {
     private Scene mScene;
     private Camera mCamera;
     private IHud mHud;
+
+    private Mesh testMesh;
 
     public TestGame() {
         mRenderer = new Renderer();
@@ -46,12 +50,14 @@ public class TestGame implements IGameLogic {
                 2, 3, 0
         };
 
-        Mesh mesh = new Mesh(positions, textCoords, indices);
+//        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
+        testMesh = new Mesh(positions, textCoords, indices);
         Texture texture = new Texture("/textures/test.png");
-        Material material = new Material();
-        material.setColour(1.0f, 1.0f, 1.0f, 1.0f);
-        mesh.setMaterial(material);
-        GameItem gameItem = new GameItem(mesh);
+        Material material = new Material(texture);
+        material.setColour(1.0f, 0.0f, 1.0f, 1.0f);
+        material.setUseTexture(true);
+        testMesh.setMaterial(material);
+        GameItem gameItem = new GameItem(testMesh);
 
         mScene.setSceneGameItems(new GameItem[] { gameItem });
     }

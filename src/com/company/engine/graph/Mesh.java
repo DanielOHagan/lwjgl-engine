@@ -13,6 +13,7 @@ public class Mesh {
 
     private static int POSITION_VBO_INDEX = 0;
     private static int TEXTURE_COORDINATES_VBO_INDEX = 1;
+    private static int NORMALS_VBO_INDEX = 2;
 
     private final int mVaoId;
     private final List<Integer> mVboIdList;
@@ -53,6 +54,8 @@ public class Mesh {
             glBindBuffer(GL_ARRAY_BUFFER, vboId);
             glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
             glVertexAttribPointer(TEXTURE_COORDINATES_VBO_INDEX, 2, GL_FLOAT, false, 0, 0);
+
+            //TODO: normals VBO
 
             //indices VBO
             vboId = glGenBuffers();
@@ -100,18 +103,12 @@ public class Mesh {
 
         //draw the mesh
         glBindVertexArray(mVaoId);
-//        for (int vboId : mVboIdList) {
-//            glEnableVertexAttribArray(vboId);
-//        }
         glEnableVertexAttribArray(POSITION_VBO_INDEX);
         glEnableVertexAttribArray(TEXTURE_COORDINATES_VBO_INDEX);
 
     }
 
     private void endRender() {
-//        for (int vboId : mVboIdList) {
-//            glDisableVertexAttribArray(vboId);
-//        }
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glBindVertexArray(0);

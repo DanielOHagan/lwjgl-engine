@@ -35,6 +35,7 @@ public class Renderer {
 
         mSceneShaderProgram.createUniform("textureSampler");
         mSceneShaderProgram.createUniform("isTextured");
+        mSceneShaderProgram.createUniform("useTexture");
         mSceneShaderProgram.createUniform("colour");
         //mSceneShaderProgram.createUniform("projectionMatrix");
 
@@ -101,11 +102,14 @@ public class Renderer {
             if (mesh.getMaterial() != null) {
                 //set mesh's material related uniforms
                 boolean isTextured = mesh.getMaterial().isTextured();
+                boolean useTexture = mesh.getMaterial().useTexture();
 
                 mSceneShaderProgram.setUniform("isTextured", isTextured ? 1 : 0);
+                mSceneShaderProgram.setUniform("useTexture", useTexture ? 1 : 0);
 
-                if (isTextured) {
-                    //set mesh's texture related uniforms
+                if (isTextured && useTexture) {
+                    //set mesh's texture related uniforms if the texture is selected to be rendered
+
 
                 } else {
                     mSceneShaderProgram.setUniform("colour", mesh.getMaterial().getColour());
