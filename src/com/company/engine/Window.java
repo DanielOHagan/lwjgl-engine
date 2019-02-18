@@ -1,6 +1,5 @@
 package com.company.engine;
 
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -107,6 +106,11 @@ public class Window {
         //support transparencies
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        //changes the display of models, only use for debugging, looks cool though
+        if (mOptions.showMeshLines) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
 
         if (mOptions.cullFace) {
             glEnable(GL_CULL_FACE);
@@ -310,6 +314,10 @@ public class Window {
         return mVSync;
     }
 
+    public WindowMode getWindowMode() {
+        return mWindowMode;
+    }
+
     public static class WindowOptions {
         public boolean cullFace;
         public boolean showTriangles;
@@ -317,6 +325,7 @@ public class Window {
         public boolean compatibleProfile;
         public boolean antialiasing;
         public boolean frustrumCulling;
+        public boolean showMeshLines;
     }
 
     public enum WindowMode {
