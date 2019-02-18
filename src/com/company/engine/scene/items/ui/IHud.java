@@ -1,4 +1,4 @@
-package com.company.engine.scene.ui;
+package com.company.engine.scene.items.ui;
 
 import com.company.engine.scene.items.GameItem;
 

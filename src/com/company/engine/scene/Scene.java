@@ -3,7 +3,7 @@ package com.company.engine.scene;
 import com.company.engine.graph.Mesh;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
-import com.company.engine.scene.ui.IHud;
+import com.company.engine.scene.items.ui.IHud;
 import com.company.engine.scene.items.GameItem;
 
 import java.util.ArrayList;

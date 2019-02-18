@@ -1,7 +1,10 @@
 package com.company.engine.graph;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
+import org.lwjgl.system.MemoryStack;
 
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,8 +62,21 @@ public class ShaderProgram {
         mFragmentShaderId = createShader(shaderCode, GL_FRAGMENT_SHADER);
     }
 
-    public void setUniform(String uniformName, Matrix4f matrix4f) {
+    public void setUniform(String uniformName, Matrix4f value) {
+        //dump the matrix into a float buffer
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer floatBuffer = stack.mallocFloat(16);
+            value.get(floatBuffer);
+            glUniformMatrix4fv(mUniforms.get(uniformName), false, floatBuffer);
+        }
+    }
 
+    public void setUniform(String uniformName, Vector4f value) {
+        glUniform4f(mUniforms.get(uniformName), value.x, value.y, value.z, value.w);
+    }
+
+    public void setUniform(String uniformName, int value) {
+        glUniform1i(mUniforms.get(uniformName), value);
     }
 
     public void link() throws Exception {

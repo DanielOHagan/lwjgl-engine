@@ -11,6 +11,9 @@ import static org.lwjgl.opengl.GL30.*;
 
 public class Mesh {
 
+    private static int POSITION_VBO_INDEX = 0;
+    private static int TEXTURE_COORDINATES_VBO_INDEX = 1;
+
     private final int mVaoId;
     private final List<Integer> mVboIdList;
     private final int mVertexCount;
@@ -39,7 +42,7 @@ public class Mesh {
             posBuffer.put(positions).flip();
             glBindBuffer(GL_ARRAY_BUFFER, vboId);
             glBufferData(GL_ARRAY_BUFFER, posBuffer, GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+            glVertexAttribPointer(POSITION_VBO_INDEX, 3, GL_FLOAT, false, 0, 0);
 
             //texture coordinates VBO
             vboId = glGenBuffers();
@@ -49,7 +52,7 @@ public class Mesh {
             textCoordsBuffer.put(texCoords).flip();
             glBindBuffer(GL_ARRAY_BUFFER, vboId);
             glBufferData(GL_ARRAY_BUFFER, textCoordsBuffer, GL_STATIC_DRAW);
-            glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
+            glVertexAttribPointer(TEXTURE_COORDINATES_VBO_INDEX, 2, GL_FLOAT, false, 0, 0);
 
             //indices VBO
             vboId = glGenBuffers();
@@ -100,8 +103,8 @@ public class Mesh {
 //        for (int vboId : mVboIdList) {
 //            glEnableVertexAttribArray(vboId);
 //        }
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(POSITION_VBO_INDEX);
+        glEnableVertexAttribArray(TEXTURE_COORDINATES_VBO_INDEX);
 
     }
 
@@ -134,10 +137,9 @@ public class Mesh {
 
         deleteBuffers();
 
-        // Delete the texture
-        Texture texture = mMaterial.getTexture();
-        if (texture != null) {
-            texture.cleanUp();
+        // delete the material
+        if (mMaterial != null) {
+            mMaterial.cleanUp();
         }
     }
 

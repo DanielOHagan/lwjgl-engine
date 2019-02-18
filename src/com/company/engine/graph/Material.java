@@ -6,14 +6,19 @@ public class Material {
 
     public static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    private Vector4f mAmbientColour, mDiffuseColour, mSpecularColour;
+    private Vector4f mAmbientColour;
+    private Vector4f mDiffuseColour;
+    private Vector4f mSpecularColour;
+    private Vector4f mColour;
     private float mReflectance;
     private Texture mTexture;
+    private boolean mTextured;
 
     public Material() {
         mAmbientColour = DEFAULT_COLOUR;
         mDiffuseColour = DEFAULT_COLOUR;
         mSpecularColour = DEFAULT_COLOUR;
+        mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
         mTexture = null;
         mReflectance = 0;
     }
@@ -38,7 +43,15 @@ public class Material {
         mDiffuseColour = diffuseColour;
         mSpecularColour = specularColour;
         mTexture = texture;
+        mTextured = mTexture != null;
+        mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
         mReflectance = reflectance;
+    }
+
+    public void cleanUp() {
+        if (mTexture != null) {
+            mTexture.cleanUp();
+        }
     }
 
     public boolean isTextured() {
@@ -83,5 +96,17 @@ public class Material {
 
     public void setTexture(Texture mTexture) {
         this.mTexture = mTexture;
+        mTextured = mTexture != null;
+    }
+
+    public void setColour(float red, float green, float blue, float alpha) {
+        mColour.x = red;
+        mColour.y = green;
+        mColour.z = blue;
+        mColour.z = alpha;
+    }
+
+    public Vector4f getColour() {
+        return mColour;
     }
 }

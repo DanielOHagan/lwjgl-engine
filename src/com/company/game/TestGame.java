@@ -7,7 +7,7 @@ import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
-import com.company.engine.scene.ui.IHud;
+import com.company.engine.scene.items.ui.IHud;
 
 public class TestGame implements IGameLogic {
 
@@ -47,7 +47,7 @@ public class TestGame implements IGameLogic {
         };
 
         Mesh mesh = new Mesh(positions, textCoords, indices);
-        Texture texture = new Texture("/textures/grassblock.png");
+        Texture texture = new Texture("/textures/test.png");
         Material material = new Material(texture);
         mesh.setMaterial(material);
         GameItem gameItem = new GameItem(mesh);

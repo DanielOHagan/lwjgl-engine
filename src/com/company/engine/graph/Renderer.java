@@ -3,9 +3,8 @@ package com.company.engine.graph;
 import com.company.engine.Utils;
 import com.company.engine.Window;
 import com.company.engine.scene.Scene;
-import com.company.engine.scene.SceneLighting;
 import com.company.engine.scene.items.GameItem;
-import com.company.engine.scene.ui.IHud;
+import com.company.engine.scene.items.ui.IHud;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ public class Renderer {
 
     public void init(Window window) throws Exception {
         setUpSceneShader();
+
     }
 
     public void setUpSceneShader() throws Exception {
@@ -33,7 +33,9 @@ public class Renderer {
         mSceneShaderProgram.createFragmentShader(Utils.loadResource("/shaders/scene_fragment.fs"));
         mSceneShaderProgram.link();
 
-        //mSceneShaderProgram.createUniform("textureSampler");
+        mSceneShaderProgram.createUniform("textureSampler");
+        mSceneShaderProgram.createUniform("isTextured");
+        mSceneShaderProgram.createUniform("colour");
         //mSceneShaderProgram.createUniform("projectionMatrix");
 
     }
@@ -87,7 +89,8 @@ public class Renderer {
     public void renderScene(Window window, Camera camera, Scene scene) {
         mSceneShaderProgram.bind();
 
-        mSceneShaderProgram.setUniform("projectionMatrix", camera.getViewMatrix());
+        mSceneShaderProgram.setUniform("textureSampler", 0);
+        //mSceneShaderProgram.setUniform("projectionMatrix", camera.getViewMatrix());
 
         renderGameItems(scene);
     }
@@ -95,6 +98,22 @@ public class Renderer {
     private void renderGameItems(Scene scene) {
         Map<Mesh, List<GameItem>> meshesMap = scene.getGameItemMeshMap();
         for (Mesh mesh : meshesMap.keySet()) {
+            if (mesh.getMaterial() != null) {
+                //set mesh's material related uniforms
+                boolean isTextured = mesh.getMaterial().isTextured();
+
+                mSceneShaderProgram.setUniform("isTextured", isTextured ? 1 : 0);
+
+                if (isTextured) {
+                    //set mesh's texture related uniforms
+
+                } else {
+                    mSceneShaderProgram.setUniform("colour", mesh.getMaterial().getColour());
+                }
+            } else {
+
+            }
+
             mesh.render();
         }
     }
