@@ -1,15 +1,21 @@
 package com.company.engine.graph;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 public class Camera {
 
-    private float mFov;
-    private float mZNear;
-    private float mZFar;
-    private Matrix4f mViewMatrix;
+    private final Vector3f mPosition;
+    private final Vector3f mRotation;
+
+    private float mFov; //Field of view in radians
+    private float mZNear; //start rendering distance
+    private float mZFar; //stop rendering distance
+    private Matrix4f mViewMatrix; //what the camera sees
 
     public Camera() {
+        mPosition = new Vector3f(0, 0, 0);
+        mRotation = new Vector3f(0, 0, 0);
         mFov = (float) Math.toRadians(60.0f);
         mZNear = 0.01f;
         mZFar = 1000.f;
@@ -46,5 +52,13 @@ public class Camera {
 
     public void setViewMatrix(Matrix4f viewMatrix) {
         mViewMatrix = viewMatrix;
+    }
+
+    public Vector3f getPosition() {
+        return mPosition;
+    }
+
+    public Vector3f getRotation() {
+        return mRotation;
     }
 }

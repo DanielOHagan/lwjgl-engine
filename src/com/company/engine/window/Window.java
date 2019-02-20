@@ -13,8 +13,6 @@ public class Window {
 
     private static final int WINDOW_DEFAULT_WIDTH = 800;
     private static final int WINDOW_DEFAULT_HEIGHT = 600;
-    private static final int WINDOW_DEFAULT_MIN_WIDTH = 200;
-    private static final int WINDOW_DEFAULT_MIN_HEIGHT = 200;
 
     private final String WINDOW_TITLE; //the text that will display at the top of the window
     private final String WINDOW_ICON_PATH; //the path to the window icon resource
@@ -128,7 +126,7 @@ public class Window {
         }
 
         //if no size has been specified and window, set it to a default amount
-        if (mWidth < WINDOW_DEFAULT_MIN_WIDTH || mHeight < WINDOW_DEFAULT_MIN_HEIGHT) {
+        if (mWidth == 0 || mHeight == 0) {
             setWindowSize(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
         }
     }
@@ -165,10 +163,10 @@ public class Window {
         //set the min and max size of the window
         glfwSetWindowSizeLimits(
                 mWindowHandle,
-                mOptions.minWidth < WINDOW_DEFAULT_MIN_WIDTH ? WINDOW_DEFAULT_MIN_WIDTH : mOptions.minWidth,
-                mOptions.minHeight < WINDOW_DEFAULT_MIN_HEIGHT ? WINDOW_DEFAULT_MIN_HEIGHT : mOptions.minHeight,
-                mOptions.maxWidth >= WINDOW_DEFAULT_MIN_WIDTH ? mOptions.maxWidth : GLFW_DONT_CARE,
-                mOptions.maxHeight >= WINDOW_DEFAULT_MIN_HEIGHT ? mOptions.maxHeight : GLFW_DONT_CARE
+                mOptions.minWidth == 0 ? GLFW_DONT_CARE : mOptions.minWidth,
+                mOptions.minHeight == 0 ? GLFW_DONT_CARE : mOptions.minHeight,
+                mOptions.maxWidth >= 0 ? mOptions.maxWidth : GLFW_DONT_CARE,
+                mOptions.maxHeight >= 0 ? mOptions.maxHeight : GLFW_DONT_CARE
         );
 
         if (mOptions.vSync) {

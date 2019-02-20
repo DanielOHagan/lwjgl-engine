@@ -1,7 +1,7 @@
 package com.company.engine.graph;
 
 import com.company.engine.Utils;
-import com.company.engine.Window;
+import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import com.company.engine.scene.items.ui.IHud;
@@ -37,7 +37,7 @@ public class Renderer {
         mSceneShaderProgram.createUniform("isTextured");
         mSceneShaderProgram.createUniform("useTexture");
         mSceneShaderProgram.createUniform("colour");
-        //mSceneShaderProgram.createUniform("projectionMatrix");
+        mSceneShaderProgram.createUniform("projectionMatrix");
 
     }
 
@@ -91,7 +91,7 @@ public class Renderer {
         mSceneShaderProgram.bind();
 
         mSceneShaderProgram.setUniform("textureSampler", 0);
-        //mSceneShaderProgram.setUniform("projectionMatrix", camera.getViewMatrix());
+        mSceneShaderProgram.setUniform("projectionMatrix", camera.getViewMatrix());
 
         renderGameItems(scene);
     }
