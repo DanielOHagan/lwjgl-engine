@@ -2,6 +2,9 @@ package com.company.engine;
 
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
+import com.company.engine.window.Window;
+import com.company.engine.window.WindowMode;
+import com.company.engine.window.WindowOptions;
 
 public class GameEngine implements Runnable {
 
@@ -18,12 +21,11 @@ public class GameEngine implements Runnable {
     public GameEngine(
             String windowTitle,
             String windowIconPath,
-            Window.WindowMode windowMode,
-            boolean vSync,
-            Window.WindowOptions options,
+            WindowMode windowMode,
+            WindowOptions options,
             IGameLogic gameLogic
     ) throws Exception {
-        this(windowTitle, windowIconPath, 0, 0, windowMode, vSync, options, gameLogic);
+        this(windowTitle, windowIconPath, 0, 0, windowMode, options, gameLogic);
     }
 
     public GameEngine(
@@ -31,13 +33,12 @@ public class GameEngine implements Runnable {
             String windowIconPath,
             int width,
             int height,
-            Window.WindowMode windowMode,
-            boolean vSync,
-            Window.WindowOptions options,
+            WindowMode windowMode,
+            WindowOptions options,
             IGameLogic gameLogic
     ) throws Exception {
         mGameLoopThread = new Thread(this, "GAME_LOOP_THREAD");
-        mWindow = new Window(windowTitle, windowIconPath,width, height, windowMode, vSync, options);
+        mWindow = new Window(windowTitle, windowIconPath, width, height, windowMode, options);
         mGameLogic = gameLogic;
         mTimer = new Timer();
         mMouseInput = new MouseInput();
@@ -124,6 +125,6 @@ public class GameEngine implements Runnable {
 
     private void render() {
         mGameLogic.render(mWindow);
-        mWindow.update();
+        mWindow.render();
     }
 }

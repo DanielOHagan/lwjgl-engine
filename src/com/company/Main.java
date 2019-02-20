@@ -2,7 +2,8 @@ package com.company;
 
 import com.company.engine.GameEngine;
 import com.company.engine.IGameLogic;
-import com.company.engine.Window;
+import com.company.engine.window.WindowMode;
+import com.company.engine.window.WindowOptions;
 import com.company.game.TestGame;
 
 public class Main {
@@ -10,13 +11,18 @@ public class Main {
     public static void main(String[] args) {
         try {
             IGameLogic gameLogic = new TestGame();
-            Window.WindowOptions options = new Window.WindowOptions();
-            //options.showMeshLines = true;
+
+
+            WindowOptions options = new WindowOptions();
+
+            /*Application should set Window Options here*/
+
+            options.vSync = true;
+
             GameEngine gameEngine = new GameEngine(
                     "Game",
                     "",
-                    Window.WindowMode.WINDOWED,
-                    true,
+                    WindowMode.WINDOWED,
                     options,
                     gameLogic
             );

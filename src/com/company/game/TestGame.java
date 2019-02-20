@@ -1,16 +1,15 @@
 package com.company.game;
 
 import com.company.engine.IGameLogic;
-import com.company.engine.Window;
+import com.company.engine.window.Window;
 import com.company.engine.graph.*;
-import com.company.engine.input.IMouseEventHandler;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
-import com.company.engine.loaders.ObjLoader;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import com.company.engine.scene.items.ui.IHud;
-import org.lwjgl.glfw.GLFW;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class TestGame implements IGameLogic {
 
@@ -51,10 +50,9 @@ public class TestGame implements IGameLogic {
                 2, 3, 0
         };
 
-        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
-        testMesh = ObjLoader.loadMesh("/models/bunny.obj");
-        Texture texture = new Texture("/textures/test.png");
-        Material material = new Material(texture);
+//        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
+        testMesh = new Mesh(positions, textCoords, null, indices);
+        Material material = new Material();
         material.setColour(1.0f, 0.0f, 1.0f, 1.0f);
         material.setUseTexture(true);
         testMesh.setMaterial(material);
@@ -65,11 +63,13 @@ public class TestGame implements IGameLogic {
 
     @Override
     public void input(Window window, MouseInput mouseInput, KeyboardInput keyboardInput) {
+        /* Handle input here */
 
     }
 
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
+        /* Update the application here */
 
     }
 

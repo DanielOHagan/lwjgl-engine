@@ -1,5 +1,6 @@
-package com.company.engine;
+package com.company.engine.window;
 
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -12,24 +13,23 @@ public class Window {
 
     private static final int WINDOW_DEFAULT_WIDTH = 800;
     private static final int WINDOW_DEFAULT_HEIGHT = 600;
-    private static final int WINDOW_MIN_WIDTH = 200;
-    private static final int WINDOW_MIN_HEIGHT = 200;
+    private static final int WINDOW_DEFAULT_MIN_WIDTH = 200;
+    private static final int WINDOW_DEFAULT_MIN_HEIGHT = 200;
 
     private final String WINDOW_TITLE; //the text that will display at the top of the window
     private final String WINDOW_ICON_PATH; //the path to the window icon resource
 
     private int mWidth;
     private int mHeight;
+    private float mAspectRatio;
     private long mWindowHandle; //this window is referenced using this
     private long mCurrentMonitor; //the current monitor is referenced using this, set to primary monitor by default
     private WindowMode mWindowMode;
     private boolean mResized;
-    private boolean mVSync;
-    private boolean mFullscreen;
     private boolean mMaximised;
     private boolean mFocused;
-    private boolean mCursorLock; //TODO: Add FPS counter to HUD, and cursor locking capabilities
     private WindowOptions mOptions;
+    private Matrix4f mProjectionMatrix; //holds data to be used to for displaying to this window
 
     public Window(
             String title,
@@ -37,18 +37,19 @@ public class Window {
             int width,
             int height,
             WindowMode windowMode,
-            boolean vSync,
             WindowOptions options
     ) {
         WINDOW_TITLE = title;
         WINDOW_ICON_PATH = windowIconPath;
         mWidth = width;
         mHeight = height;
+        mAspectRatio = (float) width / (float) height;
         mWindowMode = windowMode;
-        mFullscreen = mWindowMode == WindowMode.FULLSCREEN;
         mMaximised = false;
-        mVSync = vSync;
+
+        //set Window Options
         mOptions = options;
+        mOptions.fullscreen = mWindowMode == WindowMode.FULLSCREEN;
     }
 
     public void init() {
@@ -64,7 +65,7 @@ public class Window {
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, mOptions.resizable ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
         if (mOptions.compatibleProfile) {
@@ -81,41 +82,38 @@ public class Window {
                 mWidth,
                 mHeight,
                 WINDOW_TITLE,
-                mFullscreen ? mCurrentMonitor : NULL,
+                mOptions.fullscreen ? mCurrentMonitor : NULL,
                 NULL
         );
         if (mWindowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
-        postConfigureWindow();
+        //make the OpenGL context current
+        glfwMakeContextCurrent(mWindowHandle);
+
+        GL.createCapabilities();
+        configureWindowOptions();
+        configureWindowCallbacks();
 
         //make the window visible
         glfwShowWindow(mWindowHandle);
 
-        GL.createCapabilities();
+        //set the window icon
+        if (WINDOW_ICON_PATH != null) {
+            //TODO: do this
+        }
 
         //set the clear colour (the colour that is show when nothing is rendered)
         setClearColour(0.0f, 0.0f, 0.0f, 0.0f);
 
         glEnable(GL_DEPTH_TEST);
-        if (mOptions.showTriangles) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
 
         //support transparencies
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        //changes the display of models, only use for debugging, looks cool though
-        if (mOptions.showMeshLines) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        }
 
-        if (mOptions.cullFace) {
-            glEnable(GL_CULL_FACE);
-            glEnable(GL_BACK);
-        }
     }
 
     private void preConfigureWindow() {
@@ -130,12 +128,12 @@ public class Window {
         }
 
         //if no size has been specified and window, set it to a default amount
-        if (mWidth < WINDOW_MIN_WIDTH || mHeight < WINDOW_MIN_HEIGHT) {
+        if (mWidth < WINDOW_DEFAULT_MIN_WIDTH || mHeight < WINDOW_DEFAULT_MIN_HEIGHT) {
             setWindowSize(WINDOW_DEFAULT_WIDTH, WINDOW_DEFAULT_HEIGHT);
         }
     }
 
-    private void postConfigureWindow() {
+    public void configureWindowOptions() {
         //configure window settings for creation
         GLFWVidMode vidMode = glfwGetVideoMode(mCurrentMonitor);
 
@@ -155,7 +153,7 @@ public class Window {
             );
         }
 
-        if (!mMaximised && !mFullscreen) {
+        if (!mMaximised && !mOptions.fullscreen) {
             //centre the window
             glfwSetWindowPos(
                     mWindowHandle,
@@ -164,19 +162,28 @@ public class Window {
             );
         }
 
-        //set the window icon
-        if (WINDOW_ICON_PATH != null) {
-            //TODO: do this
-        }
+        //set the min and max size of the window
+        glfwSetWindowSizeLimits(
+                mWindowHandle,
+                mOptions.minWidth < WINDOW_DEFAULT_MIN_WIDTH ? WINDOW_DEFAULT_MIN_WIDTH : mOptions.minWidth,
+                mOptions.minHeight < WINDOW_DEFAULT_MIN_HEIGHT ? WINDOW_DEFAULT_MIN_HEIGHT : mOptions.minHeight,
+                mOptions.maxWidth >= WINDOW_DEFAULT_MIN_WIDTH ? mOptions.maxWidth : GLFW_DONT_CARE,
+                mOptions.maxHeight >= WINDOW_DEFAULT_MIN_HEIGHT ? mOptions.maxHeight : GLFW_DONT_CARE
+        );
 
-        configureWindowCallbacks();
-
-        //make the OpenGL context current
-        glfwMakeContextCurrent(mWindowHandle);
-
-        if (mVSync) {
+        if (mOptions.vSync) {
             //enable v-sync
             glfwSwapInterval(1);
+        }
+
+        //changes the display of models, only use for debugging, looks cool though
+        if (mOptions.showMeshLines) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
+        if (mOptions.cullFace) {
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_BACK);
         }
     }
 
@@ -186,15 +193,6 @@ public class Window {
             mWidth = width;
             mHeight = height;
             mResized = true;
-        });
-
-        //setup a key callback. It will be called every time a key is pressed, repeated or released
-        glfwSetKeyCallback(mWindowHandle, (window, key, scanCode, action, mods) -> {
-            //closes the window when the ESC key is released
-            //TODO: add keyboard input support. maybe have each scene control it?
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                glfwSetWindowShouldClose(window, true);
-            }
         });
 
         glfwSetWindowFocusCallback(mWindowHandle, (window, focused) -> {
@@ -219,7 +217,7 @@ public class Window {
         switch (mWindowMode) {
             case FULLSCREEN:
                 setWindowSize(vidMode.width(), vidMode.height());
-                mFullscreen = true;
+                mOptions.fullscreen = true;
                 mMaximised = true;
                 glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
                 break;
@@ -230,13 +228,13 @@ public class Window {
                 posX = (vidMode.width() - mWidth) / 2;
                 posY = (vidMode.height() - mHeight) / 2;
 
-                mFullscreen = false;
+                mOptions.fullscreen = false;
                 mMaximised = false;
                 glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
                 break;
             case BORDERLESS_WINDOWED:
                 setWindowSize(vidMode.width(), vidMode.height());
-                mFullscreen = true;
+                mOptions.fullscreen = true;
                 mMaximised = true;
                 glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
                 break;
@@ -247,7 +245,7 @@ public class Window {
 
         glfwSetWindowMonitor(
                 mWindowHandle,
-                mFullscreen ? mCurrentMonitor : NULL,
+                mOptions.fullscreen ? mCurrentMonitor : NULL,
                 posX,
                 posY,
                 mWidth,
@@ -261,7 +259,7 @@ public class Window {
         mHeight = height;
     }
 
-    public void update() {
+    public void render() {
         glfwSwapBuffers(mWindowHandle);
         glfwPollEvents();
     }
@@ -278,16 +276,16 @@ public class Window {
         glClearColor(red, green, blue, alpha);
     }
 
-    public void setFullscreen(boolean mFullscreen) {
-        this.mFullscreen = mFullscreen;
+    public void setFullscreen(boolean fullscreen) {
+        mOptions.fullscreen = fullscreen;
     }
 
-    public void setCurrentMonitor(long mCurrentMonitor) {
-        this.mCurrentMonitor = mCurrentMonitor;
+    public void setCurrentMonitor(long currentMonitor) {
+        mCurrentMonitor = currentMonitor;
     }
 
     public boolean isFullscreen() {
-        return mFullscreen;
+        return mOptions.fullscreen;
     }
 
     public int getWidth() {
@@ -311,26 +309,18 @@ public class Window {
     }
 
     public boolean isVSyncEnabled() {
-        return mVSync;
+        return mOptions.vSync;
     }
 
     public WindowMode getWindowMode() {
         return mWindowMode;
     }
 
-    public static class WindowOptions {
-        public boolean cullFace;
-        public boolean showTriangles;
-        public boolean showFps;
-        public boolean compatibleProfile;
-        public boolean antialiasing;
-        public boolean frustrumCulling;
-        public boolean showMeshLines;
+    public float getAspectRatio() {
+        return mAspectRatio;
     }
 
-    public enum WindowMode {
-        FULLSCREEN,
-        BORDERLESS_WINDOWED,
-        WINDOWED
+    public boolean isFocused() {
+        return mFocused;
     }
 }
