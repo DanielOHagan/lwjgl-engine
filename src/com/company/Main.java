@@ -19,7 +19,7 @@ public class Main {
 
             options.vSync = true;
             options.resizable = true;
-            options.showMeshLines = false;
+            options.showMeshLines = true;
 
             GameEngine gameEngine = new GameEngine(
                     "Game",

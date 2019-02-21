@@ -2,6 +2,7 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.input.MouseOptions;
+import com.company.engine.loaders.ObjLoader;
 import com.company.engine.window.Window;
 import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
@@ -129,22 +130,19 @@ public class TestGame implements IGameLogic {
                 4, 6, 7, 5, 4, 7,
         };
 
-        Texture texture = new Texture("/textures/grassblock.png");
-        Mesh mesh = new Mesh(positions, textCoords, null, indices);
-        mesh.setMaterial(new Material(texture));
-        GameItem gameItem1 = new GameItem(mesh);
-        gameItem1.setScale(0.5f);
-        gameItem1.setPosition(0, 0, -2);
-        GameItem gameItem2 = new GameItem(mesh);
-        gameItem2.setScale(0.5f);
-        gameItem2.setPosition(0.5f, 0.5f, -2);
-        GameItem gameItem3 = new GameItem(mesh);
-        gameItem3.setScale(0.5f);
-        gameItem3.setPosition(0, 0, -2.5f);
-        GameItem gameItem4 = new GameItem(mesh);
-        gameItem4.setScale(0.5f);
-        gameItem4.setPosition(0.5f, 0, -2.5f);
-        mScene.setSceneGameItems(new GameItem[]{gameItem1, gameItem2, gameItem3, gameItem4});
+        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
+        Material material = new Material();
+        material.setColour(1.0f, 1.0f, 1.0f, 1.0f);
+        mesh.setMaterial(material);
+        GameItem gameItem = new GameItem(mesh);
+        gameItem.setScale(1.5f);
+        gameItem.setPosition(0, 0, -2);
+
+
+        //mesh.setMaterial(new Material(texture));
+
+
+        mScene.setSceneGameItems(new GameItem[]{ gameItem });
     }
 
     @Override
