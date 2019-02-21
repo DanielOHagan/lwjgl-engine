@@ -16,10 +16,14 @@ public class Camera {
     public Camera() {
         mPosition = new Vector3f(0, 0, 0);
         mRotation = new Vector3f(0, 0, 0);
-        mFov = (float) Math.toRadians(60.0f);
+        mFov = (float) Math.toRadians(90.0f);
         mZNear = 0.01f;
         mZFar = 1000.f;
         mViewMatrix = new Matrix4f();
+    }
+
+    public void updateViewMatrix() {
+        Transformation.updateGenericViewMatrix(mPosition, mRotation, mViewMatrix);
     }
 
     public float getFov() {

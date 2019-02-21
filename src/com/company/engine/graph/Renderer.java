@@ -38,10 +38,11 @@ public class Renderer {
         mSceneShaderProgram.createUniform("useTexture");
         mSceneShaderProgram.createUniform("colour");
         mSceneShaderProgram.createUniform("projectionMatrix");
+        mSceneShaderProgram.createUniform("modelViewMatrix");
 
     }
 
-    public void render(Window window, Camera camera, Scene scene, IHud hud) {
+    public void render(Window window, Camera camera, Scene scene, IHud hud, boolean sceneChanged) {
         clear();
 
         //TODO: frustum culling
@@ -56,11 +57,14 @@ public class Renderer {
 //            shadowRenderer.render(window, scene, camera, transformation, this);
 //        }
 
+        //set the viewport for the window each cycle
         glViewport(0, 0, window.getWidth(), window.getHeight());
 
-        //TODO:
-//        // Update projection matrix once per render cycle
-//        window.updateProjectionMatrix();
+        //Update projection matrix once per render cycle
+        window.updateProjectionMatrix(camera.getFov(), camera.getZNear(), camera.getZFar());
+
+        //update camera view matrix each cycle
+        camera.updateViewMatrix();
 
         renderScene(window, camera, scene);
 
@@ -91,12 +95,12 @@ public class Renderer {
         mSceneShaderProgram.bind();
 
         mSceneShaderProgram.setUniform("textureSampler", 0);
-        mSceneShaderProgram.setUniform("projectionMatrix", camera.getViewMatrix());
+        mSceneShaderProgram.setUniform("projectionMatrix", window.getProjectionMatrix());
 
-        renderGameItems(scene);
+        renderGameItems(camera, scene);
     }
 
-    private void renderGameItems(Scene scene) {
+    private void renderGameItems(Camera camera, Scene scene) {
         Map<Mesh, List<GameItem>> meshesMap = scene.getGameItemMeshMap();
         for (Mesh mesh : meshesMap.keySet()) {
             if (mesh.getMaterial() != null) {
@@ -107,9 +111,9 @@ public class Renderer {
                 mSceneShaderProgram.setUniform("isTextured", isTextured ? 1 : 0);
                 mSceneShaderProgram.setUniform("useTexture", useTexture ? 1 : 0);
 
+
                 if (isTextured && useTexture) {
                     //set mesh's texture related uniforms if the texture is selected to be rendered
-
 
                 } else {
                     mSceneShaderProgram.setUniform("colour", mesh.getMaterial().getColour());
@@ -118,7 +122,13 @@ public class Renderer {
 
             }
 
-            mesh.render();
+            mesh.renderList(meshesMap.get(mesh), (GameItem gameItem) -> {
+                mSceneShaderProgram.setUniform(
+                        "modelViewMatrix",
+                        mTransformation.generateModelViewMatrix(gameItem, camera.getViewMatrix())
+                );
+
+            });
         }
     }
 

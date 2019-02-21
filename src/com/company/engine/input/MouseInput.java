@@ -28,9 +28,7 @@ public class MouseInput {
     }
 
     public void init(Window window) {
-
         setUpInputCallbacks(window);
-
     }
 
     private void setUpInputCallbacks(Window window) {

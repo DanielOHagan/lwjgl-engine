@@ -44,6 +44,7 @@ public class Window {
         mAspectRatio = (float) width / (float) height;
         mWindowMode = windowMode;
         mMaximised = false;
+        mProjectionMatrix = new Matrix4f();
 
         //set Window Options
         mOptions = options;
@@ -110,8 +111,6 @@ public class Window {
         //support transparencies
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
     }
 
     private void preConfigureWindow() {
@@ -122,7 +121,9 @@ public class Window {
                 throw new IllegalStateException("Unable to get monitor information");
             }
 
-            setWindowSize(vidMode.width(), vidMode.height());
+            mWidth = vidMode.width();
+            mHeight = vidMode.height();
+            setWindowSize(mWidth, mHeight);
         }
 
         //if no size has been specified and window, set it to a default amount
@@ -137,6 +138,12 @@ public class Window {
 
         if (vidMode == null) {
             throw new IllegalStateException("Unable to get monitor information");
+        }
+
+        //check if min values are larger than max values if both have been set
+        if (((mOptions.maxWidth > 0) && (mOptions.minWidth > mOptions.maxWidth)) ||
+                (mOptions.maxHeight > 0) && (mOptions.minHeight > mOptions.maxHeight)) {
+            throw new IllegalStateException("Min window size value can not be larger than max value");
         }
 
         if (mWindowMode == WindowMode.BORDERLESS_WINDOWED) {
@@ -163,10 +170,10 @@ public class Window {
         //set the min and max size of the window
         glfwSetWindowSizeLimits(
                 mWindowHandle,
-                mOptions.minWidth == 0 ? GLFW_DONT_CARE : mOptions.minWidth,
-                mOptions.minHeight == 0 ? GLFW_DONT_CARE : mOptions.minHeight,
-                mOptions.maxWidth >= 0 ? mOptions.maxWidth : GLFW_DONT_CARE,
-                mOptions.maxHeight >= 0 ? mOptions.maxHeight : GLFW_DONT_CARE
+                mOptions.minWidth <= 0 ? GLFW_DONT_CARE : mOptions.minWidth,
+                mOptions.minHeight <= 0 ? GLFW_DONT_CARE : mOptions.minHeight,
+                mOptions.maxWidth <= 0 ? GLFW_DONT_CARE : mOptions.maxWidth,
+                mOptions.maxHeight <= 0 ? GLFW_DONT_CARE : mOptions.maxHeight
         );
 
         if (mOptions.vSync) {
@@ -252,6 +259,11 @@ public class Window {
         );
     }
 
+    public void updateProjectionMatrix(float fov, float zNear, float zFar) {
+        mAspectRatio = (float) mWidth / (float) mHeight;
+        mProjectionMatrix.setPerspective(fov, mAspectRatio, zNear, zFar);
+    }
+
     private void setWindowSize(int width, int height) {
         mWidth = width;
         mHeight = height;
@@ -320,5 +332,9 @@ public class Window {
 
     public boolean isFocused() {
         return mFocused;
+    }
+
+    public Matrix4f getProjectionMatrix() {
+        return mProjectionMatrix;
     }
 }

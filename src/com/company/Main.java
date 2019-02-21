@@ -18,10 +18,11 @@ public class Main {
             /*Application should set Window Options here*/
 
             options.vSync = true;
+            options.resizable = true;
+            options.showMeshLines = false;
 
             GameEngine gameEngine = new GameEngine(
                     "Game",
-                    "",
                     WindowMode.WINDOWED,
                     options,
                     gameLogic

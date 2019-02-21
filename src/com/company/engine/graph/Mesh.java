@@ -1,11 +1,13 @@
 package com.company.engine.graph;
 
+import com.company.engine.scene.items.GameItem;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.lwjgl.opengl.GL30.*;
 
@@ -115,6 +117,17 @@ public class Mesh {
         initRender();
 
         glDrawElements(GL_TRIANGLES, mVertexCount, GL_UNSIGNED_INT, 0);
+
+        endRender();
+    }
+
+    public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
+        initRender();
+
+        for (GameItem gameItem : gameItems) {
+            consumer.accept(gameItem);
+            glDrawElements(GL_TRIANGLES, mVertexCount, GL_UNSIGNED_INT, 0);
+        }
 
         endRender();
     }

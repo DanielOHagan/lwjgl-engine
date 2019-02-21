@@ -30,6 +30,26 @@ public class GameEngine implements Runnable {
 
     public GameEngine(
             String windowTitle,
+            WindowMode windowMode,
+            WindowOptions options,
+            IGameLogic gameLogic
+    ) throws Exception {
+        this(windowTitle, "", 0, 0, windowMode, options, gameLogic);
+    }
+
+    public GameEngine(
+            String windowTitle,
+            int width,
+            int height,
+            WindowMode windowMode,
+            WindowOptions options,
+            IGameLogic gameLogic
+    ) throws Exception {
+        this(windowTitle, "", width, height, windowMode, options, gameLogic);
+    }
+
+    public GameEngine(
+            String windowTitle,
             String windowIconPath,
             int width,
             int height,
@@ -116,6 +136,7 @@ public class GameEngine implements Runnable {
 
     private void input() {
         mMouseInput.input(mWindow);
+        mKeyboardInput.input(mWindow);
         mGameLogic.input(mWindow, mMouseInput, mKeyboardInput);
     }
 
