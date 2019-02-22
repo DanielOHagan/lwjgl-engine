@@ -69,6 +69,8 @@ public class TestGame implements IGameLogic {
         partMesh.setMaterial(partMaterial);
         Particle particle = new Particle(partMesh, particleSpeed, ttl, 100);
         particle.setScale(scale);
+        particle.setColour(0, 0, 1, 1);
+        particle.setUseTexture(false);
         testParticleEmitter = new TestParticleEmitter(particle, maxParticles, creationPeriodMillis);
         testParticleEmitter.setActive(true);
         testParticleEmitter.setPositionRandomRange(range);

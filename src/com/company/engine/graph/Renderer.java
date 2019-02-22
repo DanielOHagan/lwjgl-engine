@@ -7,6 +7,7 @@ import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Map;
@@ -83,12 +84,14 @@ public class Renderer {
                 new String[] {
                         "projectionMatrix",
                         "modelViewMatrix",
+                        "useTexture",
 //                        "viewMatrix",
                         "numColumns",
                         "numRows",
                         "textOffsetX",
                         "textOffsetY",
-                        "textureSampler"
+                        "textureSampler",
+                        "particleColour"
                 }
         );
     }
@@ -227,19 +230,26 @@ public class Renderer {
         for (int i = 0; i < emittersLength; i++) {
             IParticleEmitter emitter = emitters[i];
             Mesh mesh = emitter.getBaseParticle().getMesh();
+            boolean useTexture = emitter.getBaseParticle().isUsingTexture();
+            Vector4f colour = emitter.getBaseParticle().getColour();
 
             Texture texture = mesh.getMaterial().getTexture();
             mParticleShaderProgram.setUniform("numColumns", texture.getNumColumns());
             mParticleShaderProgram.setUniform("numRows", texture.getNumRows());
 
-            mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
-                int column = gameItem.getTexturePos() % texture.getNumColumns();
-                int row = gameItem.getTexturePos() / texture.getNumColumns();
-                float textOffsetX = (float) column / texture.getNumColumns();
-                float textOffsetY = (float) row / texture.getNumRows();
+            mParticleShaderProgram.setUniform("useTexture", useTexture ? 1 : 0);
+            mParticleShaderProgram.setUniform("particleColour", colour);
 
-                mParticleShaderProgram.setUniform("textOffsetX", textOffsetX);
-                mParticleShaderProgram.setUniform("textOffsetY", textOffsetY);
+            mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
+                if (useTexture) {
+                    int column = gameItem.getTexturePos() % texture.getNumColumns();
+                    int row = gameItem.getTexturePos() / texture.getNumColumns();
+                    float textOffsetX = (float) column / texture.getNumColumns();
+                    float textOffsetY = (float) row / texture.getNumRows();
+
+                    mParticleShaderProgram.setUniform("textOffsetX", textOffsetX);
+                    mParticleShaderProgram.setUniform("textOffsetY", textOffsetY);
+                }
 
                 Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
 

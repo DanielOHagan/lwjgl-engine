@@ -6,7 +6,13 @@ in vec3 mVectorPos;
 out vec4 fragColour;
 
 uniform sampler2D textureSampler;
+uniform int useTexture;
+uniform vec4 particleColour;
 
 void main() {
-    fragColour = texture(textureSampler, outTexCoord);
+    if (useTexture > 0) {
+        fragColour = texture(textureSampler, outTexCoord);
+    } else {
+        fragColour = particleColour;
+    }
 }
