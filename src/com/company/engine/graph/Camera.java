@@ -9,16 +9,16 @@ public class Camera {
     private final Vector3f mRotation;
 
     private float mFov; //Field of view in radians
-    private float mZNear; //start rendering distance
-    private float mZFar; //stop rendering distance
+    private float mViewDistanceStart; //start rendering distance
+    private float mViewDistanceEnd; //stop rendering distance
     private Matrix4f mViewMatrix; //what the camera sees
 
     public Camera() {
         mPosition = new Vector3f(0, 0, 0);
         mRotation = new Vector3f(0, 0, 0);
         mFov = (float) Math.toRadians(90.0f);
-        mZNear = 0.01f;
-        mZFar = 1000.f;
+        mViewDistanceStart = 0.01f;
+        mViewDistanceEnd = 1000.f;
         mViewMatrix = new Matrix4f();
     }
 
@@ -34,20 +34,20 @@ public class Camera {
         this.mFov = mFov;
     }
 
-    public float getZNear() {
-        return mZNear;
+    public float getViewDistanceStart() {
+        return mViewDistanceStart;
     }
 
-    public void setZNear(int mZNear) {
-        this.mZNear = mZNear;
+    public void setViewDistanceStart(int mZNear) {
+        this.mViewDistanceStart = mZNear;
     }
 
-    public float getZFar() {
-        return mZFar;
+    public float getViewDistanceEnd() {
+        return mViewDistanceEnd;
     }
 
-    public void setZFar(int mZFar) {
-        this.mZFar = mZFar;
+    public void setViewDistanceEnd(int mZFar) {
+        this.mViewDistanceEnd = mZFar;
     }
 
     public Matrix4f getViewMatrix() {

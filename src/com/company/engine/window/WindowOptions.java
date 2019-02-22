@@ -6,11 +6,12 @@ public class WindowOptions {
     public boolean compatibleProfile; //if OpenGL profile is supported
     public boolean antialiasing; //makes lines look more like lines, (decreases performance)
     public boolean frustrumCulling; //stops rendering objects outside of frustrum
-    public boolean showMeshLines; //display mesh's lines
+    public boolean showMeshLines; //display mesh's lines NOTE: This breaks particles
     public boolean lockCursor; //keep the cursor locked to the window
     public boolean vSync; //enable vertical synchronisation
     public boolean fullscreen;
     public boolean resizable;
+    public boolean displayAs2d; //tells the renderer to 'billboard' everything
 
     public int minWidth = 0;
     public int minHeight = 0;

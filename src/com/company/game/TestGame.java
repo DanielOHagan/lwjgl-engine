@@ -1,6 +1,9 @@
 package com.company.game;
 
 import com.company.engine.IGameLogic;
+import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.particles.IParticleEmitter;
+import com.company.engine.graph.particles.Particle;
 import com.company.engine.input.MouseOptions;
 import com.company.engine.loaders.ObjLoader;
 import com.company.engine.window.Window;
@@ -10,6 +13,8 @@ import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import com.company.engine.scene.items.ui.IHud;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -25,6 +30,7 @@ public class TestGame implements IGameLogic {
     private boolean mInitialCycle;
     private MouseOptions mMouseOptions;
     private Mesh testMesh;
+    private TestParticleEmitter testParticleEmitter;
 
     public TestGame() {
         mRenderer = new Renderer();
@@ -40,115 +46,42 @@ public class TestGame implements IGameLogic {
 
         setUpMouseOptions();
 
-        // Create the Mesh
-        float[] positions = new float[]{
-                // V0
-                -0.5f, 0.5f, 0.5f,
-                // V1
-                -0.5f, -0.5f, 0.5f,
-                // V2
-                0.5f, -0.5f, 0.5f,
-                // V3
-                0.5f, 0.5f, 0.5f,
-                // V4
-                -0.5f, 0.5f, -0.5f,
-                // V5
-                0.5f, 0.5f, -0.5f,
-                // V6
-                -0.5f, -0.5f, -0.5f,
-                // V7
-                0.5f, -0.5f, -0.5f,
-                // For text coords in top face
-                // V8: V4 repeated
-                -0.5f, 0.5f, -0.5f,
-                // V9: V5 repeated
-                0.5f, 0.5f, -0.5f,
-                // V10: V0 repeated
-                -0.5f, 0.5f, 0.5f,
-                // V11: V3 repeated
-                0.5f, 0.5f, 0.5f,
-                // For text coords in right face
-                // V12: V3 repeated
-                0.5f, 0.5f, 0.5f,
-                // V13: V2 repeated
-                0.5f, -0.5f, 0.5f,
-                // For text coords in left face
-                // V14: V0 repeated
-                -0.5f, 0.5f, 0.5f,
-                // V15: V1 repeated
-                -0.5f, -0.5f, 0.5f,
-                // For text coords in bottom face
-                // V16: V6 repeated
-                -0.5f, -0.5f, -0.5f,
-                // V17: V7 repeated
-                0.5f, -0.5f, -0.5f,
-                // V18: V1 repeated
-                -0.5f, -0.5f, 0.5f,
-                // V19: V2 repeated
-                0.5f, -0.5f, 0.5f,
-        };
+        // Setup  GameItems
+        Mesh quadMesh = ObjLoader.loadMesh("/models/plane.obj");
+        Material quadMaterial = new Material(new Vector4f(0.0f, 0.0f, 1.0f, 1.0f), 1);
+        quadMesh.setMaterial(quadMaterial);
+        GameItem quadGameItem = new GameItem(quadMesh);
+        quadGameItem.setPosition(0, 0, 0);
+        quadGameItem.setScale(2.5f);
 
-        float[] textCoords = new float[]{
-                0.0f, 0.0f,
-                0.0f, 0.5f,
-                0.5f, 0.5f,
-                0.5f, 0.0f,
-                0.0f, 0.0f,
-                0.5f, 0.0f,
-                0.0f, 0.5f,
-                0.5f, 0.5f,
-                // For text coords in top face
-                0.0f, 0.5f,
-                0.5f, 0.5f,
-                0.0f, 1.0f,
-                0.5f, 1.0f,
-                // For text coords in right face
-                0.0f, 0.0f,
-                0.0f, 0.5f,
-                // For text coords in left face
-                0.5f, 0.0f,
-                0.5f, 0.5f,
-                // For text coords in bottom face
-                0.5f, 0.0f,
-                1.0f, 0.0f,
-                0.5f, 0.5f,
-                1.0f, 0.5f,
-        };
+        mScene.setSceneGameItems(new GameItem[] { quadGameItem} );
 
-        int[] indices = new int[]{
-                // Front face
-                0, 1, 3, 3, 1, 2,
-                // Top Face
-                8, 10, 11, 9, 8, 11,
-                // Right face
-                12, 13, 7, 5, 12, 7,
-                // Left face
-                14, 15, 6, 4, 14, 6,
-                // Bottom face
-                16, 18, 19, 17, 16, 19,
-                // Back face
-                4, 6, 7, 5, 4, 7,
-        };
+        Vector3f particleSpeed = new Vector3f(0, 1, 0);
+        particleSpeed.mul(2.5f);
+        long ttl = 4000;
+        int maxParticles = 200;
+        long creationPeriodMillis = 300;
+        float range = 0.2f;
+        float scale = 1.0f;
+        Mesh partMesh = ObjLoader.loadMesh("/models/particle.obj");
+        Texture texture = new Texture("/textures/particle_anim.png", 4, 4);
+        Material partMaterial = new Material(texture);
+        partMesh.setMaterial(partMaterial);
+        Particle particle = new Particle(partMesh, particleSpeed, ttl, 100);
+        particle.setScale(scale);
+        testParticleEmitter = new TestParticleEmitter(particle, maxParticles, creationPeriodMillis);
+        testParticleEmitter.setActive(true);
+        testParticleEmitter.setPositionRandomRange(range);
+        testParticleEmitter.setSpeedRandomRange(range);
+        testParticleEmitter.setAnimRange(10);
 
-        Mesh mesh = ObjLoader.loadMesh("/models/bunny.obj");
-        Material material = new Material();
-        material.setColour(1.0f, 1.0f, 1.0f, 1.0f);
-        mesh.setMaterial(material);
-        GameItem gameItem = new GameItem(mesh);
-        gameItem.setScale(1.5f);
-        gameItem.setPosition(0, 0, -2);
-
-
-        //mesh.setMaterial(new Material(texture));
-
-
-        mScene.setSceneGameItems(new GameItem[]{ gameItem });
+        mScene.setParticleEmitters(new IParticleEmitter[] { testParticleEmitter });
+        mScene.setHud(mHud);
     }
 
     @Override
     public void input(Window window, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Handle input here */
-
 
         /* This is very bad camera controls, it is purely to test rendering */
         if (window.isKeyPressed(GLFW_KEY_W)) {
@@ -190,6 +123,8 @@ public class TestGame implements IGameLogic {
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Update the application here */
+
+        testParticleEmitter.update((long) (interval * 1000));
     }
 
     @Override
@@ -198,7 +133,7 @@ public class TestGame implements IGameLogic {
             mSceneChanged = true;
             mInitialCycle = false;
         }
-        mRenderer.render(window, mCamera, mScene, mHud, mSceneChanged);
+        mRenderer.render(window, mCamera, mScene, mSceneChanged);
     }
 
     @Override

@@ -1,8 +1,10 @@
 package com.company.engine.scene;
 
-import com.company.engine.graph.Mesh;
+import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
+import com.company.engine.scene.items.Background;
 import com.company.engine.scene.items.ui.IHud;
 import com.company.engine.scene.items.GameItem;
 
@@ -14,7 +16,9 @@ import java.util.Map;
 public class Scene {
 
     private IHud mHud;
-    private Map<Mesh, List<GameItem>> mGameItemMeshMap; //stores GameItemss based on their Mesh
+    private Map<Mesh, List<GameItem>> mGameItemMeshMap; //stores GameItems based on their Mesh
+    private Background mBackground;
+    private IParticleEmitter[] mParticleEmitters;
     private MouseInput mMouseInput;
     private KeyboardInput mKeyboardInput;
     private SceneLighting mSceneLighting;
@@ -53,6 +57,12 @@ public class Scene {
                 mesh.cleanUp();
             }
             mGameItemMeshMap = null;
+        }
+
+        if (mParticleEmitters != null) {
+            for (IParticleEmitter particleEmitter : mParticleEmitters) {
+                particleEmitter.cleanUp();
+            }
         }
     }
 
@@ -94,5 +104,21 @@ public class Scene {
 
     public void setSceneLighting(SceneLighting mSceneLighting) {
         this.mSceneLighting = mSceneLighting;
+    }
+
+    public IParticleEmitter[] getParticleEmitters() {
+        return mParticleEmitters;
+    }
+
+    public void setParticleEmitters(IParticleEmitter[] particleEmitters) {
+        mParticleEmitters = particleEmitters;
+    }
+
+    public Background getBackground() {
+        return mBackground;
+    }
+
+    public void setBackground(Background background) {
+        mBackground = background;
     }
 }

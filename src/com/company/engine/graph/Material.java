@@ -1,13 +1,12 @@
 package com.company.engine.graph;
 
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public class Material {
 
     //TODO: Add opacity support in the scene shader
 
-    public static final Vector3f DEFAULT_COLOUR = new Vector3f(1.0f, 1.0f, 1.0f);
+    public static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     private Vector4f mAmbientColour;
     private Vector4f mDiffuseColour;
@@ -16,7 +15,7 @@ public class Material {
     private float mReflectance;
     private Texture mTexture;
     private boolean mTextured;
-    private boolean mUseTexture;
+    private boolean mUsingTexture;
     private float mOpacity;
 
     public Material() {
@@ -27,29 +26,65 @@ public class Material {
         mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, mOpacity);
         mTexture = null;
         mTextured = false;
-        mUseTexture = false;
+        mUsingTexture = false;
         mReflectance = 0.0f;
     }
 
-    public Material(Vector3f colour, float reflectance) {
-        this(colour, colour, colour, null, reflectance, 1.0f);
+    public Material(Vector4f colour, float reflectance) {
+        this(
+                colour,
+                colour,
+                colour,
+                colour,
+                null,
+                reflectance,
+                colour.w
+        );
     }
 
     public Material(Texture texture) {
-        this(DEFAULT_COLOUR, DEFAULT_COLOUR, DEFAULT_COLOUR, texture, 0.0f, 1.0f);
+        this(
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                texture,
+                0.0f,
+                1.0f
+        );
     }
 
     public Material(Texture texture, float reflectance, float opacity) {
-        this(DEFAULT_COLOUR, DEFAULT_COLOUR, DEFAULT_COLOUR, texture, reflectance, opacity);
+        this(
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                texture, reflectance,
+                opacity
+        );
     }
 
     public Material(Texture texture, float reflectance) {
-        this(DEFAULT_COLOUR, DEFAULT_COLOUR, DEFAULT_COLOUR, texture, reflectance, 1.0f);
+        this(
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                DEFAULT_COLOUR,
+                texture,
+                reflectance,
+                1.0f
+        );
     }
 
     public Material(
-            Vector3f ambientColour, Vector3f diffuseColour,
-            Vector3f specularColour, Texture texture, float reflectance, float opacity
+            Vector4f ambientColour,
+            Vector4f diffuseColour,
+            Vector4f specularColour,
+            Vector4f colour,
+            Texture texture,
+            float reflectance,
+            float opacity
     ) {
         mOpacity = opacity;
         mAmbientColour = new Vector4f(ambientColour.x, ambientColour.y, ambientColour.z, mOpacity);
@@ -57,8 +92,8 @@ public class Material {
         mSpecularColour = new Vector4f(specularColour.x, specularColour.y, specularColour.z, mOpacity);
         mTexture = texture;
         mTextured = mTexture != null;
-        mUseTexture = mTexture != null;
-        mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, mOpacity);
+        mUsingTexture = mTexture != null;
+        mColour = colour;
         mReflectance = reflectance;
     }
 
@@ -124,12 +159,12 @@ public class Material {
         return mColour;
     }
 
-    public void setUseTexture(boolean useTexture) {
-        mUseTexture = useTexture;
+    public void setUsingTexture(boolean usingTexture) {
+        mUsingTexture = usingTexture;
     }
 
-    public boolean useTexture() {
-        return mUseTexture;
+    public boolean isUsingTexture() {
+        return mUsingTexture;
     }
 
     public void setOpacity(float opacity) {

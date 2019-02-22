@@ -1,7 +1,7 @@
 package com.company.engine.loaders;
 
 import com.company.engine.Utils;
-import com.company.engine.graph.Mesh;
+import com.company.engine.graph.mesh.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 

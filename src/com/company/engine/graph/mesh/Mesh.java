@@ -1,5 +1,7 @@
-package com.company.engine.graph;
+package com.company.engine.graph.mesh;
 
+import com.company.engine.graph.Material;
+import com.company.engine.graph.Texture;
 import com.company.engine.scene.items.GameItem;
 import org.lwjgl.system.MemoryUtil;
 
@@ -16,7 +18,6 @@ public class Mesh {
     private static int POSITION_VBO_INDEX = 0;
     private static int TEXTURE_COORDINATES_VBO_INDEX = 1;
 
-    //TODO: Add Normals support in this class
     private static int NORMALS_VBO_INDEX = 2;
 
     private int mVaoId;
@@ -114,6 +115,8 @@ public class Mesh {
     }
 
     public void render() {
+        /* Used to render a single item */
+
         initRender();
 
         glDrawElements(GL_TRIANGLES, mVertexCount, GL_UNSIGNED_INT, 0);
@@ -122,6 +125,8 @@ public class Mesh {
     }
 
     public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
+        /* Used to render a list of GameItem that have the same Mesh */
+
         initRender();
 
         for (GameItem gameItem : gameItems) {
