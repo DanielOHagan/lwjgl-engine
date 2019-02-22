@@ -201,10 +201,10 @@ public class Particle extends GameItem {
         mColour = colour;
     }
 
-    public void setColour(float red, float blue, float green, float alpha) {
+    public void setColour(float red, float green, float blue, float alpha) {
         mColour.x = red;
-        mColour.y = blue;
-        mColour.z = green;
+        mColour.y = green;
+        mColour.z = blue;
         mColour.w = alpha;
     }
 

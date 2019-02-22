@@ -18,7 +18,6 @@ import org.joml.Vector4f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-
 public class TestGame implements IGameLogic {
 
     private final Renderer mRenderer;
@@ -29,8 +28,11 @@ public class TestGame implements IGameLogic {
     private boolean mSceneChanged;
     private boolean mInitialCycle;
     private MouseOptions mMouseOptions;
+
+
     private Mesh testMesh;
     private TestParticleEmitter testParticleEmitter;
+    private boolean viewBunny;
 
     public TestGame() {
         mRenderer = new Renderer();
@@ -44,40 +46,51 @@ public class TestGame implements IGameLogic {
         mRenderer.init(window);
         mScene = new Scene();
 
+        viewBunny = false;
+
         setUpMouseOptions();
 
         // Setup  GameItems
-        Mesh quadMesh = ObjLoader.loadMesh("/models/plane.obj");
-        Material quadMaterial = new Material(new Vector4f(0.0f, 0.0f, 1.0f, 1.0f), 1);
-        quadMesh.setMaterial(quadMaterial);
-        GameItem quadGameItem = new GameItem(quadMesh);
-        quadGameItem.setPosition(0, 0, 0);
-        quadGameItem.setScale(2.5f);
+        if (viewBunny) {
+            testMesh = ObjLoader.loadMesh("/models/bunny.obj");
+            Material material = new Material();
+            material.setColour(1.0f, 0.0f, 1.0f, 1.0f);
+            material.setUsingTexture(false);
+            testMesh.setMaterial(material);
+            mScene.setSceneGameItems(new GameItem[] { new GameItem(testMesh)} );
+        } else {
 
-        mScene.setSceneGameItems(new GameItem[] { quadGameItem} );
+            Mesh quadMesh = ObjLoader.loadMesh("/models/plane.obj");
+            Material quadMaterial = new Material(new Vector4f(0.0f, 0.0f, 1.0f, 1.0f), 1);
+            quadMesh.setMaterial(quadMaterial);
+            GameItem quadGameItem = new GameItem(quadMesh);
+            quadGameItem.setPosition(0, 0, 0);
+            quadGameItem.setScale(2.5f);
 
-        Vector3f particleSpeed = new Vector3f(0, 1, 0);
-        particleSpeed.mul(2.5f);
-        long ttl = 4000;
-        int maxParticles = 200;
-        long creationPeriodMillis = 300;
-        float range = 0.2f;
-        float scale = 1.0f;
-        Mesh partMesh = ObjLoader.loadMesh("/models/particle.obj");
-        Texture texture = new Texture("/textures/particle_anim.png", 4, 4);
-        Material partMaterial = new Material(texture);
-        partMesh.setMaterial(partMaterial);
-        Particle particle = new Particle(partMesh, particleSpeed, ttl, 100);
-        particle.setScale(scale);
-        particle.setColour(0, 0, 1, 1);
-        particle.setUseTexture(false);
-        testParticleEmitter = new TestParticleEmitter(particle, maxParticles, creationPeriodMillis);
-        testParticleEmitter.setActive(true);
-        testParticleEmitter.setPositionRandomRange(range);
-        testParticleEmitter.setSpeedRandomRange(range);
-        testParticleEmitter.setAnimRange(10);
+            Vector3f particleSpeed = new Vector3f(0, 1, 0);
+            particleSpeed.mul(2.5f);
+            long ttl = 4000;
+            int maxParticles = 200;
+            long creationPeriodMillis = 300;
+            float range = 0.2f;
+            float scale = 1.0f;
+            Mesh partMesh = ObjLoader.loadMesh("/models/particle.obj");
+            Texture texture = new Texture("/textures/particle_anim.png", 4, 4);
+            Material partMaterial = new Material(texture);
+            partMesh.setMaterial(partMaterial);
+            Particle particle = new Particle(partMesh, particleSpeed, ttl, 100);
+            particle.setScale(scale);
+            particle.setColour(0, 0, 1, 0.5f);
+            particle.setUseTexture(false);
+            testParticleEmitter = new TestParticleEmitter(particle, maxParticles, creationPeriodMillis);
+            testParticleEmitter.setActive(true);
+            testParticleEmitter.setPositionRandomRange(range);
+            testParticleEmitter.setSpeedRandomRange(range);
+            testParticleEmitter.setAnimRange(10);
 
-        mScene.setParticleEmitters(new IParticleEmitter[] { testParticleEmitter });
+            mScene.setSceneGameItems(new GameItem[] {quadGameItem});
+            mScene.setParticleEmitters(new IParticleEmitter[]{testParticleEmitter});
+        }
         mScene.setHud(mHud);
     }
 
@@ -126,7 +139,7 @@ public class TestGame implements IGameLogic {
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Update the application here */
 
-        testParticleEmitter.update((long) (interval * 1000));
+        if (!viewBunny) testParticleEmitter.update((long) (interval * 1000));
     }
 
     @Override

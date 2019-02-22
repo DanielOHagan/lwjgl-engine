@@ -4,6 +4,7 @@ import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.graph.particles.Particle;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -83,11 +84,18 @@ public class TestParticleEmitter implements IParticleEmitter {
         float speedInc = sign * (float)Math.random() * mSpeedRandomRange;
         float posInc = sign * (float)Math.random() * mPositionRandomRange;
         float scaleInc = sign * (float)Math.random() * mScaleRandomRange;
-        long updateAnimInc = (long)sign *(long)(Math.random() * (float) mAnimRange);
+
+        if (particle.isAnimated()) {
+            long updateAnimInc = (long) sign * (long) (Math.random() * (float) mAnimRange);
+
+            if (particle.isUsingTexture()) {
+                particle.setUpdateTextureTime(particle.getUpdateTextureTime() + updateAnimInc);
+            }
+        }
         particle.getPosition().add(posInc, posInc, posInc);
         particle.getSpeed().add(speedInc, speedInc, speedInc);
         particle.setScale(particle.getScale() + scaleInc);
-        particle.setUpdateTextureTime(particle.getUpdateTextureTime() + updateAnimInc);
+        particle.setColour(new Vector4f(Math.random() > 0.5f ? 1 : 0, Math.random() > 0.5f ? 1 : 0, Math.random() > 0.5f ? 1 : 0, Math.random() > 0.5f ? 1 : 0.5f));
         mParticles.add(particle);
     }
 

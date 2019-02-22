@@ -3,6 +3,7 @@ package com.company.engine.graph;
 import com.company.engine.Utils;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
+import com.company.engine.graph.particles.Particle;
 import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
@@ -231,14 +232,12 @@ public class Renderer {
             IParticleEmitter emitter = emitters[i];
             Mesh mesh = emitter.getBaseParticle().getMesh();
             boolean useTexture = emitter.getBaseParticle().isUsingTexture();
-            Vector4f colour = emitter.getBaseParticle().getColour();
-
             Texture texture = mesh.getMaterial().getTexture();
+
             mParticleShaderProgram.setUniform("numColumns", texture.getNumColumns());
             mParticleShaderProgram.setUniform("numRows", texture.getNumRows());
 
             mParticleShaderProgram.setUniform("useTexture", useTexture ? 1 : 0);
-            mParticleShaderProgram.setUniform("particleColour", colour);
 
             mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
                 if (useTexture) {
@@ -249,6 +248,8 @@ public class Renderer {
 
                     mParticleShaderProgram.setUniform("textOffsetX", textOffsetX);
                     mParticleShaderProgram.setUniform("textOffsetY", textOffsetY);
+                } else {
+                    mParticleShaderProgram.setUniform("particleColour", ((Particle) gameItem).getColour());
                 }
 
                 Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
