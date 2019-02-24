@@ -17,7 +17,6 @@ public class Mesh {
 
     private static int POSITION_VBO_INDEX = 0;
     private static int TEXTURE_COORDINATES_VBO_INDEX = 1;
-
     private static int NORMALS_VBO_INDEX = 2;
 
     private int mVaoId;
@@ -138,7 +137,7 @@ public class Mesh {
     }
 
     protected void initRender() {
-        Texture texture = mMaterial != null ? mMaterial.getTexture() : null;
+        Texture texture = mMaterial != null && mMaterial.getTexture() != null ? mMaterial.getTexture() : null;
 
         if (texture != null) {
             //activate first texture bank
@@ -147,7 +146,6 @@ public class Mesh {
             glBindTexture(GL_TEXTURE_2D, texture.getId());
         }
 
-        //draw the mesh
         glBindVertexArray(mVaoId);
         glEnableVertexAttribArray(POSITION_VBO_INDEX);
         if (mUsingTextCoords) {
@@ -185,8 +183,6 @@ public class Mesh {
     }
 
     public void cleanUp() {
-        glDisableVertexAttribArray(0);
-
         deleteBuffers();
 
         // delete the material

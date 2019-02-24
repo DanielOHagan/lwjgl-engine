@@ -7,6 +7,7 @@ public class Material {
     //TODO: Add opacity support in the scene shader
 
     public static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    public static final float DEFAULT_REFLECTANCE = 0.0f;
 
     private Vector4f mAmbientColour;
     private Vector4f mDiffuseColour;
@@ -16,14 +17,12 @@ public class Material {
     private Texture mTexture;
     private boolean mTextured;
     private boolean mUsingTexture;
-    private float mOpacity;
 
     public Material() {
-        mOpacity = 1.0f;
-        mAmbientColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, mOpacity);
-        mDiffuseColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, mOpacity);
-        mSpecularColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, mOpacity);
-        mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, mOpacity);
+        mAmbientColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
+        mDiffuseColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
+        mSpecularColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
+        mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
         mTexture = null;
         mTextured = false;
         mUsingTexture = false;
@@ -37,8 +36,18 @@ public class Material {
                 colour,
                 colour,
                 null,
-                reflectance,
-                colour.w
+                reflectance
+        );
+    }
+
+    public Material(Vector4f colour) {
+        this(
+                colour,
+                colour,
+                colour,
+                colour,
+                null,
+                DEFAULT_REFLECTANCE
         );
     }
 
@@ -49,19 +58,7 @@ public class Material {
                 DEFAULT_COLOUR,
                 DEFAULT_COLOUR,
                 texture,
-                0.0f,
-                1.0f
-        );
-    }
-
-    public Material(Texture texture, float reflectance, float opacity) {
-        this(
-                DEFAULT_COLOUR,
-                DEFAULT_COLOUR,
-                DEFAULT_COLOUR,
-                DEFAULT_COLOUR,
-                texture, reflectance,
-                opacity
+                DEFAULT_REFLECTANCE
         );
     }
 
@@ -72,8 +69,7 @@ public class Material {
                 DEFAULT_COLOUR,
                 DEFAULT_COLOUR,
                 texture,
-                reflectance,
-                1.0f
+                reflectance
         );
     }
 
@@ -83,13 +79,11 @@ public class Material {
             Vector4f specularColour,
             Vector4f colour,
             Texture texture,
-            float reflectance,
-            float opacity
+            float reflectance
     ) {
-        mOpacity = opacity;
-        mAmbientColour = new Vector4f(ambientColour.x, ambientColour.y, ambientColour.z, mOpacity);
-        mDiffuseColour = new Vector4f(diffuseColour.x, diffuseColour.y, diffuseColour.z, mOpacity);
-        mSpecularColour = new Vector4f(specularColour.x, specularColour.y, specularColour.z, mOpacity);
+        mAmbientColour = new Vector4f(ambientColour.x, ambientColour.y, ambientColour.z, ambientColour.w);
+        mDiffuseColour = new Vector4f(diffuseColour.x, diffuseColour.y, diffuseColour.z, diffuseColour.w);
+        mSpecularColour = new Vector4f(specularColour.x, specularColour.y, specularColour.z, specularColour.w);
         mTexture = texture;
         mTextured = mTexture != null;
         mUsingTexture = mTexture != null;
@@ -168,10 +162,10 @@ public class Material {
     }
 
     public void setOpacity(float opacity) {
-        mOpacity = opacity;
+        mColour.w = opacity;
     }
 
     public float getOpacity() {
-        return mOpacity;
+        return mColour.w;
     }
 }

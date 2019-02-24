@@ -4,10 +4,12 @@ import com.company.engine.Utils;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.graph.particles.Particle;
+import com.company.engine.scene.items.Background;
 import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.List;
@@ -31,7 +33,7 @@ public class Renderer {
     public void init(Window window) throws Exception {
 
         //setUpDepthShader();
-        //setUpBackgroundShader();
+        setUpBackgroundShader();
         setUpSceneShader();
         setUpParticleShader();
 
@@ -47,11 +49,10 @@ public class Renderer {
                 mBackgroundShaderProgram,
                 new String[] {
                         "textureSampler",
-                        "isTextured",
                         "useTexture",
                         "colour",
                         "projectionMatrix",
-                        "modelViewMatrix"
+//                        "modelViewMatrix"
                 }
         );
     }
@@ -132,7 +133,7 @@ public class Renderer {
         renderScene(window, camera, scene);
 
         if (scene.getBackground() != null) {
-//            renderBackground(window, camera, scene);
+            renderBackground(window, camera, scene);
         }
 
         if (scene.getParticleEmitters() != null && scene.getParticleEmitters().length > 0) {
@@ -183,7 +184,6 @@ public class Renderer {
 
                 mSceneShaderProgram.setUniform("useTexture", isUsingTexture ? 1 : 0);
 
-
                 if (isUsingTexture) {
                     //set mesh's texture related uniforms if the texture is selected to be rendered
 
@@ -208,6 +208,16 @@ public class Renderer {
     private void renderBackground(Window window, Camera camera, Scene scene) {
         mBackgroundShaderProgram.bind();
 
+        mBackgroundShaderProgram.setUniform("textureSampler", 0);
+        mBackgroundShaderProgram.setUniform(
+                "projectionMatrix",
+                window.getProjectionMatrix()
+        );
+
+        mBackgroundShaderProgram.setUniform("useTexture", scene.getBackground().getMaterial().isUsingTexture() ? 1 : 0);
+        mBackgroundShaderProgram.setUniform("colour", scene.getBackground().getMaterial().getColour());
+
+        scene.getBackground().render();
 
         mBackgroundShaderProgram.unbind();
     }

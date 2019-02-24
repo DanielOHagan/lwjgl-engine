@@ -91,11 +91,17 @@ public class TestParticleEmitter implements IParticleEmitter {
             if (particle.isUsingTexture()) {
                 particle.setUpdateTextureTime(particle.getUpdateTextureTime() + updateAnimInc);
             }
+        } else {
+            particle.setColour(new Vector4f(
+                    Math.random() > 0.5f ? 1 : 0,
+                    Math.random() > 0.5f ? 1 : 0,
+                    Math.random() > 0.5f ? 1 : 0,
+                    Math.random() > 0.5f ? 1 : 0.5f)
+            );
         }
         particle.getPosition().add(posInc, posInc, posInc);
         particle.getSpeed().add(speedInc, speedInc, speedInc);
         particle.setScale(particle.getScale() + scaleInc);
-        particle.setColour(new Vector4f(Math.random() > 0.5f ? 1 : 0, Math.random() > 0.5f ? 1 : 0, Math.random() > 0.5f ? 1 : 0, Math.random() > 0.5f ? 1 : 0.5f));
         mParticles.add(particle);
     }
 
