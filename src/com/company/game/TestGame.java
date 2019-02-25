@@ -2,17 +2,16 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.graph.mesh.Mesh;
-import com.company.engine.graph.particles.IParticleEmitter;
-import com.company.engine.graph.particles.Particle;
 import com.company.engine.input.MouseOptions;
-import com.company.engine.loaders.ObjLoader;
 import com.company.engine.scene.items.Background;
+import com.company.engine.scene.items.GameItem;
 import com.company.engine.window.Window;
 import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.ui.IHud;
+import org.joml.Vector4f;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -29,6 +28,7 @@ public class TestGame implements IGameLogic {
 
 
     private Background testBackground;
+    private TestHud testHud;
 
     public TestGame() {
         mRenderer = new Renderer();
@@ -44,10 +44,10 @@ public class TestGame implements IGameLogic {
         setUpMouseOptions();
 
         float[] positions = new float[] {
-                -1, 1, mCamera.getViewDistanceEnd() - 1, //top left
-                1, 1, mCamera.getViewDistanceEnd() - 1, //top right
-                1, -1, mCamera.getViewDistanceEnd() - 1, //bottom right
-                -1, -1, mCamera.getViewDistanceEnd() - 1 //bottom left
+                -1, 1, 0, //top left
+                1, 1, 0, //top right
+                1, -1, 0, //bottom right
+                -1, -1, 0 //bottom left
         };
         float[] textCoords = new float[] {
                 0, 0,
@@ -61,16 +61,16 @@ public class TestGame implements IGameLogic {
         };
 
 
-//        Mesh mesh = new Mesh(positions, textCoords, null, indices);
-//        Material material = new Material(new Vector4f(1, 0, 0, 1));
-//        mesh.setMaterial(material);
-//        GameItem gameItem = new GameItem(mesh);
-//
-//        mScene.setSceneGameItems(new GameItem[] { gameItem });
+        Mesh mesh = new Mesh(positions, textCoords, null, indices);
+        Material material = new Material(new Vector4f(1, 0, 0, 1));
+        mesh.setMaterial(material);
+        GameItem gameItem = new GameItem(mesh);
 
+        testHud = new TestHud("TEST");
+        testHud.getTestTextItem().getMesh().getMaterial().setColour(new Vector4f(1, 0, 0, 1));
 
-
-        mScene.setBackground(testBackground);
+        mScene.setSceneGameItems(new GameItem[] { gameItem });
+        mScene.setHud(testHud);
     }
 
     @Override
@@ -125,6 +125,7 @@ public class TestGame implements IGameLogic {
 
     @Override
     public void render(Window window) {
+        testHud.updateSize(window);
         if (mInitialCycle) {
             mSceneChanged = true;
             mInitialCycle = false;

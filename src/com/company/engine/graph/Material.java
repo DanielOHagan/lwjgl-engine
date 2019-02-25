@@ -142,11 +142,8 @@ public class Material {
         mTextured = mTexture != null;
     }
 
-    public void setColour(float red, float green, float blue, float alpha) {
-        mColour.x = red;
-        mColour.y = green;
-        mColour.z = blue;
-        mColour.w = alpha;
+    public void setColour(Vector4f colour) {
+        mColour = colour;
     }
 
     public Vector4f getColour() {

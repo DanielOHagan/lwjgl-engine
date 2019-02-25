@@ -84,6 +84,9 @@ public class GameItem {
     }
 
     public void setMesh(Mesh mesh) {
+        if (mMeshes == null) {
+            mMeshes = new Mesh[1];
+        }
         mMeshes[0] = mesh;
     }
 }

@@ -6,9 +6,9 @@ layout (location = 2) in vec3 normal;
 
 out vec2 outTextCoord;
 
-uniform projectionModelMatrix;
+uniform mat4 projectionModelMatrix;
 
 void main() {
     gl_Position = projectionModelMatrix * vec4(position, 1.0);
-    outTexCoord = textCoord;
+    outTextCoord = textCoord;
 }
