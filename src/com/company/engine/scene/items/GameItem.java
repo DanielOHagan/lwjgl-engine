@@ -82,4 +82,8 @@ public class GameItem {
     public int getTexturePos() {
         return mTexturePos;
     }
+
+    public void setMesh(Mesh mesh) {
+        mMeshes[0] = mesh;
+    }
 }

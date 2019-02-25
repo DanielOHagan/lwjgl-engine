@@ -50,4 +50,12 @@ public class Transformation {
     public Matrix4f generateModelViewMatrix(Matrix4f modelMatrix, Matrix4f viewMatrix) {
         return viewMatrix.mulAffine(modelMatrix, mModelViewMatrix);
     }
+
+    public Matrix4f generateOrtho2DProjectionMatrix(float left, float right, float bottom, float top) {
+        return mOrthographic2dMatrix.setOrtho2D(left, right, bottom, top);
+    }
+
+    public Matrix4f generateOrthoProjectionModelMatrix(GameItem gameItem, Matrix4f orthoMatrix) {
+        return orthoMatrix.mulAffine(generateModelMatrix(gameItem), mOrthographicModelMatrix);
+    }
 }

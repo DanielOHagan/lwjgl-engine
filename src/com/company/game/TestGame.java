@@ -12,12 +12,9 @@ import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
-import com.company.engine.scene.items.GameItem;
 import com.company.engine.scene.items.ui.IHud;
-import org.joml.Vector4f;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 
 public class TestGame implements IGameLogic {
 
@@ -47,10 +44,10 @@ public class TestGame implements IGameLogic {
         setUpMouseOptions();
 
         float[] positions = new float[] {
-                -0.5f, 0.5f, 0, //top left
-                0.5f, 0.5f, 0, //top right
-                0.5f, -0.5f, 0, //bottom right
-                -0.5f, -0.5f, 0 //bottom left
+                -1, 1, mCamera.getViewDistanceEnd() - 1, //top left
+                1, 1, mCamera.getViewDistanceEnd() - 1, //top right
+                1, -1, mCamera.getViewDistanceEnd() - 1, //bottom right
+                -1, -1, mCamera.getViewDistanceEnd() - 1 //bottom left
         };
         float[] textCoords = new float[] {
                 0, 0,
@@ -64,17 +61,14 @@ public class TestGame implements IGameLogic {
         };
 
 
-        Mesh mesh = new Mesh(positions, textCoords, null, indices);
-        Material material = new Material(new Vector4f(1, 0, 0, 1));
-        mesh.setMaterial(material);
-        GameItem gameItem = new GameItem(mesh);
+//        Mesh mesh = new Mesh(positions, textCoords, null, indices);
+//        Material material = new Material(new Vector4f(1, 0, 0, 1));
+//        mesh.setMaterial(material);
+//        GameItem gameItem = new GameItem(mesh);
+//
+//        mScene.setSceneGameItems(new GameItem[] { gameItem });
 
-        mScene.setSceneGameItems(new GameItem[] { gameItem });
 
-        testBackground = new Background(positions, textCoords, indices);
-        testBackground.setMaterial(new Material(new Texture("/textures/testBackground.png")));
-
-        testBackground = new Background(new Vector4f(1, 1, 1, 1));
 
         mScene.setBackground(testBackground);
     }
@@ -123,6 +117,9 @@ public class TestGame implements IGameLogic {
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Update the application here */
+
+
+        /* Update the background here */
 
     }
 

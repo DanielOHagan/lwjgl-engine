@@ -38,6 +38,17 @@ public class Utils {
         return list.stream().mapToInt((Integer v) -> v).toArray();
     }
 
+    public static float[] listToFloatArray(List<Float> list) {
+        int size = list != null ? list.size() : 0;
+        float[] floatArray = new float[size];
+
+        for (int i = 0; i < size; i++) {
+            floatArray[i] = list.get(i);
+        }
+
+        return floatArray;
+    }
+
     public static boolean resourceFileExists(String fileName) {
         boolean result = false;
 

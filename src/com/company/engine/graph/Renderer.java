@@ -25,6 +25,7 @@ public class Renderer {
     private ShaderProgram mBackgroundShaderProgram;
     private ShaderProgram mSceneShaderProgram;
     private ShaderProgram mParticleShaderProgram;
+    private ShaderProgram mHudShaderProgram;
 
     public Renderer() {
         mTransformation = new Transformation();
@@ -36,6 +37,7 @@ public class Renderer {
         setUpBackgroundShader();
         setUpSceneShader();
         setUpParticleShader();
+        setUpHudShader();
 
     }
 
@@ -52,7 +54,7 @@ public class Renderer {
                         "useTexture",
                         "colour",
                         "projectionMatrix",
-//                        "modelViewMatrix"
+                        "viewMatrix"
                 }
         );
     }
@@ -94,6 +96,22 @@ public class Renderer {
                         "textOffsetY",
                         "textureSampler",
                         "particleColour"
+                }
+        );
+    }
+
+    private void setUpHudShader() throws Exception {
+        mHudShaderProgram = new ShaderProgram();
+        mHudShaderProgram.createVertexShader(Utils.loadResource("/shaders/hud_vertex.vs"));
+        mHudShaderProgram.createFragmentShader(Utils.loadResource("/shaders/hud_fragment.fs"));
+        mHudShaderProgram.link();
+
+        setUpShaderUniforms(
+                mHudShaderProgram,
+                new String[] {
+                        "projectionModelMatrix",
+                        "colour",
+                        "textureSampler"
                 }
         );
     }
@@ -202,10 +220,34 @@ public class Renderer {
     }
 
     private void renderHud(Window window, Camera camera, Scene scene) {
+        mHudShaderProgram.bind();
 
+        Matrix4f orthoProjection = mTransformation.generateOrtho2DProjectionMatrix(
+                0, window.getWidth(), window.getHeight(), 0
+        );
+
+        /*
+        TODO: MIGHT BE ABLE TO CHANGE THIS TO RENDERING PER MESH TYPE
+         */
+        for (GameItem gameItem : scene.getHud().getGameItems()) {
+            mHudShaderProgram.setUniform(
+                    "projectionModelMatrix",
+                    mTransformation.generateOrthoProjectionModelMatrix(gameItem, orthoProjection)
+            );
+            mHudShaderProgram.setUniform(
+                    "colour",
+                    gameItem.getMesh().getMaterial().getColour()
+            );
+
+            gameItem.getMesh().render();
+        }
+
+        mHudShaderProgram.unbind();
     }
 
     private void renderBackground(Window window, Camera camera, Scene scene) {
+        Background background = scene.getBackground();
+
         mBackgroundShaderProgram.bind();
 
         mBackgroundShaderProgram.setUniform("textureSampler", 0);
@@ -214,10 +256,21 @@ public class Renderer {
                 window.getProjectionMatrix()
         );
 
-        mBackgroundShaderProgram.setUniform("useTexture", scene.getBackground().getMaterial().isUsingTexture() ? 1 : 0);
-        mBackgroundShaderProgram.setUniform("colour", scene.getBackground().getMaterial().getColour());
 
-        scene.getBackground().render();
+        mBackgroundShaderProgram.setUniform(
+                "viewMatrix",
+                camera.getViewMatrix()
+        );
+        mBackgroundShaderProgram.setUniform(
+                "useTexture",
+                background.getMesh().getMaterial().isUsingTexture() ? 1 : 0
+        );
+        mBackgroundShaderProgram.setUniform(
+                "colour",
+                background.getMesh().getMaterial().getColour()
+        );
+
+        background.getMesh().render();
 
         mBackgroundShaderProgram.unbind();
     }
