@@ -54,6 +54,11 @@ public class ShaderProgram {
         mUniforms.put(uniformName, uniformLocation);
     }
 
+    public void createMaterialUniform(String uniformName) throws Exception {
+        createUniform(uniformName + ".colour");
+        createUniform(uniformName + ".useTexture");
+    }
+
     public void createVertexShader(String shaderCode) throws Exception {
         mVertexShaderId = createShader(shaderCode, GL_VERTEX_SHADER);
     }
@@ -73,6 +78,11 @@ public class ShaderProgram {
 
     public void setUniform(String uniformName, Vector4f value) {
         glUniform4f(mUniforms.get(uniformName), value.x, value.y, value.z, value.w);
+    }
+
+    public void setUniform(String uniformName, Material material) {
+        setUniform(uniformName + ".useTexture", material.isUsingTexture() ? 1 : 0);
+        setUniform(uniformName + ".colour", material.getColour());
     }
 
     public void setUniform(String uniformName, float value) {

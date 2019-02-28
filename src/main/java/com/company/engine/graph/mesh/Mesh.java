@@ -32,6 +32,9 @@ public class Mesh {
         initialiseMesh(positions, textCoords, normals, indices);
     }
 
+    /*
+    Store parameter info into respective buffers for use in rendering
+     */
     private void initialiseMesh(
             float[] positions,
             float[] textCoords,
@@ -113,9 +116,10 @@ public class Mesh {
         }
     }
 
+    /*
+    Renders a single Mesh instance
+     */
     public void render() {
-        /* Used to render a single item */
-
         initRender();
 
         glDrawElements(GL_TRIANGLES, mVertexCount, GL_UNSIGNED_INT, 0);
@@ -123,9 +127,10 @@ public class Mesh {
         endRender();
     }
 
+    /*
+    Renders a List of GameItem instances
+     */
     public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
-        /* Used to render a list of GameItem that have the same Mesh */
-
         initRender();
 
         for (GameItem gameItem : gameItems) {
@@ -136,6 +141,9 @@ public class Mesh {
         endRender();
     }
 
+    /*
+    Prepare for rendering
+     */
     protected void initRender() {
         Texture texture = mMaterial != null && mMaterial.getTexture() != null ? mMaterial.getTexture() : null;
 
@@ -156,6 +164,9 @@ public class Mesh {
         }
     }
 
+    /*
+    Clean up after rendering
+     */
     private void endRender() {
         glDisableVertexAttribArray(POSITION_VBO_INDEX);
         if (mUsingTextCoords) {
@@ -168,6 +179,9 @@ public class Mesh {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    /*
+    Delete all used buffers
+     */
     public void deleteBuffers() {
         glDisableVertexAttribArray(0);
 

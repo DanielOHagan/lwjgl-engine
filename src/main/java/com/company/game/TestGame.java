@@ -3,7 +3,9 @@ package com.company.game;
 import com.company.engine.IGameLogic;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.input.MouseOptions;
+import com.company.engine.loaders.ObjLoader;
 import com.company.engine.scene.items.GameItem;
+import com.company.engine.scene.items.SkyBox;
 import com.company.engine.window.Window;
 import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
@@ -40,37 +42,54 @@ public class TestGame implements IGameLogic {
         mScene = new Scene();
         setUpMouseOptions();
 
-        float[] positions = new float[] {
-                -1, 1, -0.1f, //top left
-                1, 1, -0.1f, //top right
-                1, -1, -0.1f, //bottom right
-                -1, -1, -0.1f //bottom left
-        };
-        float[] textCoords = new float[] {
-                0, 0,
-                1, 0,
-                1, 1,
-                0, 1,
-        };
-        int[] indices = new int[] {
-                0, 1, 2,
-                2, 3, 0
-        };
-
-
-        Mesh mesh = new Mesh(positions, textCoords, null, indices);
-        Material material = new Material(new Vector4f(1, 0, 0, 1));
+        // Setup  GameItems
+        float reflectance = 1f;
+        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj");
+        Texture texture = new Texture("/textures/grassblock.png");
+        Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
-        mesh.getMaterial().setTexture(new Texture("/textures/testBackground.png"));
-        mesh.getMaterial().setUsingTexture(true);
-        GameItem gameItem = new GameItem(mesh);
+
+        float blockScale = 0.5f;
+        float skyBoxScale = 50.0f;
+        float extension = 2.0f;
+
+        float startx = extension * (-skyBoxScale + blockScale);
+        float startz = extension * (skyBoxScale - blockScale);
+        float starty = -1.0f;
+        float inc = blockScale * 2;
+
+        float posx = startx;
+        float posz = startz;
+        float incy = 0.0f;
+        int NUM_ROWS = (int)(extension * skyBoxScale * 2 / inc);
+        int NUM_COLS = (int)(extension * skyBoxScale * 2/ inc);
+        GameItem[] gameItems  = new GameItem[NUM_ROWS * NUM_COLS];
+        for(int i=0; i<NUM_ROWS; i++) {
+            for(int j=0; j<NUM_COLS; j++) {
+                GameItem gameItem = new GameItem(mesh);
+                gameItem.setScale(blockScale);
+                incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
+                gameItem.setPosition(posx, starty + incy, posz);
+                gameItems[i*NUM_COLS + j] = gameItem;
+
+                posx += inc;
+            }
+            posx = startx;
+            posz -= inc;
+        }
+
+        // Setup  SkyBox
+        SkyBox skyBox = new SkyBox("/models/skybox.obj", "/textures/skybox.png");
+        skyBox.setScale(skyBoxScale);
+        skyBox.setInFixedPositionXYZ(true);
 
         testHud = new TestHud("TEST");
         testHud.getTestTextItem().getMesh().getMaterial().setColour(new Vector4f(0, 0, 1, 1));
 
 
-        mScene.setSceneGameItems(new GameItem[] { gameItem });
+        mScene.setSceneGameItems(gameItems);
         mScene.setHud(testHud);
+        mScene.setSkyBox(skyBox);
     }
 
     @Override
@@ -79,7 +98,7 @@ public class TestGame implements IGameLogic {
 
         /* This is very bad camera controls, it is purely to test rendering */
         if (window.isKeyPressed(GLFW_KEY_W)) {
-            mCamera.getPosition().z += 0.01;
+            mCamera.getPosition().z += 0.08;
         }
         if (window.isKeyPressed(GLFW_KEY_S)) {
             mCamera.getPosition().z -= 0.01;

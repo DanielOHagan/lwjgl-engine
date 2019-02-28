@@ -32,7 +32,7 @@ public class Renderer {
     public void init(Window window) throws Exception {
 
         //setUpDepthShader();
-        //setUpSkyBoxShader();
+        setUpSkyBoxShader();
         setUpSceneShader();
         setUpParticleShader();
         setUpHudShader();
@@ -41,8 +41,8 @@ public class Renderer {
 
     public void setUpSkyBoxShader() throws Exception {
         mSkyBoxShaderProgram = new ShaderProgram();
-        mSkyBoxShaderProgram.createVertexShader(Utils.loadResource("/shaders/background_vertex.vs"));
-        mSkyBoxShaderProgram.createFragmentShader(Utils.loadResource("/shaders/background_fragment.fs"));
+        mSkyBoxShaderProgram.createVertexShader(Utils.loadResource("/shaders/skyBox_vertex.vs"));
+        mSkyBoxShaderProgram.createFragmentShader(Utils.loadResource("/shaders/skyBox_fragment.fs"));
         mSkyBoxShaderProgram.link();
 
         setUpShaderUniforms(
@@ -51,7 +51,8 @@ public class Renderer {
                         "textureSampler",
                         "useTexture",
                         "colour",
-                        "projectionModelMatrix"
+                        "projectionMatrix",
+                        "modelViewMatrix"
                 }
         );
     }
@@ -66,10 +67,14 @@ public class Renderer {
                 mSceneShaderProgram,
                 new String[] {
                         "textureSampler",
-                        "useTexture",
-                        "colour",
                         "projectionMatrix",
                         "modelViewMatrix"
+                }
+        );
+        setUpMaterialUniforms(
+                mSceneShaderProgram,
+                new String[] {
+                        "material"
                 }
         );
     }
@@ -117,6 +122,14 @@ public class Renderer {
         if (shaderProgram != null && uniformNames != null && uniformNames.length > 0) {
             for (String uniformName : uniformNames) {
                 shaderProgram.createUniform(uniformName);
+            }
+        }
+    }
+
+    private void setUpMaterialUniforms(ShaderProgram shaderProgram, String[] uniformNames) throws Exception {
+        if (shaderProgram != null && uniformNames != null && uniformNames.length > 0) {
+            for (String uniformName : uniformNames) {
+                shaderProgram.createMaterialUniform(uniformName);
             }
         }
     }
@@ -194,17 +207,7 @@ public class Renderer {
         Map<Mesh, List<GameItem>> meshesMap = scene.getGameItemMeshMap();
         for (Mesh mesh : meshesMap.keySet()) {
             if (mesh.getMaterial() != null) {
-                //set mesh's material related uniforms
-                boolean isUsingTexture = mesh.getMaterial().isUsingTexture();
-
-                mSceneShaderProgram.setUniform("useTexture", isUsingTexture ? 1 : 0);
-
-                if (isUsingTexture) {
-                    //set mesh's texture related uniforms if the texture is selected to be rendered
-
-                } else {
-                    mSceneShaderProgram.setUniform("colour", mesh.getMaterial().getColour());
-                }
+                mSceneShaderProgram.setUniform("material", mesh.getMaterial());
             }
 
             mesh.renderList(meshesMap.get(mesh), (GameItem gameItem) -> {
@@ -244,10 +247,41 @@ public class Renderer {
 
     private void renderSkyBox(Window window, Camera camera, Scene scene) {
         SkyBox skybox = scene.getSkyBox();
+        Matrix4f vm = camera.getViewMatrix();
+
+        //store the translation elements of the view matrix
+        float m30 = vm.m30();
+        float m31 = vm.m31();
+        float m32 = vm.m32();
+
+        if (skybox.isInFixedPosition()) {
+            //remove the translation elements of the view matrix
+            vm.m30(0);
+            vm.m31(0);
+            vm.m32(0);
+        }
 
         mSkyBoxShaderProgram.bind();
 
+        mSkyBoxShaderProgram.setUniform("textureSampler", 0);
+        mSkyBoxShaderProgram.setUniform("projectionMatrix", window.getProjectionMatrix());
+        mSkyBoxShaderProgram.setUniform(
+                "modelViewMatrix",
+                mTransformation.generateModelViewMatrix(skybox, vm)
+        );
+        mSkyBoxShaderProgram.setUniform(
+                "useTexture",
+                skybox.getMesh().getMaterial().isUsingTexture() ? 1 : 0
+        );
 
+        skybox.getMesh().render();
+
+        if (skybox.isInFixedPosition()) {
+            //put the stored elements back into view matrix
+            vm.m30(m30);
+            vm.m31(m31);
+            vm.m32(m32);
+        }
 
         mSkyBoxShaderProgram.unbind();
     }
