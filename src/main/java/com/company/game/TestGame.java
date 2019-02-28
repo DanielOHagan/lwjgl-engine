@@ -11,7 +11,6 @@ import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
-import com.company.engine.scene.items.ui.IHud;
 import org.joml.Vector4f;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -22,7 +21,6 @@ public class TestGame implements IGameLogic {
 
     private Scene mScene;
     private Camera mCamera;
-    private IHud mHud;
     private boolean mSceneChanged;
     private boolean mInitialCycle;
     private MouseOptions mMouseOptions;
@@ -80,8 +78,8 @@ public class TestGame implements IGameLogic {
 
         // Setup  SkyBox
         SkyBox skyBox = new SkyBox("/models/skybox.obj", "/textures/skybox.png");
-        skyBox.setScale(skyBoxScale);
-        skyBox.setInFixedPositionXYZ(true);
+        skyBox.setScale(500);
+        skyBox.setInFixedPosition(true);
 
         testHud = new TestHud("TEST");
         testHud.getTestTextItem().getMesh().getMaterial().setColour(new Vector4f(0, 0, 1, 1));

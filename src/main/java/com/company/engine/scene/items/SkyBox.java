@@ -21,7 +21,7 @@ public class SkyBox extends GameItem {
         mesh.setMaterial(new Material(texture, 0.0f));
         setMesh(mesh);
         setPosition(0, 0, 0);
-        setInFixedPositionXYZ(true);
+        setInFixedPosition(true);
     }
 
 
@@ -36,14 +36,14 @@ public class SkyBox extends GameItem {
         mesh.setMaterial(material);
         setMesh(mesh);
         setPosition(0, 0, 0);
-        setInFixedPositionXYZ(true);
+        setInFixedPosition(true);
     }
 
     public boolean isInFixedPosition() {
         return mInFixedPosition;
     }
 
-    public void setInFixedPositionXYZ(boolean inFixedPosition) {
+    public void setInFixedPosition(boolean inFixedPosition) {
         mInFixedPosition = inFixedPosition;
     }
 }

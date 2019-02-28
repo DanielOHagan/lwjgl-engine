@@ -282,6 +282,18 @@ public class Window {
         return glfwGetKey(mWindowHandle, keyCode) == GLFW_PRESS;
     }
 
+    public boolean isKeyReleased(int keyCode) {
+        return glfwGetKey(mWindowHandle, keyCode) == GLFW_RELEASE;
+    }
+
+    public boolean isMouseButtonPressed(int buttonCode) {
+        return glfwGetMouseButton(mWindowHandle, buttonCode) == GLFW_PRESS;
+    }
+
+    public boolean isMouseButtonReleased(int buttonCode) {
+        return glfwGetMouseButton(mWindowHandle, buttonCode) == GLFW_RELEASE;
+    }
+
     public boolean shouldWindowClose() {
         return glfwWindowShouldClose(mWindowHandle);
     }
