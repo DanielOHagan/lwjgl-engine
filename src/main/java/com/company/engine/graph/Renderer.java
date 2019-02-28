@@ -118,6 +118,9 @@ public class Renderer {
         );
     }
 
+    /*
+    Create 1 or more uniform(s)
+     */
     private void setUpShaderUniforms(ShaderProgram shaderProgram, String[] uniformNames) throws Exception {
         if (shaderProgram != null && uniformNames != null && uniformNames.length > 0) {
             for (String uniformName : uniformNames) {
@@ -126,6 +129,9 @@ public class Renderer {
         }
     }
 
+    /*
+    Create 1 or more Material uniform(s)
+     */
     private void setUpMaterialUniforms(ShaderProgram shaderProgram, String[] uniformNames) throws Exception {
         if (shaderProgram != null && uniformNames != null && uniformNames.length > 0) {
             for (String uniformName : uniformNames) {
@@ -273,6 +279,7 @@ public class Renderer {
                 "useTexture",
                 skybox.getMesh().getMaterial().isUsingTexture() ? 1 : 0
         );
+        mSkyBoxShaderProgram.setUniform("colour", skybox.getMesh().getMaterial().getColour());
 
         skybox.getMesh().render();
 
