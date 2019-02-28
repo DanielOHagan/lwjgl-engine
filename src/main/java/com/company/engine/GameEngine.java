@@ -18,6 +18,9 @@ public class GameEngine implements Runnable {
     private final MouseInput mMouseInput;
     private final KeyboardInput mKeyboardInput;
 
+    private double mLastFpsTimeMillis;
+    private int mFps;
+
     public GameEngine(
             String windowTitle,
             String windowIconPath,
@@ -91,6 +94,8 @@ public class GameEngine implements Runnable {
     private void init() throws Exception {
         mWindow.init();
         mTimer.init();
+        mLastFpsTimeMillis = mTimer.getTime();
+        mFps = 0;
         mMouseInput.init(mWindow);
         mKeyboardInput.init(mWindow);
         mGameLogic.init(mWindow);
@@ -145,6 +150,12 @@ public class GameEngine implements Runnable {
     }
 
     private void render() {
+        if (mWindow.getOptions().showFps && mTimer.getLastLoopTime() - mLastFpsTimeMillis > 1) {
+            mLastFpsTimeMillis = mTimer.getLastLoopTime();
+            mWindow.showFps(mFps);
+            mFps = 0;
+        }
+        mFps++;
         mGameLogic.render(mWindow);
         mWindow.render();
     }

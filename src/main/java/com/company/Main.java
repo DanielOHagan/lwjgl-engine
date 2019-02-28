@@ -21,6 +21,7 @@ public class Main {
             options.resizable = true;
             options.showMeshLines = false;
             options.cullFace = true;
+            options.showFps = true;
 
             GameEngine gameEngine = new GameEngine(
                     "Game",

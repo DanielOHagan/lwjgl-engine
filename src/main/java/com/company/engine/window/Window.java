@@ -14,9 +14,9 @@ public class Window {
     private static final int WINDOW_DEFAULT_WIDTH = 800;
     private static final int WINDOW_DEFAULT_HEIGHT = 600;
 
-    private final String WINDOW_TITLE; //the text that will display at the top of the window
     private final String WINDOW_ICON_PATH; //the path to the window icon resource
 
+    private String mWindowTitle; //the text that will display at the top of the window
     private int mWidth;
     private int mHeight;
     private float mAspectRatio;
@@ -37,7 +37,7 @@ public class Window {
             WindowMode windowMode,
             WindowOptions options
     ) {
-        WINDOW_TITLE = title;
+        mWindowTitle = title;
         WINDOW_ICON_PATH = windowIconPath;
         mWidth = width;
         mHeight = height;
@@ -80,7 +80,7 @@ public class Window {
         mWindowHandle = glfwCreateWindow(
                 mWidth,
                 mHeight,
-                WINDOW_TITLE,
+                mWindowTitle,
                 mOptions.fullscreen ? mCurrentMonitor : NULL,
                 NULL
         );
@@ -274,6 +274,10 @@ public class Window {
         glfwPollEvents();
     }
 
+    public void showFps(int fps) {
+        glfwSetWindowTitle(mWindowHandle, mWindowTitle + " - " + fps);
+    }
+
     public boolean isKeyPressed(int keyCode) {
         return glfwGetKey(mWindowHandle, keyCode) == GLFW_PRESS;
     }
@@ -336,5 +340,9 @@ public class Window {
 
     public Matrix4f getProjectionMatrix() {
         return mProjectionMatrix;
+    }
+
+    public WindowOptions getOptions() {
+        return mOptions;
     }
 }
