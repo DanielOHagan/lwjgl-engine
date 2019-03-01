@@ -15,7 +15,6 @@ public class Material {
     private Vector4f mColour;
     private float mReflectance;
     private Texture mTexture;
-    private boolean mTextured;
     private boolean mUsingTexture;
 
     public Material() {
@@ -24,7 +23,6 @@ public class Material {
         mSpecularColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
         mColour = new Vector4f(DEFAULT_COLOUR.x, DEFAULT_COLOUR.y, DEFAULT_COLOUR.z, DEFAULT_COLOUR.w);
         mTexture = null;
-        mTextured = false;
         mUsingTexture = false;
         mReflectance = 0.0f;
     }
@@ -85,7 +83,6 @@ public class Material {
         mDiffuseColour = new Vector4f(diffuseColour.x, diffuseColour.y, diffuseColour.z, diffuseColour.w);
         mSpecularColour = new Vector4f(specularColour.x, specularColour.y, specularColour.z, specularColour.w);
         mTexture = texture;
-        mTextured = mTexture != null;
         mUsingTexture = mTexture != null;
         mColour = colour;
         mReflectance = reflectance;
@@ -139,7 +136,6 @@ public class Material {
 
     public void setTexture(Texture mTexture) {
         this.mTexture = mTexture;
-        mTextured = mTexture != null;
     }
 
     public void setColour(Vector4f colour) {

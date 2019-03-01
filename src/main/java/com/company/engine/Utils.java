@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -59,5 +60,21 @@ public class Utils {
         }
 
         return result;
+    }
+
+    public static int[] createEmptyIntArray(int length, int defaultValue) {
+        int[] intArray = new int[length];
+
+        Arrays.fill(intArray, defaultValue);
+
+        return intArray;
+    }
+
+    public static float[] createEmptyFloatArray(int length, float defaultValue) {
+        float[] floatArray = new float[length];
+
+        Arrays.fill(floatArray, defaultValue);
+
+        return floatArray;
     }
 }
