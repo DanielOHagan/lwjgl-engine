@@ -2,6 +2,8 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.particles.IParticleEmitter;
+import com.company.engine.graph.particles.Particle;
 import com.company.engine.input.MouseOptions;
 import com.company.engine.loaders.ObjLoader;
 import com.company.engine.scene.items.GameItem;
@@ -11,7 +13,11 @@ import com.company.engine.graph.*;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.scene.Scene;
+import de.matthiasmann.twl.utils.PNGDecoder;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
+
+import java.nio.ByteBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -26,6 +32,7 @@ public class TestGame implements IGameLogic {
     private MouseOptions mMouseOptions;
 
     private TestHud testHud;
+    private TestParticleEmitter testParticleEmitter;
 
     public TestGame() {
         mRenderer = new Renderer();
@@ -41,12 +48,6 @@ public class TestGame implements IGameLogic {
         setUpMouseOptions();
 
         // Setup  GameItems
-        float reflectance = 1f;
-        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj");
-        Texture texture = new Texture("/textures/grassblock.png");
-        Material material = new Material(texture, reflectance);
-        mesh.setMaterial(material);
-
         float blockScale = 0.5f;
         float skyBoxScale = 50.0f;
         float extension = 2.0f;
@@ -62,6 +63,14 @@ public class TestGame implements IGameLogic {
         int NUM_ROWS = (int)(extension * skyBoxScale * 2 / inc);
         int NUM_COLS = (int)(extension * skyBoxScale * 2/ inc);
         GameItem[] gameItems  = new GameItem[NUM_ROWS * NUM_COLS];
+
+        float reflectance = 1f;
+        int instances = NUM_ROWS * NUM_COLS;
+        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", instances);
+        Texture texture = new Texture("/textures/grassblock.png");
+        Material material = new Material(texture, reflectance);
+        mesh.setMaterial(material);
+
         for(int i=0; i<NUM_ROWS; i++) {
             for(int j=0; j<NUM_COLS; j++) {
                 GameItem gameItem = new GameItem(mesh);
@@ -75,26 +84,19 @@ public class TestGame implements IGameLogic {
             posx = startx;
             posz -= inc;
         }
+        mScene.addSceneGameItems(gameItems);
 
-        // Setup  SkyBox
-        SkyBox skyBox = new SkyBox("/models/skybox.obj", "/textures/skybox.png");
-        skyBox.setScale(500);
-        skyBox.setInFixedPosition(true);
-
-        testHud = new TestHud("TEST");
-        testHud.getTestTextItem().getMesh().getMaterial().setColour(new Vector4f(0, 0, 1, 1));
-
-
-        mScene.setSceneGameItems(gameItems);
-        mScene.setHud(testHud);
-        mScene.setSkyBox(skyBox);
+        //mScene.addSceneGameItems(gameItems);
+        //mScene.setHud(testHud);
+        //mScene.setSkyBox(skyBox);
+        //mScene.setParticleEmitters(new IParticleEmitter[]{ testParticleEmitter });
     }
 
     @Override
     public void input(Window window, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Handle input here */
 
-        /* This is very bad camera controls, it is purely to test rendering */
+        /* This is very bad camera controls, it is purely for test */
         if (window.isKeyPressed(GLFW_KEY_W)) {
             mCamera.getPosition().z += 0.08;
         }
@@ -129,20 +131,19 @@ public class TestGame implements IGameLogic {
         if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             mCamera.getRotation().x += 0.4;
         }
+
+        //System.out.println("CAMERA POS: \n\tX: " + mCamera.getPosition().x + "\n\tY: " + mCamera.getPosition().y + "\n\tZ: " + mCamera.getPosition().z);
     }
 
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Update the application here */
-
-
-        /* Update the background here */
-
+//        testParticleEmitter.update((long) (interval * 1000));
     }
 
     @Override
     public void render(Window window) {
-        testHud.updateSize(window);
+//        testHud.updateSize(window);
         if (mInitialCycle) {
             mSceneChanged = true;
             mInitialCycle = false;

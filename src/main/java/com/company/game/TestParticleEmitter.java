@@ -92,7 +92,7 @@ public class TestParticleEmitter implements IParticleEmitter {
                 particle.setUpdateTextureTime(particle.getUpdateTextureTime() + updateAnimInc);
             }
         } else {
-            particle.setColour(new Vector4f(
+            particle.getMesh().getMaterial().setColour(new Vector4f(
                     Math.random() > 0.5f ? 1 : 0,
                     Math.random() > 0.5f ? 1 : 0,
                     Math.random() > 0.5f ? 1 : 0,

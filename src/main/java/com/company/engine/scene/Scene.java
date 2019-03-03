@@ -1,5 +1,6 @@
 package com.company.engine.scene;
 
+import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.input.KeyboardInput;
@@ -17,6 +18,7 @@ public class Scene {
 
     private IHud mHud;
     private Map<Mesh, List<GameItem>> mGameItemMeshMap; //stores GameItems based on their Mesh
+    private Map<InstancedMesh, List<GameItem>> mGameItemInstancedMesh;
     private IParticleEmitter[] mParticleEmitters;
     private MouseInput mMouseInput;
     private KeyboardInput mKeyboardInput;
@@ -25,20 +27,30 @@ public class Scene {
 
     public Scene() {
         mGameItemMeshMap = new HashMap<>();
+        mGameItemInstancedMesh = new HashMap<>();
     }
 
-    public void setSceneGameItems(GameItem[] gameItems) {
+    public void addSceneGameItems(GameItem[] gameItems) {
         int gameItemsLength = gameItems != null ? gameItems.length : 0;
 
         for (int i = 0; i < gameItemsLength; i++) {
             GameItem gameItem = gameItems[i];
             Mesh[] meshes = gameItem.getMeshes();
+
             for (Mesh mesh : meshes) {
-                List<GameItem> gameItemList = mGameItemMeshMap.get(mesh);
-                if (gameItemList == null) {//if mesh is not already stored in map
+                boolean isInstanced = mesh instanceof InstancedMesh;
+                List<GameItem> gameItemList = isInstanced ?
+                        mGameItemInstancedMesh.get(mesh) : mGameItemMeshMap.get(mesh);
+
+                if (gameItemList == null) {
                     gameItemList = new ArrayList<>();
-                    mGameItemMeshMap.put(mesh, gameItemList);
+                    if (isInstanced) {
+                        mGameItemInstancedMesh.put((InstancedMesh) mesh, gameItemList);
+                    } else {
+                        mGameItemMeshMap.put(mesh, gameItemList);
+                    }
                 }
+
                 gameItemList.add(gameItem);
             }
         }
@@ -120,5 +132,9 @@ public class Scene {
 
     public void setSkyBox(SkyBox skyBox) {
         mSkyBox = skyBox;
+    }
+
+    public Map<InstancedMesh, List<GameItem>> getGameItemInstancedMeshMap() {
+        return mGameItemInstancedMesh;
     }
 }

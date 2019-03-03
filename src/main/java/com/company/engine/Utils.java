@@ -1,5 +1,7 @@
 package com.company.engine;
 
+import org.joml.Vector4f;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,7 +64,15 @@ public class Utils {
         return result;
     }
 
-    public static int[] createEmptyIntArray(int length, int defaultValue) {
+    public static int[] createIntArray(int length) {
+        int[] intArray = new int[length];
+
+        Arrays.fill(intArray, 0);
+
+        return intArray;
+    }
+
+    public static int[] createIntArray(int length, int defaultValue) {
         int[] intArray = new int[length];
 
         Arrays.fill(intArray, defaultValue);
@@ -70,11 +80,35 @@ public class Utils {
         return intArray;
     }
 
-    public static float[] createEmptyFloatArray(int length, float defaultValue) {
+    public static float[] createFloatArray(int length, float defaultValue) {
         float[] floatArray = new float[length];
 
         Arrays.fill(floatArray, defaultValue);
 
         return floatArray;
+    }
+
+    public static float[] createFloatArray(int length) {
+        float[] floatArray = new float[length];
+
+        Arrays.fill(floatArray, 0);
+
+        return floatArray;
+    }
+
+    public static Vector4f[] createVector4fArray(int length, Vector4f defaultValue) {
+        Vector4f[] array = new Vector4f[length];
+
+        Arrays.fill(array, defaultValue);
+
+        return array;
+    }
+
+    public static Vector4f[] createVector4fArray(int length) {
+        Vector4f[] array = new Vector4f[length];
+
+        Arrays.fill(array, new Vector4f(1, 1, 1, 1));
+
+        return array;
     }
 }

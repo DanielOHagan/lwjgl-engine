@@ -58,4 +58,11 @@ public class Transformation {
     public Matrix4f generateOrthoProjectionModelMatrix(GameItem gameItem, Matrix4f orthoMatrix) {
         return orthoMatrix.mulAffine(generateModelMatrix(gameItem), mOrthographicModelMatrix);
     }
+
+
+    /* Getters and Setters */
+
+    public Matrix4f getLightViewMatrix() {
+        return mLightViewMatrix;
+    }
 }

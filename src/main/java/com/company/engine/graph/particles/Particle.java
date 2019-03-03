@@ -13,7 +13,6 @@ public class Particle extends GameItem {
 
     private long mParticleLifeSpan;
     private Vector3f mSpeed;
-    private Vector4f mColour;
     private boolean mTextured;
     private boolean mUseTexture;
     private boolean mAnimated; //if the particle cycles through a texture atlas
@@ -89,7 +88,7 @@ public class Particle extends GameItem {
             boolean useTexture
     ) {
         super(mesh);
-        mColour = colour;
+        getMesh().getMaterial().setColour(colour);
         mSpeed = speed;
         mParticleLifeSpan = particleLifeSpan;
         mUpdateTextureTime = updateTextureTime;
@@ -114,7 +113,7 @@ public class Particle extends GameItem {
         setScale(baseParticle.getScale());
 
         mSpeed = new Vector3f(baseParticle.getSpeed());
-        mColour = baseParticle.getColour();
+        getMesh().getMaterial().setColour(baseParticle.getMesh().getMaterial().getColour());
         mTextured = baseParticle.isTextured();
         mUseTexture = baseParticle.isUsingTexture();
         mParticleLifeSpan = baseParticle.getParticleLifeSpan();
@@ -193,21 +192,6 @@ public class Particle extends GameItem {
         mCurrentAnimationTime = currentAnimationTime;
     }
 
-    public Vector4f getColour() {
-        return mColour;
-    }
-
-    public void setColour(Vector4f colour) {
-        mColour = colour;
-    }
-
-    public void setColour(float red, float green, float blue, float alpha) {
-        mColour.x = red;
-        mColour.y = green;
-        mColour.z = blue;
-        mColour.w = alpha;
-    }
-
     public void setIsTextured(boolean isTextured) {
         mTextured = isTextured;
     }
@@ -222,13 +206,5 @@ public class Particle extends GameItem {
 
     public boolean isUsingTexture() {
         return mUseTexture;
-    }
-
-    public void setOpacity(float opacity) {
-        mColour.w = opacity;
-    }
-
-    public float getOpacity() {
-        return mColour.w;
     }
 }

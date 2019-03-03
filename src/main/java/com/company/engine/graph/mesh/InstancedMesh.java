@@ -1,6 +1,7 @@
 package com.company.engine.graph.mesh;
 
 import com.company.engine.Utils;
+import com.company.engine.graph.ShaderProgram;
 import com.company.engine.graph.Texture;
 import com.company.engine.graph.Transformation;
 import com.company.engine.scene.items.GameItem;
@@ -20,8 +21,8 @@ public class InstancedMesh extends Mesh {
     private static final int VECTOR4F_SIZE_BYTES = 4 * FLOAT_SIZE_BYTES; //number of bytes used to store a Vector4f in the instanced buffer
     private static final int MATRIX_SIZE_FLOATS = 4 * 4; //number of floats in a 4x4 matrix
     private static final int MATRIX_SIZE_BYTES = MATRIX_SIZE_FLOATS * FLOAT_SIZE_BYTES; //number of bytes used to store a 4x4 float matrix in the instance buffer
-    private static final int INSTANCE_SIZE_BYTES = MATRIX_SIZE_BYTES * 2 + FLOAT_SIZE_BYTES * 2; //number of bytes the instance buffer uses (2 4x4 float matrices and 2 floats)
-    private static final int INSTANCE_SIZE_FLOATS = MATRIX_SIZE_FLOATS * 2 + 2; //number of floats the instance buffer uses (2 4x4 float matrices and 2 floats)
+    private static final int INSTANCE_SIZE_BYTES = MATRIX_SIZE_BYTES * 2 + FLOAT_SIZE_BYTES * 3; //number of bytes the instance buffer uses (2 4x4 float matrices and 2 floats)
+    private static final int INSTANCE_SIZE_FLOATS = MATRIX_SIZE_FLOATS * 2 + 3; //number of floats the instance buffer uses (2 4x4 float matrices and 2 floats)
 
     private final int mNumberOfInstances;
 
@@ -40,9 +41,8 @@ public class InstancedMesh extends Mesh {
                 textCoords,
                 normals,
                 indices,
-                Utils.createEmptyIntArray(MAX_WEIGHTS * positions.length / 3, 0),
-                Utils.createEmptyFloatArray(MAX_WEIGHTS * positions.length / 3, 0)
-
+                Utils.createIntArray(MAX_WEIGHTS * positions.length / 3, 0),
+                Utils.createFloatArray(MAX_WEIGHTS * positions.length / 3, 0)
         );
 
         mNumberOfInstances = numberOfInstances;
@@ -55,7 +55,7 @@ public class InstancedMesh extends Mesh {
         super.initRender();
 
         int start = 5;
-        int numberOfElements = 4 * 2;
+        int numberOfElements = 4 * 2 + 1;
 
         for (int i = 0; i < numberOfElements; i++) {
             glEnableVertexAttribArray(start + i);
@@ -65,7 +65,7 @@ public class InstancedMesh extends Mesh {
     @Override
     protected void endRender() {
         int start = 5;
-        int numberOfElements = 4 * 2;
+        int numberOfElements = 4 * 2 + 1;
 
         for (int i = 0; i < numberOfElements; i++) {
             glDisableVertexAttribArray(start + i);
@@ -74,9 +74,19 @@ public class InstancedMesh extends Mesh {
         super.endRender();
     }
 
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+
+        if (mInstanceDataBuffer != null) {
+            MemoryUtil.memFree(mInstanceDataBuffer);
+            mInstanceDataBuffer = null;
+        }
+    }
+
     private void initialiseInstancedMesh() {
         glBindVertexArray(mVaoId);
-        int start = 5; //maybe switch this to mVboIdList.size();
+        int start = 5;
         int strideStart = 0;
 
         //model view matrix
@@ -102,7 +112,7 @@ public class InstancedMesh extends Mesh {
 
         //light view matrix
         //store the matrix as 4 vectors that store 4 values each
-//        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
 //            glVertexAttribPointer(
 //                    start,
 //                    4,
@@ -112,9 +122,9 @@ public class InstancedMesh extends Mesh {
 //                    strideStart
 //            );
 //            glVertexAttribDivisor(start, 1);
-//            start++;
-//            strideStart += VECTOR4F_SIZE_BYTES;
-//        }
+            start++;
+            strideStart += VECTOR4F_SIZE_BYTES;
+        }
 
         //texture offsets
         glVertexAttribPointer(
@@ -126,6 +136,18 @@ public class InstancedMesh extends Mesh {
                 strideStart
         );
         glVertexAttribDivisor(start, 1);
+//        start++;
+//        strideStart += VECTOR4F_SIZE_BYTES / 2;
+//
+//        //vector colour
+//        glVertexAttribPointer(
+//                start,
+//                4,
+//                GL_FLOAT,
+//                false,
+//                INSTANCE_SIZE_BYTES,
+//                strideStart
+//        );
 
         //unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -154,9 +176,9 @@ public class InstancedMesh extends Mesh {
             Matrix4f viewMatrix,
             Matrix4f lightViewMatrix
     ) {
-        //splits the list of game items into chunks to be rendered
         initRender();
 
+        //splits the list of game items into chunks to be rendered
         int chunkSize = mNumberOfInstances;
         int length = gameItems.size();
 
@@ -186,18 +208,34 @@ public class InstancedMesh extends Mesh {
 
         int i = 0;
 
-        Texture texture = getMaterial() != null &&
-                getMaterial().getTexture() != null ? getMaterial().getTexture() : null;
+        Texture texture = getMaterial().getTexture();
 
         for (GameItem gameItem : gameItemList) {
             Matrix4f modelMatrix = transformation.generateModelMatrix(gameItem);
-            int bufferPosition = INSTANCE_SIZE_FLOATS * i + MATRIX_SIZE_FLOATS;
+            int bufferPosition = INSTANCE_SIZE_FLOATS * i + MATRIX_SIZE_FLOATS * 2;
 
-            if (viewMatrix != null && billboard) {
-                viewMatrix.transpose3x3(modelMatrix);
+            if (viewMatrix != null) {
+                if (billboard) {
+                    viewMatrix.transpose3x3(modelMatrix);
+                }
+
+                Matrix4f modelViewMatrix = transformation.generateModelViewMatrix(modelMatrix, viewMatrix);
+
+                if (billboard) {
+                    modelViewMatrix.scale(gameItem.getScale());
+                }
+
+                modelViewMatrix.get(INSTANCE_SIZE_FLOATS * i, mInstanceDataBuffer);
             }
 
-            modelMatrix.get(INSTANCE_SIZE_FLOATS * i, mInstanceDataBuffer);
+            if (lightViewMatrix != null) {
+//                Matrix4f modelLightViewMatrix =
+//                        transformation.generateModelLightViewMatrix(modelMatrix, lightViewMatrix);
+//                modelLightViewMatrix.get(
+//                        INSTANCE_SIZE_FLOATS * i + MATRIX_SIZE_FLOATS,
+//                        mInstanceDataBuffer
+//                );
+            }
 
             //texture offsets
             if (texture != null) {
@@ -209,7 +247,6 @@ public class InstancedMesh extends Mesh {
                 mInstanceDataBuffer.put(bufferPosition, textOffsetX);
                 mInstanceDataBuffer.put(bufferPosition + 1, textOffsetY);
             }
-
 
 
             i++;
@@ -226,6 +263,7 @@ public class InstancedMesh extends Mesh {
                 0,
                 gameItemList.size()
         );
+
 
         //unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);

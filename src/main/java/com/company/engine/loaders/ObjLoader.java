@@ -1,6 +1,7 @@
 package com.company.engine.loaders;
 
 import com.company.engine.Utils;
+import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -11,6 +12,10 @@ import java.util.List;
 public class ObjLoader {
 
     public static Mesh loadMesh(String fileName) throws Exception {
+        return loadMesh(fileName, 1);
+    }
+
+    public static Mesh loadMesh(String fileName, int instances) throws Exception {
         List<String> lines = Utils.readAllLines(fileName);
 
         List<Vector3f> positionsList = new ArrayList<>();
@@ -60,14 +65,15 @@ public class ObjLoader {
             }
         }
 
-        return reorderMeshLists(positionsList, textCoordsList, normalsList, facesList);
+        return reorderMeshLists(positionsList, textCoordsList, normalsList, facesList, instances);
     }
 
     private static Mesh reorderMeshLists(
             List<Vector3f> positionsList,
             List<Vector2f> textCoordsList,
             List<Vector3f> normalsList,
-            List<Face> facesList
+            List<Face> facesList,
+            int instances
     ) {
         //the lists need to be reordered because the order of definition for texture coordinates
         //and normal coordinates does not correspond to the vertices order
@@ -103,8 +109,22 @@ public class ObjLoader {
 
         int[] indicesArr = Utils.listToIntArray(indices);
 
-        //TODO: Add normal support in Mesh, maybe add a constructor that takes normals for the Mesh to use
-        return new Mesh(positionsArr, textureCoordinatesArr, normalsArr, indicesArr);
+        if (instances > 1) {
+            return new InstancedMesh(
+                    positionsArr,
+                    textureCoordinatesArr,
+                    normalsArr,
+                    indicesArr,
+                    instances
+            );
+        } else {
+            return new Mesh(
+                    positionsArr,
+                    textureCoordinatesArr,
+                    normalsArr,
+                    indicesArr
+            );
+        }
     }
 
     private static void processFaceVertex(

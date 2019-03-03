@@ -12,6 +12,12 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class ShaderProgram {
 
+    public static int POSITION_VBO_INDEX = 0;
+    public static int TEXTURE_COORDINATES_VBO_INDEX = 1;
+    public static int NORMALS_VBO_INDEX = 2;
+    public static int WEIGHTS_VBO_INDEX = 3;
+    public static int JOINT_INDICES_VBO_INDEX = 4;
+
     private final int mProgramId;
     private final Map<String, Integer> mUniforms;
 

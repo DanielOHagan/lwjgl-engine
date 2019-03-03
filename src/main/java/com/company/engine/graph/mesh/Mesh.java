@@ -11,17 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.company.engine.graph.ShaderProgram.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Mesh {
 
     public static final int MAX_WEIGHTS = 4;
-
-    private static int POSITION_VBO_INDEX = 0;
-    private static int TEXTURE_COORDINATES_VBO_INDEX = 1;
-    private static int NORMALS_VBO_INDEX = 2;
-    private static int WEIGHTS_VBO_INDEX = 3;
-    private static int JOINT_INDICES_VBO_INDEX = 4;
 
     protected int mVaoId;
     protected List<Integer> mVboIdList;
@@ -40,7 +35,14 @@ public class Mesh {
             float[] normals,
             int[] indices
     ) {
-        initialiseMesh(positions, textCoords, normals, indices, null, null);
+        initialiseMesh(
+                positions,
+                textCoords,
+                normals,
+                indices,
+                null,
+                null
+        );
     }
 
     public Mesh(
@@ -51,7 +53,14 @@ public class Mesh {
             int[] jointIndices,
             float[] weights
     ) {
-        initialiseMesh(positions, textCoords, normals, indices, jointIndices, weights);
+        initialiseMesh(
+                positions,
+                textCoords,
+                normals,
+                indices,
+                jointIndices,
+                weights
+        );
     }
 
     /*
@@ -98,7 +107,7 @@ public class Mesh {
             glVertexAttribPointer(POSITION_VBO_INDEX, 3, GL_FLOAT, false, 0, 0);
 
             //texture coordinates VBO
-            if (textCoords != null) {
+            if (mUsingTextCoords) {
                 vboId = glGenBuffers();
                 mVboIdList.add(vboId);
                 textCoordsBuffer = MemoryUtil.memAllocFloat(textCoords.length);
@@ -110,7 +119,7 @@ public class Mesh {
             }
 
             //normals VBO
-            if (normals != null) {
+            if (mUsingNormals) {
                 vboId = glGenBuffers();
                 mVboIdList.add(vboId);
                 normalsBuffer = MemoryUtil.memAllocFloat(normals.length);
@@ -122,7 +131,7 @@ public class Mesh {
             }
 
             //weights VBO
-            if (weights != null) {
+            if (mUsingWeights) {
                 vboId = glGenBuffers();
                 mVboIdList.add(vboId);
                 weightsBuffer = MemoryUtil.memAllocFloat(weights.length);
@@ -133,7 +142,7 @@ public class Mesh {
             }
 
             //joint indices VBO
-            if (jointIndices != null) {
+            if (mUsingJointIndices) {
                 vboId = glGenBuffers();
                 mVboIdList.add(vboId);
                 joinIndicesBuffer = MemoryUtil.memAllocInt(jointIndices.length);
@@ -222,7 +231,9 @@ public class Mesh {
         */
 
         glBindVertexArray(mVaoId);
+
         glEnableVertexAttribArray(POSITION_VBO_INDEX);
+
         if (mUsingTextCoords) {
             glEnableVertexAttribArray(TEXTURE_COORDINATES_VBO_INDEX);
         }
@@ -254,7 +265,9 @@ public class Mesh {
         if (mUsingJointIndices) {
             glDisableVertexAttribArray(JOINT_INDICES_VBO_INDEX);
         }
+
         glBindVertexArray(0);
+
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
