@@ -57,6 +57,7 @@ public class TestParticleEmitter implements IParticleEmitter {
         if (mLastCreationTime == 0) {
             mLastCreationTime = currentTime;
         }
+
         Iterator<? extends GameItem> iterator = mParticles.iterator();
         while (iterator.hasNext()) {
             Particle particle = (Particle) iterator.next();
@@ -88,7 +89,7 @@ public class TestParticleEmitter implements IParticleEmitter {
         if (particle.isAnimated()) {
             long updateAnimInc = (long) sign * (long) (Math.random() * (float) mAnimRange);
 
-            if (particle.isUsingTexture()) {
+            if (particle.getMesh().getMaterial().isUsingTexture()) {
                 particle.setUpdateTextureTime(particle.getUpdateTextureTime() + updateAnimInc);
             }
         } else {

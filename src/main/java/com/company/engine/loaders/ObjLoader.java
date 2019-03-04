@@ -3,6 +3,7 @@ package com.company.engine.loaders;
 import com.company.engine.Utils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.mesh.MeshType;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
@@ -11,11 +12,16 @@ import java.util.List;
 
 public class ObjLoader {
 
-    public static Mesh loadMesh(String fileName) throws Exception {
-        return loadMesh(fileName, 1);
+    public static Mesh loadMesh(String fileName, MeshType meshType) throws Exception {
+        return loadMesh(fileName, 1, meshType);
     }
 
-    public static Mesh loadMesh(String fileName, int instances) throws Exception {
+    public static Mesh loadMesh(String fileName, int instances, MeshType meshType) throws Exception {
+
+        if (instances > 1 && meshType != MeshType.INSTANCED) {
+            throw new Exception("Mesh type must be instanced if instance count is greater that 1");
+        }
+
         List<String> lines = Utils.readAllLines(fileName);
 
         List<Vector3f> positionsList = new ArrayList<>();
@@ -65,7 +71,14 @@ public class ObjLoader {
             }
         }
 
-        return reorderMeshLists(positionsList, textCoordsList, normalsList, facesList, instances);
+        return reorderMeshLists(
+                positionsList,
+                textCoordsList,
+                normalsList,
+                facesList,
+                instances,
+                meshType
+        );
     }
 
     private static Mesh reorderMeshLists(
@@ -73,7 +86,8 @@ public class ObjLoader {
             List<Vector2f> textCoordsList,
             List<Vector3f> normalsList,
             List<Face> facesList,
-            int instances
+            int instances,
+            MeshType meshType
     ) {
         //the lists need to be reordered because the order of definition for texture coordinates
         //and normal coordinates does not correspond to the vertices order
@@ -109,21 +123,29 @@ public class ObjLoader {
 
         int[] indicesArr = Utils.listToIntArray(indices);
 
-        if (instances > 1) {
-            return new InstancedMesh(
-                    positionsArr,
-                    textureCoordinatesArr,
-                    normalsArr,
-                    indicesArr,
-                    instances
-            );
-        } else {
-            return new Mesh(
-                    positionsArr,
-                    textureCoordinatesArr,
-                    normalsArr,
-                    indicesArr
-            );
+        switch (meshType) {
+            case STANDARD:
+                return new Mesh(
+                        positionsArr,
+                        textureCoordinatesArr,
+                        normalsArr,
+                        indicesArr
+                );
+            case INSTANCED:
+                return new InstancedMesh(
+                        positionsArr,
+                        textureCoordinatesArr,
+                        normalsArr,
+                        indicesArr,
+                        instances
+                );
+            default:
+                return new Mesh(
+                        positionsArr,
+                        textureCoordinatesArr,
+                        normalsArr,
+                        indicesArr
+                );
         }
     }
 

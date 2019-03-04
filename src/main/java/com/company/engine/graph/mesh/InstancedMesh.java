@@ -84,7 +84,7 @@ public class InstancedMesh extends Mesh {
         }
     }
 
-    private void initialiseInstancedMesh() {
+    protected void initialiseInstancedMesh() {
         glBindVertexArray(mVaoId);
         int start = 5;
         int strideStart = 0;
@@ -136,18 +136,6 @@ public class InstancedMesh extends Mesh {
                 strideStart
         );
         glVertexAttribDivisor(start, 1);
-//        start++;
-//        strideStart += VECTOR4F_SIZE_BYTES / 2;
-//
-//        //vector colour
-//        glVertexAttribPointer(
-//                start,
-//                4,
-//                GL_FLOAT,
-//                false,
-//                INSTANCE_SIZE_BYTES,
-//                strideStart
-//        );
 
         //unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -263,7 +251,6 @@ public class InstancedMesh extends Mesh {
                 0,
                 gameItemList.size()
         );
-
 
         //unbind
         glBindBuffer(GL_ARRAY_BUFFER, 0);

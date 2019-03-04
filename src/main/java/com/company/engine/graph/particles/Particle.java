@@ -9,12 +9,11 @@ import org.joml.Vector4f;
 public class Particle extends GameItem {
 
     private static final int NO_VALUE = -1;
-    private static final Vector4f DEFAULT_COLOUR = new Vector4f(0.0f, 0.0f, 0.0f, 1.0f);
+    private static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
 
     private long mParticleLifeSpan;
     private Vector3f mSpeed;
     private boolean mTextured;
-    private boolean mUseTexture;
     private boolean mAnimated; //if the particle cycles through a texture atlas
     private int mAnimatedFrameCount;
     private long mUpdateTextureTime;
@@ -24,8 +23,7 @@ public class Particle extends GameItem {
             Mesh mesh,
             Vector3f speed,
             long particleLifeSpan,
-            boolean animated,
-            boolean useTexture
+            boolean animated
     ) {
         this(
                 mesh,
@@ -34,8 +32,7 @@ public class Particle extends GameItem {
                 particleLifeSpan,
                 NO_VALUE,
                 animated,
-                mesh.getMaterial() != null && mesh.getMaterial().getTexture() != null,
-                useTexture
+                mesh.getMaterial() != null && mesh.getMaterial().getTexture() != null
         );
     }
 
@@ -52,8 +49,7 @@ public class Particle extends GameItem {
                 particleLifeSpan,
                 updateTextureTime,
                 true,
-                mesh.getMaterial() != null && mesh.getMaterial().getTexture() != null,
-                true
+                mesh.getMaterial() != null && mesh.getMaterial().getTexture() != null
         );
     }
 
@@ -62,8 +58,7 @@ public class Particle extends GameItem {
             Vector4f colour,
             Vector3f speed,
             long particleLifeSpan,
-            boolean animated,
-            boolean useTexture
+            boolean animated
     ) {
         this(
                 mesh,
@@ -72,8 +67,7 @@ public class Particle extends GameItem {
                 particleLifeSpan,
                 NO_VALUE,
                 animated,
-                mesh.getMaterial() != null && mesh.getMaterial().getTexture() != null,
-                useTexture
+                mesh.getMaterial() != null && mesh.getMaterial().getTexture() != null
         );
     }
 
@@ -84,19 +78,17 @@ public class Particle extends GameItem {
             long particleLifeSpan,
             long updateTextureTime,
             boolean animated,
-            boolean textured,
-            boolean useTexture
+            boolean textured
     ) {
         super(mesh);
-        getMesh().getMaterial().setColour(colour);
+        getMesh().getMaterial().setColour(new Vector4f(colour));
         mSpeed = speed;
         mParticleLifeSpan = particleLifeSpan;
         mUpdateTextureTime = updateTextureTime;
         mAnimated = animated;
         mTextured = textured;
-        mUseTexture = useTexture;
         if (mTextured) {
-            Texture texture = mesh.getMaterial().getTexture();
+            Texture texture = getMesh().getMaterial().getTexture();
             mAnimatedFrameCount = texture.getNumColumns() * texture.getNumRows();
         } else {
             mAnimatedFrameCount = NO_VALUE;
@@ -113,9 +105,8 @@ public class Particle extends GameItem {
         setScale(baseParticle.getScale());
 
         mSpeed = new Vector3f(baseParticle.getSpeed());
-        getMesh().getMaterial().setColour(baseParticle.getMesh().getMaterial().getColour());
+        getMesh().getMaterial().setColour(new Vector4f(baseParticle.getMesh().getMaterial().getColour()));
         mTextured = baseParticle.isTextured();
-        mUseTexture = baseParticle.isUsingTexture();
         mParticleLifeSpan = baseParticle.getParticleLifeSpan();
         mAnimated = baseParticle.isAnimated();
         mAnimatedFrameCount =  baseParticle.getAnimatedFrameCount();
@@ -126,7 +117,7 @@ public class Particle extends GameItem {
     public long updateParticleLifeSpan(long elapsedTime) {
         mParticleLifeSpan -= elapsedTime;
 
-        if (mAnimated && mUseTexture) {
+        if (mAnimated && getMesh().getMaterial().isUsingTexture()) {
             mCurrentAnimationTime += elapsedTime;
             if (mCurrentAnimationTime >= mUpdateTextureTime && mAnimatedFrameCount > 0) {
                 mCurrentAnimationTime = 0;
@@ -160,12 +151,12 @@ public class Particle extends GameItem {
         mSpeed = speed;
     }
 
-    public void setAnimted(boolean animated) {
-        mAnimated = animated;
-    }
-
     public boolean isAnimated() {
         return mAnimated;
+    }
+
+    public void setAnimated(boolean animated) {
+        mAnimated = animated;
     }
 
     public int getAnimatedFrameCount() {
@@ -196,15 +187,7 @@ public class Particle extends GameItem {
         mTextured = isTextured;
     }
 
-    public void setUseTexture(boolean useTexture) {
-        mUseTexture = useTexture;
-    }
-
     public boolean isTextured() {
         return mTextured;
-    }
-
-    public boolean isUsingTexture() {
-        return mUseTexture;
     }
 }

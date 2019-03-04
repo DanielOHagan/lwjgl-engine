@@ -2,6 +2,7 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.mesh.MeshType;
 import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.graph.particles.Particle;
 import com.company.engine.input.MouseOptions;
@@ -66,7 +67,7 @@ public class TestGame implements IGameLogic {
 
         float reflectance = 1f;
         int instances = NUM_ROWS * NUM_COLS;
-        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", instances);
+        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", instances, MeshType.INSTANCED);
         Texture texture = new Texture("/textures/grassblock.png");
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
@@ -84,12 +85,24 @@ public class TestGame implements IGameLogic {
             posx = startx;
             posz -= inc;
         }
+
+        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 1, MeshType.STANDARD);
+        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
+        Material particleMaterial = new Material(particleTexture, reflectance);
+        particleMaterial.setUsingTexture(false);
+        particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
+        particleMesh.setMaterial(particleMaterial);
+        Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
+        particle.setAnimated(true);
+        testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
+        testParticleEmitter.setActive(true);
+
         mScene.addSceneGameItems(gameItems);
 
         //mScene.addSceneGameItems(gameItems);
         //mScene.setHud(testHud);
         //mScene.setSkyBox(skyBox);
-        //mScene.setParticleEmitters(new IParticleEmitter[]{ testParticleEmitter });
+        mScene.setParticleEmitters(new IParticleEmitter[]{ testParticleEmitter });
     }
 
     @Override
@@ -131,14 +144,12 @@ public class TestGame implements IGameLogic {
         if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             mCamera.getRotation().x += 0.4;
         }
-
-        //System.out.println("CAMERA POS: \n\tX: " + mCamera.getPosition().x + "\n\tY: " + mCamera.getPosition().y + "\n\tZ: " + mCamera.getPosition().z);
     }
 
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         /* Update the application here */
-//        testParticleEmitter.update((long) (interval * 1000));
+        testParticleEmitter.update((long) (interval * 1000));
     }
 
     @Override
@@ -148,7 +159,11 @@ public class TestGame implements IGameLogic {
             mSceneChanged = true;
             mInitialCycle = false;
         }
-        mRenderer.render(window, mCamera, mScene, mSceneChanged);
+        try {
+            mRenderer.render(window, mCamera, mScene, mSceneChanged);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

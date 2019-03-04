@@ -4,8 +4,6 @@ import org.joml.Vector4f;
 
 public class Material {
 
-    //TODO: Add opacity support in the scene shader
-
     public static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     public static final float DEFAULT_REFLECTANCE = 0.0f;
 

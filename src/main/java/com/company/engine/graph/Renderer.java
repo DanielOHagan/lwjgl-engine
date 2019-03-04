@@ -1,8 +1,6 @@
 package com.company.engine.graph;
 
 import com.company.engine.Utils;
-import com.company.engine.graph.anim.AnimFrame;
-import com.company.engine.graph.anim.AnimGameItem;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
@@ -12,14 +10,11 @@ import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 public class Renderer {
 
@@ -97,11 +92,17 @@ public class Renderer {
                 mParticleShaderProgram,
                 new String[] {
                         "projectionMatrix",
-                        "useTexture",
+                        "nonInstancedModelViewMatrix",
 //                        "viewMatrix",
                         "numColumns",
                         "numRows",
-                        "textureSampler"
+                        "textureSampler",
+                        "nonInstancedTextOffsetX",
+                        "nonInstancedTextOffsetY",
+                        "isInstanced",
+                        "nonInstancedModelViewMatrix",
+                        "useTexture",
+                        "nonInstancedParticleColour"
                 }
         );
     }
@@ -144,7 +145,7 @@ public class Renderer {
         }
     }
 
-    public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) {
+    public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) throws Exception {
         clear();
 
         //TODO: frustum culling
@@ -410,7 +411,7 @@ public class Renderer {
         mSkyBoxShaderProgram.unbind();
     }
 
-    private void renderParticles(Window window, Camera camera, Scene scene) {
+    private void renderParticles(Window window, Camera camera, Scene scene) throws Exception {
         Matrix4f viewMatrix = camera.getViewMatrix();
 
         mParticleShaderProgram.bind();
@@ -430,48 +431,65 @@ public class Renderer {
 
         for (int i = 0; i < emittersLength; i++) {
             IParticleEmitter emitter = emitters[i];
-            InstancedMesh instancedMesh = (InstancedMesh) emitter.getBaseParticle().getMesh();
-            boolean useTexture = instancedMesh.getMaterial().isUsingTexture();
-            Texture texture = instancedMesh.getMaterial().getTexture();
+
+            Mesh mesh = emitter.getBaseParticle().getMesh();
+
+            boolean useTexture = mesh.getMaterial().isUsingTexture();
+            Texture texture = mesh.getMaterial().getTexture();
 
             mParticleShaderProgram.setUniform("numColumns", useTexture ? texture.getNumColumns() : 1);
             mParticleShaderProgram.setUniform("numRows", useTexture ? texture.getNumRows() : 1);
             mParticleShaderProgram.setUniform("useTexture", useTexture ? 1 : 0);
 
-//            mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
-//                if (useTexture) {
-//                    int column = gameItem.getTexturePos() % texture.getNumColumns();
-//                    int row = gameItem.getTexturePos() / texture.getNumColumns();
-//                    float textOffsetX = (float) column / texture.getNumColumns();
-//                    float textOffsetY = (float) row / texture.getNumRows();
-//
-//                    mParticleShaderProgram.setUniform("textOffsetX", textOffsetX);
-//                    mParticleShaderProgram.setUniform("textOffsetY", textOffsetY);
-//                } else {
-//                    mParticleShaderProgram.setUniform("particleColour", ((Particle) gameItem).getColour());
-//                }
-//
-//                Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
-//
-//                camera.getViewMatrix().transpose3x3(modelMatrix);
-//                camera.getViewMatrix().scale(gameItem.getScale());
-//
-//                Matrix4f modelViewMatrix = mTransformation.generateModelViewMatrix(
-//                        modelMatrix, camera.getViewMatrix()
-//                );
-//                modelViewMatrix.scale(gameItem.getScale());
-//                mParticleShaderProgram.setUniform(
-//                        "modelViewMatrix",
-//                        modelViewMatrix
-//                );
-//            });
-            instancedMesh.renderInstancedList(
-                    emitter.getParticles(),
-                    true,
-                    mTransformation,
-                    viewMatrix,
-                    null
-            );
+            if (mesh instanceof InstancedMesh) {
+                if (!useTexture) {
+                    throw new Exception("Instanced Particles must use a texture");
+                }
+
+                InstancedMesh instancedMesh = (InstancedMesh) mesh;
+
+                mParticleShaderProgram.setUniform("isInstanced", 1);
+                mParticleShaderProgram.setUniform("useTexture", 1);
+
+                instancedMesh.renderInstancedList(
+                        emitter.getParticles(),
+                        true,
+                        mTransformation,
+                        viewMatrix,
+                        null
+                );
+            } else {
+                mParticleShaderProgram.setUniform("isInstanced", 0);
+
+                mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
+                    if (useTexture) {
+                        int column = gameItem.getTexturePos() % texture.getNumColumns();
+                        int row = gameItem.getTexturePos() / texture.getNumColumns();
+                        float textOffsetX = (float) column / texture.getNumColumns();
+                        float textOffsetY = (float) row / texture.getNumRows();
+
+                        mParticleShaderProgram.setUniform("nonInstancedTextOffsetX", textOffsetX);
+                        mParticleShaderProgram.setUniform("nonInstancedTextOffsetY", textOffsetY);
+                    }
+
+                    mParticleShaderProgram.setUniform(
+                            "nonInstancedParticleColour",
+                            gameItem.getMesh().getMaterial().getColour()
+                    );
+
+                    Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
+                    camera.getViewMatrix().transpose3x3(modelMatrix);
+                    camera.getViewMatrix().scale(gameItem.getScale());
+                    Matrix4f modelViewMatrix = mTransformation.generateModelViewMatrix(
+                            modelMatrix, camera.getViewMatrix()
+                    );
+                    modelViewMatrix.scale(gameItem.getScale());
+                    mParticleShaderProgram.setUniform(
+                            "nonInstancedModelViewMatrix",
+                            modelViewMatrix
+                    );
+                });
+            }
         }
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
