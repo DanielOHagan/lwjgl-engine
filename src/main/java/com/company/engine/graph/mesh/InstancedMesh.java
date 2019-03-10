@@ -1,7 +1,6 @@
 package com.company.engine.graph.mesh;
 
-import com.company.engine.Utils;
-import com.company.engine.graph.ShaderProgram;
+import com.company.engine.utils.ArrayUtils;
 import com.company.engine.graph.Texture;
 import com.company.engine.graph.Transformation;
 import com.company.engine.scene.items.GameItem;
@@ -41,8 +40,8 @@ public class InstancedMesh extends Mesh {
                 textCoords,
                 normals,
                 indices,
-                Utils.createIntArray(MAX_WEIGHTS * positions.length / 3, 0),
-                Utils.createFloatArray(MAX_WEIGHTS * positions.length / 3, 0)
+                ArrayUtils.createIntArray(MAX_WEIGHTS * positions.length / 3, 0),
+                ArrayUtils.createFloatArray(MAX_WEIGHTS * positions.length / 3, 0)
         );
 
         mNumberOfInstances = numberOfInstances;

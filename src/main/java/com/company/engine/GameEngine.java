@@ -8,7 +8,7 @@ import com.company.engine.window.WindowOptions;
 
 public class GameEngine implements Runnable {
 
-    private static final int TARGET_FPS = 120;
+    private static final int TARGET_FPS = 120; //max fps
     private static final int TARGET_UPS = 30;
 
     private final Window mWindow;
@@ -28,7 +28,15 @@ public class GameEngine implements Runnable {
             WindowOptions options,
             IGameLogic gameLogic
     ) throws Exception {
-        this(windowTitle, windowIconPath, 0, 0, windowMode, options, gameLogic);
+        this(
+                windowTitle,
+                windowIconPath,
+                0,
+                0,
+                windowMode,
+                options,
+                gameLogic
+        );
     }
 
     public GameEngine(
@@ -37,7 +45,15 @@ public class GameEngine implements Runnable {
             WindowOptions options,
             IGameLogic gameLogic
     ) throws Exception {
-        this(windowTitle, "", 0, 0, windowMode, options, gameLogic);
+        this(
+                windowTitle,
+                "",
+                0,
+                0,
+                windowMode,
+                options,
+                gameLogic
+        );
     }
 
     public GameEngine(
@@ -48,7 +64,15 @@ public class GameEngine implements Runnable {
             WindowOptions options,
             IGameLogic gameLogic
     ) throws Exception {
-        this(windowTitle, "", width, height, windowMode, options, gameLogic);
+        this(
+                windowTitle,
+                "",
+                width,
+                height,
+                windowMode,
+                options,
+                gameLogic
+        );
     }
 
     public GameEngine(
@@ -61,7 +85,14 @@ public class GameEngine implements Runnable {
             IGameLogic gameLogic
     ) throws Exception {
         mGameLoopThread = new Thread(this, "GAME_LOOP_THREAD");
-        mWindow = new Window(windowTitle, windowIconPath, width, height, windowMode, options);
+        mWindow = new Window(
+                windowTitle,
+                windowIconPath,
+                width,
+                height,
+                windowMode,
+                options
+        );
         mGameLogic = gameLogic;
         mTimer = new Timer();
         mMouseInput = new MouseInput();
@@ -71,7 +102,7 @@ public class GameEngine implements Runnable {
     public void start() {
         String osName = System.getProperty("os.name");
 
-        //OSX doesn't work great with GLFW and some GLFW functions can only run on the Main Thread on OSX
+        //OSX doesn't work great with GLFW, some GLFW functions can only run on the Main Thread on OSX
         if (osName.contains("Mac")) {
             mGameLoopThread.run();
         } else {
@@ -155,6 +186,7 @@ public class GameEngine implements Runnable {
             mWindow.showFps(mFps);
             mFps = 0;
         }
+
         mFps++;
         mGameLogic.render(mWindow);
         mWindow.render();

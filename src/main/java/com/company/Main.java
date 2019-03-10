@@ -17,7 +17,7 @@ public class Main {
 
             /*Application should set Window Options here*/
 
-            options.vSync = true;
+            options.vSync = false;
             options.resizable = true;
             options.showMeshLines = false;
             options.cullFace = true;

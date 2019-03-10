@@ -1,6 +1,6 @@
 package com.company.engine.scene.items.ui;
 
-import com.company.engine.Utils;
+import com.company.engine.utils.ArrayUtils;
 import com.company.engine.graph.Material;
 import com.company.engine.graph.Texture;
 import com.company.engine.graph.mesh.Mesh;
@@ -97,9 +97,9 @@ public class UiTextItem extends GameItem {
             indices.add(i * VERTICES_PER_QUAD + 2);
         }
 
-        float[] positionArray = Utils.listToFloatArray(positions);
-        float[] textCoordsArray = Utils.listToFloatArray(textCoords);
-        int[] indicesArray = Utils.listToIntArray(indices);
+        float[] positionArray = ArrayUtils.listToFloatArray(positions);
+        float[] textCoordsArray = ArrayUtils.listToFloatArray(textCoords);
+        int[] indicesArray = ArrayUtils.listToIntArray(indices);
 
         Mesh mesh = new Mesh(positionArray, textCoordsArray, null, indicesArray);
         mesh.setMaterial(new Material(texture));

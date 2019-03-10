@@ -148,7 +148,6 @@ public class TestGame implements IGameLogic {
 
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
-        /* Update the application here */
         testParticleEmitter.update((long) (interval * 1000));
     }
 

@@ -1,10 +1,9 @@
 package com.company.engine.graph;
 
-import com.company.engine.Utils;
+import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
-import com.company.engine.graph.particles.Particle;
 import com.company.engine.scene.items.SkyBox;
 import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
@@ -42,8 +41,8 @@ public class Renderer {
 
     public void setUpSkyBoxShader() throws Exception {
         mSkyBoxShaderProgram = new ShaderProgram();
-        mSkyBoxShaderProgram.createVertexShader(Utils.loadResource("/shaders/skyBox_vertex.vs"));
-        mSkyBoxShaderProgram.createFragmentShader(Utils.loadResource("/shaders/skyBox_fragment.fs"));
+        mSkyBoxShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/skyBox_vertex.vs"));
+        mSkyBoxShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/skyBox_fragment.fs"));
         mSkyBoxShaderProgram.link();
 
         setUpShaderUniforms(
@@ -60,8 +59,8 @@ public class Renderer {
 
     public void setUpSceneShader() throws Exception {
         mSceneShaderProgram = new ShaderProgram();
-        mSceneShaderProgram.createVertexShader(Utils.loadResource("/shaders/scene_vertex.vs"));
-        mSceneShaderProgram.createFragmentShader(Utils.loadResource("/shaders/scene_fragment.fs"));
+        mSceneShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/scene_vertex.vs"));
+        mSceneShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/scene_fragment.fs"));
         mSceneShaderProgram.link();
 
         setUpShaderUniforms(
@@ -84,8 +83,8 @@ public class Renderer {
 
     private void setUpParticleShader() throws Exception {
         mParticleShaderProgram = new ShaderProgram();
-        mParticleShaderProgram.createVertexShader(Utils.loadResource("/shaders/particle_vertex.vs"));
-        mParticleShaderProgram.createFragmentShader(Utils.loadResource("/shaders/particle_fragment.fs"));
+        mParticleShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/particle_vertex.vs"));
+        mParticleShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/particle_fragment.fs"));
         mParticleShaderProgram.link();
 
         setUpShaderUniforms(
@@ -109,8 +108,8 @@ public class Renderer {
 
     private void setUpHudShader() throws Exception {
         mHudShaderProgram = new ShaderProgram();
-        mHudShaderProgram.createVertexShader(Utils.loadResource("/shaders/hud_vertex.vs"));
-        mHudShaderProgram.createFragmentShader(Utils.loadResource("/shaders/hud_fragment.fs"));
+        mHudShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/hud_vertex.vs"));
+        mHudShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/hud_fragment.fs"));
         mHudShaderProgram.link();
 
         setUpShaderUniforms(

@@ -1,6 +1,7 @@
 package com.company.engine.loaders;
 
-import com.company.engine.Utils;
+import com.company.engine.utils.ArrayUtils;
+import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.mesh.MeshType;
@@ -22,7 +23,7 @@ public class ObjLoader {
             throw new Exception("Mesh type must be instanced if instance count is greater that 1");
         }
 
-        List<String> lines = Utils.readAllLines(fileName);
+        List<String> lines = FileUtils.readAllLines(fileName);
 
         List<Vector3f> positionsList = new ArrayList<>();
         List<Vector2f> textCoordsList = new ArrayList<>();
@@ -121,7 +122,7 @@ public class ObjLoader {
             }
         }
 
-        int[] indicesArr = Utils.listToIntArray(indices);
+        int[] indicesArr = ArrayUtils.listToIntArray(indices);
 
         switch (meshType) {
             case STANDARD:
