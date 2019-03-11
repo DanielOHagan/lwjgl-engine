@@ -51,6 +51,11 @@ public class TestParticleEmitter implements IParticleEmitter {
         return mParticles;
     }
 
+    @Override
+    public boolean isActive() {
+        return mActive;
+    }
+
     public void update(long elapsedTime) {
         long currentTime = System.currentTimeMillis();
 
@@ -94,11 +99,11 @@ public class TestParticleEmitter implements IParticleEmitter {
             }
         } else {
             particle.getMesh().getMaterial().setColour(new Vector4f(
-                    Math.random() > 0.5f ? 1 : 0,
-                    Math.random() > 0.5f ? 1 : 0,
-                    Math.random() > 0.5f ? 1 : 0,
-                    Math.random() > 0.5f ? 1 : 0.5f)
-            );
+                    Math.random() > 0.5f ? 1 : 0, //red
+                    Math.random() > 0.5f ? 1 : 0, //green
+                    Math.random() > 0.5f ? 1 : 0, //blue
+                    Math.random() > 0.5f ? 1 : 0.5f //alpha
+            ));
         }
         particle.getPosition().add(posInc, posInc, posInc);
         particle.getSpeed().add(speedInc, speedInc, speedInc);
@@ -134,9 +139,5 @@ public class TestParticleEmitter implements IParticleEmitter {
 
     public void setScaleRandomRange(float mScaleRandomRange) {
         this.mScaleRandomRange = mScaleRandomRange;
-    }
-
-    public boolean isActive() {
-        return mActive;
     }
 }

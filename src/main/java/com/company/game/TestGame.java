@@ -72,8 +72,8 @@ public class TestGame implements IGameLogic {
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
 
-        for(int i=0; i<NUM_ROWS; i++) {
-            for(int j=0; j<NUM_COLS; j++) {
+        for(int i = 0; i< NUM_ROWS; i++) {
+            for(int j = 0; j < NUM_COLS; j++) {
                 GameItem gameItem = new GameItem(mesh);
                 gameItem.setScale(blockScale);
                 incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
@@ -86,6 +86,16 @@ public class TestGame implements IGameLogic {
             posz -= inc;
         }
 
+        Mesh legoManMesh = ObjLoader.loadMesh("/models/lego_man.obj", 1, MeshType.STANDARD);
+        Texture legoManTexture = new Texture("/textures/Face_04.png");
+        Material legoManMaterial = new Material(legoManTexture);
+        legoManMesh.setMaterial(legoManMaterial);
+        legoManMaterial.setUsingTexture(true);
+        GameItem testGameItem = new GameItem(legoManMesh);
+        testGameItem.setScale(2);
+
+        //mScene.addSceneGameItems(new GameItem[]{ testGameItem });
+
         Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 1, MeshType.STANDARD);
         Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
         Material particleMaterial = new Material(particleTexture, reflectance);
@@ -93,7 +103,7 @@ public class TestGame implements IGameLogic {
         particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
         particleMesh.setMaterial(particleMaterial);
         Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
-        particle.setAnimated(true);
+        particle.setAnimated(false);
         testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
         testParticleEmitter.setActive(true);
 

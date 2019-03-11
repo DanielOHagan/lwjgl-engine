@@ -8,7 +8,9 @@ import com.company.engine.window.WindowOptions;
 
 public class GameEngine implements Runnable {
 
-    private static final int TARGET_FPS = 120; //max fps
+    //Target FPS for the engine to run at, is not the same as a FPS LIMIT
+    //If VSync is on then the target fps is limited to 60
+    private static final int TARGET_FPS = 120;
     private static final int TARGET_UPS = 30;
 
     private final Window mWindow;

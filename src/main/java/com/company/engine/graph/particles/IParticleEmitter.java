@@ -9,5 +9,5 @@ public interface IParticleEmitter {
     void cleanUp();
     Particle getBaseParticle();
     List<GameItem> getParticles();
-
+    boolean isActive();
 }

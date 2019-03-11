@@ -9,6 +9,7 @@ import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Map;
@@ -324,23 +325,23 @@ public class Renderer {
         }
     }
 
-    private void renderGameItems(Camera camera, Scene scene) {
-        mSceneShaderProgram.setUniform("isInstanced", 0);
-
-        Map<Mesh, List<GameItem>> meshesMap = scene.getGameItemMeshMap();
-        for (Mesh mesh : meshesMap.keySet()) {
-            if (mesh.getMaterial() != null) {
-                mSceneShaderProgram.setUniform("material", mesh.getMaterial());
-            }
-
-            mesh.renderList(meshesMap.get(mesh), (GameItem gameItem) -> {
-                mSceneShaderProgram.setUniform(
-                        "nonInstancedModelViewMatrix",
-                        mTransformation.generateModelViewMatrix(gameItem, camera.getViewMatrix())
-                );
-            });
-        }
-    }
+//    private void renderGameItems(Camera camera, Scene scene) {
+//        mSceneShaderProgram.setUniform("isInstanced", 0);
+//
+//        Map<Mesh, List<GameItem>> meshesMap = scene.getGameItemMeshMap();
+//        for (Mesh mesh : meshesMap.keySet()) {
+//            if (mesh.getMaterial() != null) {
+//                mSceneShaderProgram.setUniform("material", mesh.getMaterial());
+//            }
+//
+//            mesh.renderList(meshesMap.get(mesh), (GameItem gameItem) -> {
+//                mSceneShaderProgram.setUniform(
+//                        "nonInstancedModelViewMatrix",
+//                        mTransformation.generateModelViewMatrix(gameItem, camera.getViewMatrix())
+//                );
+//            });
+//        }
+//    }
 
     private void renderHud(Window window, Camera camera, Scene scene) {
         mHudShaderProgram.bind();
@@ -431,6 +432,10 @@ public class Renderer {
         for (int i = 0; i < emittersLength; i++) {
             IParticleEmitter emitter = emitters[i];
 
+            if (!emitter.isActive()) {
+                continue;
+            }
+
             Mesh mesh = emitter.getBaseParticle().getMesh();
 
             boolean useTexture = mesh.getMaterial().isUsingTexture();
@@ -488,6 +493,7 @@ public class Renderer {
                             modelViewMatrix
                     );
                 });
+
             }
         }
 
@@ -504,6 +510,10 @@ public class Renderer {
     public void cleanUp() {
         if (mSceneShaderProgram != null) {
             mSceneShaderProgram.cleanUp();
+        }
+
+        if (mHudShaderProgram != null) {
+            mHudShaderProgram.cleanUp();
         }
 
         if (mSkyBoxShaderProgram != null) {

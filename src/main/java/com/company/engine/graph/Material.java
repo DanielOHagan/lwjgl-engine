@@ -137,7 +137,7 @@ public class Material {
     }
 
     public void setColour(Vector4f colour) {
-        mColour = colour;
+        mColour = new Vector4f(colour);
     }
 
     public Vector4f getColour() {
