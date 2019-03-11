@@ -87,9 +87,9 @@ public class TestParticleEmitter implements IParticleEmitter {
 
         //randomise the particle attributes
         float sign = Math.random() > 0.5d ? -1.0f : 1.0f;
-        float speedInc = sign * (float)Math.random() * mSpeedRandomRange;
-        float posInc = sign * (float)Math.random() * mPositionRandomRange;
-        float scaleInc = sign * (float)Math.random() * mScaleRandomRange;
+        float speedInc = sign * (float) Math.random() * mSpeedRandomRange;
+        float posInc = sign * (float) Math.random() * mPositionRandomRange;
+        float scaleInc = sign * (float) Math.random() * mScaleRandomRange;
 
         if (particle.isAnimated()) {
             long updateAnimInc = (long) sign * (long) (Math.random() * (float) mAnimRange);
@@ -98,7 +98,7 @@ public class TestParticleEmitter implements IParticleEmitter {
                 particle.setUpdateTextureTime(particle.getUpdateTextureTime() + updateAnimInc);
             }
         } else {
-            particle.getMesh().getMaterial().setColour(new Vector4f(
+            particle.setParticleColour(new Vector4f(
                     Math.random() > 0.5f ? 1 : 0, //red
                     Math.random() > 0.5f ? 1 : 0, //green
                     Math.random() > 0.5f ? 1 : 0, //blue

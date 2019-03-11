@@ -86,13 +86,13 @@ public class TestGame implements IGameLogic {
             posz -= inc;
         }
 
-        Mesh legoManMesh = ObjLoader.loadMesh("/models/lego_man.obj", 1, MeshType.STANDARD);
-        Texture legoManTexture = new Texture("/textures/Face_04.png");
-        Material legoManMaterial = new Material(legoManTexture);
-        legoManMesh.setMaterial(legoManMaterial);
-        legoManMaterial.setUsingTexture(true);
-        GameItem testGameItem = new GameItem(legoManMesh);
-        testGameItem.setScale(2);
+//        Mesh legoManMesh = ObjLoader.loadMesh("/models/lego_man.obj", 1, MeshType.STANDARD);
+//        Texture legoManTexture = new Texture("/textures/Face_04.png");
+//        Material legoManMaterial = new Material(legoManTexture);
+//        legoManMesh.setMaterial(legoManMaterial);
+//        legoManMaterial.setUsingTexture(true);
+//        GameItem testGameItem = new GameItem(legoManMesh);
+//        testGameItem.setScale(2);
 
         //mScene.addSceneGameItems(new GameItem[]{ testGameItem });
 

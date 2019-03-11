@@ -13,6 +13,7 @@ public class Particle extends GameItem {
 
     private long mParticleLifeSpan;
     private Vector3f mSpeed;
+    private Vector4f mParticleColour; //Stores colour for an individual particle
     private boolean mTextured;
     private boolean mAnimated; //if the particle cycles through a texture atlas
     private int mAnimatedFrameCount;
@@ -105,7 +106,7 @@ public class Particle extends GameItem {
         setScale(baseParticle.getScale());
 
         mSpeed = new Vector3f(baseParticle.getSpeed());
-        getMesh().getMaterial().setColour(new Vector4f(baseParticle.getMesh().getMaterial().getColour()));
+        mParticleColour = baseParticle.getParticleColour();
         mTextured = baseParticle.isTextured();
         mParticleLifeSpan = baseParticle.getParticleLifeSpan();
         mAnimated = baseParticle.isAnimated();
@@ -189,5 +190,13 @@ public class Particle extends GameItem {
 
     public boolean isTextured() {
         return mTextured;
+    }
+
+    public void setParticleColour(Vector4f particleColour) {
+        mParticleColour = particleColour;
+    }
+
+    public Vector4f getParticleColour() {
+        return mParticleColour;
     }
 }

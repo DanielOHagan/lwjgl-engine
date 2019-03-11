@@ -1,5 +1,6 @@
 package com.company.engine.graph;
 
+import com.company.engine.graph.particles.Particle;
 import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
@@ -478,7 +479,7 @@ public class Renderer {
 
                     mParticleShaderProgram.setUniform(
                             "nonInstancedParticleColour",
-                            gameItem.getMesh().getMaterial().getColour()
+                            ((Particle) gameItem).getParticleColour()
                     );
 
                     Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
