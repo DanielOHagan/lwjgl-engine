@@ -1,6 +1,10 @@
 package com.company.game;
 
 import com.company.engine.IGameLogic;
+import com.company.engine.audio.AudioBuffer;
+import com.company.engine.audio.AudioListener;
+import com.company.engine.audio.AudioManager;
+import com.company.engine.audio.AudioSource;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.mesh.MeshType;
 import com.company.engine.graph.particles.IParticleEmitter;
@@ -17,6 +21,7 @@ import com.company.engine.scene.Scene;
 import de.matthiasmann.twl.utils.PNGDecoder;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.openal.AL11;
 
 import java.nio.ByteBuffer;
 
@@ -34,17 +39,25 @@ public class TestGame implements IGameLogic {
 
     private TestHud testHud;
     private TestParticleEmitter testParticleEmitter;
+    private AudioManager mAudioManager;
+    private enum Sounds {
+        MUSIC,
+        BEEP,
+        FIRE
+    }
 
     public TestGame() {
         mRenderer = new Renderer();
         mCamera = new Camera();
         mMouseOptions = new MouseOptions();
         mInitialCycle = true;
+        mAudioManager = new AudioManager();
     }
 
     @Override
     public void init(Window window) throws Exception {
         mRenderer.init(window);
+        mAudioManager.init();
         mScene = new Scene();
         setUpMouseOptions();
 
@@ -109,10 +122,35 @@ public class TestGame implements IGameLogic {
 
         mScene.addSceneGameItems(gameItems);
 
+        setUpSounds();
+        mAudioManager.playAudioSource(Sounds.MUSIC.toString());
+        mAudioManager.playAudioSource(Sounds.FIRE.toString());
+
         //mScene.addSceneGameItems(gameItems);
         //mScene.setHud(testHud);
         //mScene.setSkyBox(skyBox);
         mScene.setParticleEmitters(new IParticleEmitter[]{ testParticleEmitter });
+    }
+
+    private void setUpSounds() throws Exception {
+        mAudioManager.setAttenuationModel(AL11.AL_EXPONENT_DISTANCE);
+
+        AudioBuffer buffBack = new AudioBuffer("/audio/background.ogg");
+        AudioSource sourceBack = new AudioSource(true, true);
+
+        mAudioManager.addAudioBufer(buffBack);
+        sourceBack.setBuffer(buffBack.getBufferId());
+        mAudioManager.addAudioSource(Sounds.MUSIC.toString(), sourceBack);
+
+        AudioBuffer buffFire = new AudioBuffer("/audio/fire.ogg");
+        mAudioManager.addAudioBufer(buffFire);
+        AudioSource sourceFire = new AudioSource(true, false);
+        Vector3f pos = testParticleEmitter.getBaseParticle().getPosition();
+        sourceFire.setPosition(pos);
+        sourceFire.setBuffer(buffFire.getBufferId());
+        mAudioManager.addAudioSource(Sounds.FIRE.toString(), sourceFire);
+
+        mAudioManager.setAudioListener(new AudioListener(new Vector3f(0, 0, 0)));
     }
 
     @Override
@@ -126,28 +164,24 @@ public class TestGame implements IGameLogic {
         if (window.isKeyPressed(GLFW_KEY_S)) {
             mCamera.getPosition().z -= 0.01;
         }
-
         if (window.isKeyPressed(GLFW_KEY_A)) {
             mCamera.getPosition().x -= 0.01;
         }
         if (window.isKeyPressed(GLFW_KEY_D)) {
             mCamera.getPosition().x += 0.01;
         }
-
         if (window.isKeyPressed(GLFW_KEY_C)) {
             mCamera.getPosition().y += 0.01;
         }
         if (window.isKeyPressed(GLFW_KEY_SPACE)) {
             mCamera.getPosition().y -= 0.01;
         }
-
         if (window.isKeyPressed(GLFW_KEY_LEFT)) {
             mCamera.getRotation().y -= 0.4;
         }
         if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
             mCamera.getRotation().y += 0.4;
         }
-
         if (window.isKeyPressed(GLFW_KEY_UP)) {
             mCamera.getRotation().x -= 0.4;
         }
@@ -159,6 +193,7 @@ public class TestGame implements IGameLogic {
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         testParticleEmitter.update((long) (interval * 1000));
+        mAudioManager.updateListenerPosition(mCamera);
     }
 
     @Override
@@ -179,6 +214,10 @@ public class TestGame implements IGameLogic {
     public void cleanUp() {
         if (mScene != null) {
             mScene.cleanUp();
+        }
+
+        if (mAudioManager != null) {
+            mAudioManager.cleanUp();
         }
     }
 
