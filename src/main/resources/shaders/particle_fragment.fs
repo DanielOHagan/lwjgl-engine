@@ -11,9 +11,9 @@ uniform int useTexture;
 uniform vec4 nonInstancedParticleColour;
 
 void main() {
-    if (useTexture > 0) {
+    if (useTexture > 0) { //is instanced
         fragColour = texture(textureSampler, outTexCoord);
-    } else {
+    } else { //is not instanced
         fragColour = nonInstancedParticleColour;
     }
 }

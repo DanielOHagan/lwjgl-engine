@@ -23,14 +23,14 @@ void main() {
     float y;
     mat4 modelViewMatrixTemp;
 
-    if (isInstanced > 0) {
+    if (isInstanced > 0) { //is instanced
         modelViewMatrixTemp = instancedModelViewMatrix;
 
         //for texture atlas
         x = (texCoord.x / numColumns + textOffset.x);
         y = (texCoord.y / numRows + textOffset.y);
 
-    } else {
+    } else { //is not instanced
         modelViewMatrixTemp = nonInstancedModelViewMatrix;
 
         //for texture atlas
