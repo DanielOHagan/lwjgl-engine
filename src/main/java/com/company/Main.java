@@ -4,13 +4,13 @@ import com.company.engine.GameEngine;
 import com.company.engine.IGameLogic;
 import com.company.engine.window.WindowMode;
 import com.company.engine.window.WindowOptions;
-import com.company.game.TestGame;
+import com.company.game.audio.AudioSynthTest;
 
 public class Main {
 
     public static void main(String[] args) {
         try {
-            IGameLogic gameLogic = new TestGame();
+            IGameLogic gameLogic = new AudioSynthTest();
 
 
             WindowOptions options = new WindowOptions();
