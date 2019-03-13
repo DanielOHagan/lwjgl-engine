@@ -139,6 +139,69 @@ public class AudioSynthTest implements IGameLogic {
         } else if (mLastNotePressed == MusicNote.D_1) {
             stopPlayingNote(MusicNote.D_1);
         }
+
+        //d#
+        if (window.isKeyPressed(GLFW_KEY_R)) {
+            playNote(MusicNote.D_SHARP_1);
+        } else if (mLastNotePressed == MusicNote.D_SHARP_1) {
+            stopPlayingNote(MusicNote.D_SHARP_1);
+        }
+
+        //e
+        if (window.isKeyPressed(GLFW_KEY_T)) {
+            playNote(MusicNote.E_1);
+        } else if (mLastNotePressed == MusicNote.E_1) {
+            stopPlayingNote(MusicNote.E_1);
+        }
+
+        //f
+        if (window.isKeyPressed(GLFW_KEY_Y)) {
+            playNote(MusicNote.F_1);
+        } else if (mLastNotePressed == MusicNote.F_1) {
+            stopPlayingNote(MusicNote.F_1);
+        }
+
+        //f#
+        if (window.isKeyPressed(GLFW_KEY_U)) {
+            playNote(MusicNote.F_SHARP_1);
+        } else if (mLastNotePressed == MusicNote.F_SHARP_1) {
+            stopPlayingNote(MusicNote.F_SHARP_1);
+        }
+
+        //g
+        if (window.isKeyPressed(GLFW_KEY_I)) {
+            playNote(MusicNote.G_1);
+        } else if (mLastNotePressed == MusicNote.G_1) {
+            stopPlayingNote(MusicNote.G_1);
+        }
+
+        //g#
+        if (window.isKeyPressed(GLFW_KEY_O)) {
+            playNote(MusicNote.G_SHARP_1);
+        } else if (mLastNotePressed == MusicNote.G_SHARP_1) {
+            stopPlayingNote(MusicNote.G_SHARP_1);
+        }
+
+        //a
+        if (window.isKeyPressed(GLFW_KEY_P)) {
+            playNote(MusicNote.A_1);
+        } else if (mLastNotePressed == MusicNote.A_1) {
+            stopPlayingNote(MusicNote.A_1);
+        }
+
+        //a#
+        if (window.isKeyPressed(GLFW_KEY_LEFT_BRACKET)) {
+            playNote(MusicNote.A_SHARP_1);
+        } else if (mLastNotePressed == MusicNote.A_SHARP_1) {
+            stopPlayingNote(MusicNote.A_SHARP_1);
+        }
+
+        //b
+        if (window.isKeyPressed(GLFW_KEY_RIGHT_BRACKET)) {
+            playNote(MusicNote.B_1);
+        } else if (mLastNotePressed == MusicNote.B_1) {
+            stopPlayingNote(MusicNote.B_1);
+        }
     }
 
     @Override
