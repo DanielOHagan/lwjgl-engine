@@ -1,4 +1,4 @@
-package com.company.engine;
+package com.company.engine.utils;
 
 public class Timer {
 

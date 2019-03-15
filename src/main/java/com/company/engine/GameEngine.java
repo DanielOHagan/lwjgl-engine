@@ -2,6 +2,7 @@ package com.company.engine;
 
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
+import com.company.engine.utils.Timer;
 import com.company.engine.window.Window;
 import com.company.engine.window.WindowMode;
 import com.company.engine.window.WindowOptions;
