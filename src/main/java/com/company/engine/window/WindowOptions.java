@@ -5,7 +5,7 @@ public class WindowOptions {
     public boolean showFps; //display and fps counter
     public boolean compatibleProfile; //if OpenGL profile is supported
     public boolean antialiasing; //makes lines look more like lines, (decreases performance)
-    public boolean frustrumCulling; //stops rendering objects outside of frustrum
+    public boolean frustumCulling; //stops rendering objects outside of frustum
     public boolean showMeshLines; //display mesh's lines NOTE: This breaks particles
     public boolean lockCursor; //keep the cursor locked to the window
     public boolean vSync; //enable vertical synchronisation

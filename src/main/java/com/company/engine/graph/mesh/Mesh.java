@@ -17,6 +17,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class Mesh {
 
     public static final int MAX_WEIGHTS = 4;
+    private static final float DEFAULT_BOUNDING_RADIUS = 1.5f;
 
     protected int mVaoId;
     protected List<Integer> mVboIdList;
@@ -28,6 +29,8 @@ public class Mesh {
     private boolean mUsingNormals;
     private boolean mUsingWeights;
     private boolean mUsingJointIndices;
+
+    private float mBoundingRadius;
 
     public Mesh(
             float[] positions,
@@ -61,6 +64,7 @@ public class Mesh {
                 jointIndices,
                 weights
         );
+        mBoundingRadius = DEFAULT_BOUNDING_RADIUS;
     }
 
     /*
@@ -310,5 +314,13 @@ public class Mesh {
 
     public int getVertexCount() {
         return mVertexCount;
+    }
+
+    public void setBoundingRadius(float boundingRadius) {
+        mBoundingRadius = boundingRadius;
+    }
+
+    public float getBoundingRadius() {
+        return mBoundingRadius;
     }
 }

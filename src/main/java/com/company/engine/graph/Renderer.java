@@ -1,17 +1,20 @@
 package com.company.engine.graph;
 
+import com.company.engine.graph.optimisations.FrustumFilter;
 import com.company.engine.graph.particles.Particle;
+import com.company.engine.graph.maths.Transformation;
 import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.scene.items.SkyBox;
+import com.company.engine.utils.ShaderUtils;
 import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,14 +24,21 @@ public class Renderer {
 
     private final Transformation mTransformation;
 
+    //shader programs
     private ShaderProgram mDepthShaderProgram;
     private ShaderProgram mSkyBoxShaderProgram;
     private ShaderProgram mSceneShaderProgram;
     private ShaderProgram mParticleShaderProgram;
     private ShaderProgram mHudShaderProgram;
 
+    //frustum culling
+    private final FrustumFilter mFrustumFilter;
+    private final List<GameItem> mFilteredGameItemList;
+
     public Renderer() {
         mTransformation = new Transformation();
+        mFrustumFilter = new FrustumFilter();
+        mFilteredGameItemList = new ArrayList<>();
     }
 
     public void init(Window window) throws Exception {
@@ -47,7 +57,7 @@ public class Renderer {
         mSkyBoxShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/skyBox_fragment.fs"));
         mSkyBoxShaderProgram.link();
 
-        setUpShaderUniforms(
+        ShaderUtils.setUpShaderUniforms(
                 mSkyBoxShaderProgram,
                 new String[] {
                         "textureSampler",
@@ -65,7 +75,7 @@ public class Renderer {
         mSceneShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/scene_fragment.fs"));
         mSceneShaderProgram.link();
 
-        setUpShaderUniforms(
+        ShaderUtils.setUpShaderUniforms(
                 mSceneShaderProgram,
                 new String[] {
                         "textureSampler",
@@ -75,7 +85,7 @@ public class Renderer {
                         "isInstanced"
                 }
         );
-        setUpMaterialUniforms(
+        ShaderUtils.setUpMaterialUniforms(
                 mSceneShaderProgram,
                 new String[] {
                         "material"
@@ -89,7 +99,7 @@ public class Renderer {
         mParticleShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/particle_fragment.fs"));
         mParticleShaderProgram.link();
 
-        setUpShaderUniforms(
+        ShaderUtils.setUpShaderUniforms(
                 mParticleShaderProgram,
                 new String[] {
                         "projectionMatrix",
@@ -114,7 +124,7 @@ public class Renderer {
         mHudShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/hud_fragment.fs"));
         mHudShaderProgram.link();
 
-        setUpShaderUniforms(
+        ShaderUtils.setUpShaderUniforms(
                 mHudShaderProgram,
                 new String[] {
                         "projectionModelMatrix",
@@ -124,38 +134,16 @@ public class Renderer {
         );
     }
 
-    /*
-    Create 1 or more uniform(s)
-     */
-    private void setUpShaderUniforms(ShaderProgram shaderProgram, String[] uniformNames) throws Exception {
-        if (shaderProgram != null && uniformNames != null && uniformNames.length > 0) {
-            for (String uniformName : uniformNames) {
-                shaderProgram.createUniform(uniformName);
-            }
-        }
-    }
-
-    /*
-    Create 1 or more Material uniform(s)
-     */
-    private void setUpMaterialUniforms(ShaderProgram shaderProgram, String[] uniformNames) throws Exception {
-        if (shaderProgram != null && uniformNames != null && uniformNames.length > 0) {
-            for (String uniformName : uniformNames) {
-                shaderProgram.createMaterialUniform(uniformName);
-            }
-        }
-    }
-
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) throws Exception {
         clear();
 
-        //TODO: frustum culling
-//        if (window.getOptions().frustumCulling) {
-//            frustumFilter.updateFrustum(window.getViewMatrix(), camera.getViewMatrix());
-//            frustumFilter.filter(scene.getGameMeshes());
-//            frustumFilter.filter(scene.getGameInstancedMeshes());
-//        }
-//
+        //filter items outside of the camera's view frustum before rendering
+        if (window.getOptions().frustumCulling) {
+            mFrustumFilter.updateFrustum(window.getProjectionMatrix(), camera.getViewMatrix());
+            mFrustumFilter.filter(scene.getGameItemMeshMap());
+            mFrustumFilter.filter(scene.getGameItemInstancedMeshMap());
+        }
+
 //        // Render depth map before view ports has been set up
 //        if (scene.isRenderShadows() && sceneChanged) {
 //            shadowRenderer.render(window, scene, camera, transformation, this);
@@ -242,9 +230,9 @@ public class Renderer {
     ) {
         shaderProgram.setUniform("isInstanced", 0);
 
-        Map<Mesh, List<GameItem>> mapMeshes = scene.getGameItemMeshMap();
+        Map<Mesh, List<GameItem>> meshGameItemMap = scene.getGameItemMeshMap();
 
-        for (Mesh mesh : mapMeshes.keySet()) {
+        for (Mesh mesh : meshGameItemMap.keySet()) {
             if (viewMatrix != null) {
                 shaderProgram.setUniform("material", mesh.getMaterial());
 
@@ -259,7 +247,14 @@ public class Renderer {
 //                shaderProgram.setUniform("rowNumber", texture.getNumRows());
             }
 
-            mesh.renderList(mapMeshes.get(mesh), (GameItem gameItem) -> {
+            mFilteredGameItemList.clear();
+            for (GameItem gameItem : meshGameItemMap.get(mesh)) {
+                if (gameItem.isInsideFrustum()) {
+                    mFilteredGameItemList.add(gameItem);
+                }
+            }
+
+            mesh.renderList(mFilteredGameItemList, (GameItem gameItem) -> {
                 Matrix4f modelMatrix =
                         mTransformation.generateModelMatrix(gameItem);
 //                Matrix4f modelLightViewMatrix =
@@ -317,8 +312,15 @@ public class Renderer {
 //                glBindTexture(GL_TEXTURE_2D, mShadowMap.getDepthMapTexture().getId());
             }
 
+            mFilteredGameItemList.clear();
+            for (GameItem gameItem : instancedMeshMap.get(mesh)) {
+                if (gameItem.isInsideFrustum()) {
+                    mFilteredGameItemList.add(gameItem);
+                }
+            }
+
             mesh.renderInstancedList(
-                    instancedMeshMap.get(mesh),
+                    mFilteredGameItemList,
                     mTransformation,
                     viewMatrix,
                     lightViewMatrix

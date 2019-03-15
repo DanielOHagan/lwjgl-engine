@@ -1,4 +1,4 @@
-package com.company.engine.graph;
+package com.company.engine.graph.maths;
 
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;

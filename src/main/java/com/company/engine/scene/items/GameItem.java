@@ -11,12 +11,16 @@ public class GameItem {
     private float mScale;
     private Mesh[] mMeshes; //holds all of the item's meshes (e.g. if the model's head and body are separate, this stores them both here)
     private int mTexturePos;
+    private boolean mIgnoresFrustumCulling;
+    private boolean mInsideFrustum;
 
     public GameItem() {
         mPosition = new Vector3f(0, 0, 0);
         mRotation = new Quaternionf();
         mScale = 1;
         mTexturePos = 0;
+        mIgnoresFrustumCulling = false;
+        mInsideFrustum = true;
     }
 
     public GameItem(Mesh mesh) {
@@ -88,5 +92,21 @@ public class GameItem {
             mMeshes = new Mesh[1];
         }
         mMeshes[0] = mesh;
+    }
+
+    public void setIgnoresFrustumCulling(boolean ignoresFrustumCulling) {
+        mIgnoresFrustumCulling = ignoresFrustumCulling;
+    }
+
+    public boolean ignoresFrustumCulling() {
+        return mIgnoresFrustumCulling;
+    }
+
+    public void setInsideFrustum(boolean insideFrustum) {
+        mInsideFrustum = insideFrustum;
+    }
+
+    public boolean isInsideFrustum() {
+        return mInsideFrustum;
     }
 }

@@ -23,6 +23,7 @@ public class TestParticleEmitter implements IParticleEmitter {
     private float mPositionRandomRange;
     private float mScaleRandomRange;
     private long mAnimRange;
+    private boolean mFrustumCulled;
 
     public TestParticleEmitter(Particle baseParticle, int maxParticleCount, long creationPeriodMillis) {
         mParticles = new ArrayList<>();
@@ -31,6 +32,7 @@ public class TestParticleEmitter implements IParticleEmitter {
         mActive = false;
         mLastCreationTime = 0;
         mCreationPeriodMillis = creationPeriodMillis;
+        mFrustumCulled = false;
     }
 
     @Override
@@ -54,6 +56,11 @@ public class TestParticleEmitter implements IParticleEmitter {
     @Override
     public boolean isActive() {
         return mActive;
+    }
+
+    @Override
+    public boolean isFrustumCulled() {
+        return mFrustumCulled;
     }
 
     public void update(long elapsedTime) {

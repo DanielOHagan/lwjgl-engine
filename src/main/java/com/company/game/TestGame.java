@@ -80,7 +80,8 @@ public class TestGame implements IGameLogic {
 
         float reflectance = 1f;
         int instances = NUM_ROWS * NUM_COLS;
-        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", instances, MeshType.INSTANCED);
+        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", 1, MeshType.STANDARD);
+        mesh.setBoundingRadius(1f);
         Texture texture = new Texture("/textures/grassblock.png");
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);

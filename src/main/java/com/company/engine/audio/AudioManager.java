@@ -1,7 +1,7 @@
 package com.company.engine.audio;
 
 import com.company.engine.graph.Camera;
-import com.company.engine.graph.Transformation;
+import com.company.engine.graph.maths.Transformation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.openal.AL;

@@ -10,4 +10,5 @@ public interface IParticleEmitter {
     Particle getBaseParticle();
     List<GameItem> getParticles();
     boolean isActive();
+    boolean isFrustumCulled();
 }

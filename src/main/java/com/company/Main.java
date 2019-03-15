@@ -11,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            IGameLogic gameLogic = new AudioSynthTest();
+            IGameLogic gameLogic = new TestGame();
 
 
             WindowOptions options = new WindowOptions();
@@ -23,6 +23,7 @@ public class Main {
             options.showMeshLines = false;
             options.cullFace = true;
             options.showFps = true;
+            options.frustumCulling = true;
 
             GameEngine gameEngine = new GameEngine(
                     "Game",
