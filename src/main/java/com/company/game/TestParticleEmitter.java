@@ -23,7 +23,10 @@ public class TestParticleEmitter implements IParticleEmitter {
     private float mPositionRandomRange;
     private float mScaleRandomRange;
     private long mAnimRange;
-    private boolean mFrustumCulled;
+
+    private boolean mInsideFrustum;
+    private boolean mIgnoresFrustumCulling;
+    private boolean mFrustumCullingParticles;
 
     public TestParticleEmitter(Particle baseParticle, int maxParticleCount, long creationPeriodMillis) {
         mParticles = new ArrayList<>();
@@ -32,7 +35,9 @@ public class TestParticleEmitter implements IParticleEmitter {
         mActive = false;
         mLastCreationTime = 0;
         mCreationPeriodMillis = creationPeriodMillis;
-        mFrustumCulled = false;
+        mInsideFrustum = false;
+        mIgnoresFrustumCulling = false;
+        mFrustumCullingParticles = true;
     }
 
     @Override
@@ -59,8 +64,38 @@ public class TestParticleEmitter implements IParticleEmitter {
     }
 
     @Override
-    public boolean isFrustumCulled() {
-        return mFrustumCulled;
+    public boolean isInsideFrustum() {
+        return mInsideFrustum;
+    }
+
+    @Override
+    public boolean ignoresFrustumCulling() {
+        return mIgnoresFrustumCulling;
+    }
+
+    @Override
+    public boolean isFrustumCullingParticles() {
+        return mFrustumCullingParticles;
+    }
+
+    @Override
+    public void setIgnoresFrustumCulling(boolean ignoresFrustumCulling) {
+        mIgnoresFrustumCulling = ignoresFrustumCulling;
+    }
+
+    @Override
+    public void setInsideFrustum(boolean insideFrustum) {
+        mInsideFrustum = insideFrustum;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        mActive = active;
+    }
+
+    @Override
+    public void setFrustumCullingParticles(boolean frustumCullingParticles) {
+        mFrustumCullingParticles = frustumCullingParticles;
     }
 
     public void update(long elapsedTime) {
@@ -134,10 +169,6 @@ public class TestParticleEmitter implements IParticleEmitter {
 
     public void setPositionRandomRange(float mPositionRandomRange) {
         this.mPositionRandomRange = mPositionRandomRange;
-    }
-
-    public void setActive(boolean mActive) {
-        this.mActive = mActive;
     }
 
     public void setSpeedRandomRange(float mSpeedRandomRange) {

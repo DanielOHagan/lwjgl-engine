@@ -38,7 +38,7 @@ public class Mesh {
             float[] normals,
             int[] indices
     ) {
-        initialiseMesh(
+        this(
                 positions,
                 textCoords,
                 normals,
@@ -67,7 +67,7 @@ public class Mesh {
         mBoundingRadius = DEFAULT_BOUNDING_RADIUS;
     }
 
-    /*
+    /**
     Store info into respective buffers for use in rendering
      */
     private void initialiseMesh(
@@ -186,7 +186,7 @@ public class Mesh {
         }
     }
 
-    /*
+    /**
     Renders a single Mesh instance
      */
     public void render() {
@@ -197,7 +197,7 @@ public class Mesh {
         endRender();
     }
 
-    /*
+    /**
     Renders a List of GameItem instances
      */
     public void renderList(List<GameItem> gameItems, Consumer<GameItem> consumer) {
@@ -211,7 +211,7 @@ public class Mesh {
         endRender();
     }
 
-    /*
+    /**
     Prepare for rendering
      */
     protected void initRender() {
@@ -255,7 +255,7 @@ public class Mesh {
         }
     }
 
-    /*
+    /**
     Clean up after rendering
      */
     protected void endRender() {
@@ -278,7 +278,7 @@ public class Mesh {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    /*
+    /**
     Delete all used buffers
      */
     public void deleteBuffers() {

@@ -81,7 +81,7 @@ public class TestGame implements IGameLogic {
         float reflectance = 1f;
         int instances = NUM_ROWS * NUM_COLS;
         Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", 1, MeshType.STANDARD);
-        mesh.setBoundingRadius(1f);
+        mesh.setBoundingRadius(1.5f);
         Texture texture = new Texture("/textures/grassblock.png");
         Material material = new Material(texture, reflectance);
         mesh.setMaterial(material);
@@ -111,6 +111,7 @@ public class TestGame implements IGameLogic {
         //mScene.addSceneGameItems(new GameItem[]{ testGameItem });
 
         Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 1, MeshType.STANDARD);
+        particleMesh.setBoundingRadius(1.5f);
         Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
         Material particleMaterial = new Material(particleTexture, reflectance);
         particleMaterial.setUsingTexture(false);
@@ -120,6 +121,7 @@ public class TestGame implements IGameLogic {
         particle.setAnimated(false);
         testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
         testParticleEmitter.setActive(true);
+        testParticleEmitter.setFrustumCullingParticles(true);
 
         mScene.addSceneGameItems(gameItems);
 

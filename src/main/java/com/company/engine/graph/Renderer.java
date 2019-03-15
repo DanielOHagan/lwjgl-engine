@@ -34,15 +34,16 @@ public class Renderer {
     //frustum culling
     private final FrustumFilter mFrustumFilter;
     private final List<GameItem> mFilteredGameItemList;
+    private final List<IParticleEmitter> mFilteredParticleEmitterList;
 
     public Renderer() {
         mTransformation = new Transformation();
         mFrustumFilter = new FrustumFilter();
         mFilteredGameItemList = new ArrayList<>();
+        mFilteredParticleEmitterList = new ArrayList<>();
     }
 
     public void init(Window window) throws Exception {
-
         //setUpDepthShader();
         setUpSkyBoxShader();
         setUpSceneShader();
@@ -137,12 +138,7 @@ public class Renderer {
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) throws Exception {
         clear();
 
-        //filter items outside of the camera's view frustum before rendering
-        if (window.getOptions().frustumCulling) {
-            mFrustumFilter.updateFrustum(window.getProjectionMatrix(), camera.getViewMatrix());
-            mFrustumFilter.filter(scene.getGameItemMeshMap());
-            mFrustumFilter.filter(scene.getGameItemInstancedMeshMap());
-        }
+        filter(window, scene, camera.getViewMatrix());
 
 //        // Render depth map before view ports has been set up
 //        if (scene.isRenderShadows() && sceneChanged) {
@@ -187,6 +183,19 @@ public class Renderer {
 
         if (scene.getHud() != null) {
             renderHud(window, camera, scene);
+        }
+    }
+
+    private void filter(Window window, Scene scene, Matrix4f viewMatrix) {
+        //filter items outside of the camera's view frustum before rendering
+        if (window.getOptions().frustumCulling) {
+            mFrustumFilter.updateFrustum(window.getProjectionMatrix(), viewMatrix);
+            mFrustumFilter.filter(scene.getGameItemMeshMap());
+            mFrustumFilter.filter(scene.getGameItemInstancedMeshMap());
+
+            if (scene.getParticleEmitters() != null && scene.getParticleEmitters().length > 0) {
+                mFrustumFilter.filterParticleEmitters(scene.getParticleEmitters());
+            }
         }
     }
 
@@ -328,24 +337,6 @@ public class Renderer {
         }
     }
 
-//    private void renderGameItems(Camera camera, Scene scene) {
-//        mSceneShaderProgram.setUniform("isInstanced", 0);
-//
-//        Map<Mesh, List<GameItem>> meshesMap = scene.getGameItemMeshMap();
-//        for (Mesh mesh : meshesMap.keySet()) {
-//            if (mesh.getMaterial() != null) {
-//                mSceneShaderProgram.setUniform("material", mesh.getMaterial());
-//            }
-//
-//            mesh.renderList(meshesMap.get(mesh), (GameItem gameItem) -> {
-//                mSceneShaderProgram.setUniform(
-//                        "nonInstancedModelViewMatrix",
-//                        mTransformation.generateModelViewMatrix(gameItem, camera.getViewMatrix())
-//                );
-//            });
-//        }
-//    }
-
     private void renderHud(Window window, Camera camera, Scene scene) {
         mHudShaderProgram.bind();
 
@@ -426,21 +417,109 @@ public class Renderer {
         );
 //        mParticleShaderProgram.setUniform("viewMatrix", camera.getViewMatrix());
 
-        IParticleEmitter[] emitters = scene.getParticleEmitters();
-        int emittersLength = emitters != null ? emitters.length : 0;
-
         glDepthMask(false);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-        for (int i = 0; i < emittersLength; i++) {
-            IParticleEmitter emitter = emitters[i];
+        mFilteredParticleEmitterList.clear();
+        for (IParticleEmitter emitter : scene.getParticleEmitters()) {
+            if (emitter.isInsideFrustum() || emitter.isFrustumCullingParticles()) {
+                mFilteredParticleEmitterList.add(emitter);
+            }
+        }
 
-            if (!emitter.isActive()) {
+        renderParticleEmitters(mFilteredParticleEmitterList, viewMatrix);
+
+//        for (int i = 0; i < emittersLength; i++) {
+//            IParticleEmitter emitter = emitters[i];
+//
+//            if (!emitter.isActive() ||
+//                    (!emitter.ignoresFrustumCulling() &&
+//                    !emitter.isInsideFrustum() &&
+//                    !emitter.isFrustumCullingParticles())
+//            ) {
+//                continue;
+//            }
+//
+//            Mesh mesh = emitter.getBaseParticle().getMesh();
+//
+//            boolean useTexture = mesh.getMaterial().isUsingTexture();
+//            Texture texture = mesh.getMaterial().getTexture();
+//
+//            mParticleShaderProgram.setUniform("numColumns", useTexture ? texture.getNumColumns() : 1);
+//            mParticleShaderProgram.setUniform("numRows", useTexture ? texture.getNumRows() : 1);
+//            mParticleShaderProgram.setUniform("useTexture", useTexture ? 1 : 0);
+//
+//            if (mesh instanceof InstancedMesh) {
+//                if (!useTexture) {
+//                    throw new Exception("Instanced Particles must use a texture");
+//                }
+//
+//                InstancedMesh instancedMesh = (InstancedMesh) mesh;
+//
+//                mParticleShaderProgram.setUniform("isInstanced", 1);
+//                mParticleShaderProgram.setUniform("useTexture", 1);
+//
+//                instancedMesh.renderInstancedList(
+//                        emitter.getParticles(),
+//                        true,
+//                        mTransformation,
+//                        viewMatrix,
+//                        null
+//                );
+//            } else {
+//                mParticleShaderProgram.setUniform("isInstanced", 0);
+//
+//                mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
+//                    if (useTexture) {
+//                        int column = gameItem.getTexturePos() % texture.getNumColumns();
+//                        int row = gameItem.getTexturePos() / texture.getNumColumns();
+//                        float textOffsetX = (float) column / texture.getNumColumns();
+//                        float textOffsetY = (float) row / texture.getNumRows();
+//
+//                        mParticleShaderProgram.setUniform("nonInstancedTextOffsetX", textOffsetX);
+//                        mParticleShaderProgram.setUniform("nonInstancedTextOffsetY", textOffsetY);
+//                    }
+//
+//                    mParticleShaderProgram.setUniform(
+//                            "nonInstancedParticleColour",
+//                            ((Particle) gameItem).getParticleColour()
+//                    );
+//
+//                    Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
+//                    camera.getViewMatrix().transpose3x3(modelMatrix);
+//                    camera.getViewMatrix().scale(gameItem.getScale());
+//                    Matrix4f modelViewMatrix = mTransformation.generateModelViewMatrix(
+//                            modelMatrix, camera.getViewMatrix()
+//                    );
+//                    modelViewMatrix.scale(gameItem.getScale());
+//                    mParticleShaderProgram.setUniform(
+//                            "nonInstancedModelViewMatrix",
+//                            modelViewMatrix
+//                    );
+//                });
+//            }
+//        }
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(true);
+
+        mParticleShaderProgram.unbind();
+    }
+
+    private void renderParticleEmitters(
+            List<IParticleEmitter> particleEmitterList,
+            Matrix4f viewMatrix
+    ) throws Exception {
+        for (IParticleEmitter emitter : particleEmitterList) {
+
+            if (
+                    (!emitter.isActive() || !emitter.isInsideFrustum()) &&
+                    !emitter.isFrustumCullingParticles()
+            ) {
                 continue;
             }
 
             Mesh mesh = emitter.getBaseParticle().getMesh();
-
             boolean useTexture = mesh.getMaterial().isUsingTexture();
             Texture texture = mesh.getMaterial().getTexture();
 
@@ -458,8 +537,10 @@ public class Renderer {
                 mParticleShaderProgram.setUniform("isInstanced", 1);
                 mParticleShaderProgram.setUniform("useTexture", 1);
 
+                filterEmitterParticles(emitter);
+
                 instancedMesh.renderInstancedList(
-                        emitter.getParticles(),
+                        emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticles(),
                         true,
                         mTransformation,
                         viewMatrix,
@@ -468,7 +549,14 @@ public class Renderer {
             } else {
                 mParticleShaderProgram.setUniform("isInstanced", 0);
 
-                mesh.renderList((emitter.getParticles()), (GameItem gameItem) -> {
+                filterEmitterParticles(emitter);
+
+                System.out.println("filtered: " + mFilteredGameItemList.size() + "\n");
+                System.out.println(emitter.getParticles().size());
+
+                mesh.renderList(
+                        emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticles(),
+                        (GameItem gameItem) -> {
                     if (useTexture) {
                         int column = gameItem.getTexturePos() % texture.getNumColumns();
                         int row = gameItem.getTexturePos() / texture.getNumColumns();
@@ -485,10 +573,10 @@ public class Renderer {
                     );
 
                     Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
-                    camera.getViewMatrix().transpose3x3(modelMatrix);
-                    camera.getViewMatrix().scale(gameItem.getScale());
+                    viewMatrix.transpose3x3(modelMatrix);
+                    viewMatrix.scale(gameItem.getScale());
                     Matrix4f modelViewMatrix = mTransformation.generateModelViewMatrix(
-                            modelMatrix, camera.getViewMatrix()
+                            modelMatrix, viewMatrix
                     );
                     modelViewMatrix.scale(gameItem.getScale());
                     mParticleShaderProgram.setUniform(
@@ -496,14 +584,19 @@ public class Renderer {
                             modelViewMatrix
                     );
                 });
-
             }
         }
+    }
 
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(true);
-
-        mParticleShaderProgram.unbind();
+    private void filterEmitterParticles(IParticleEmitter emitter) {
+        mFilteredGameItemList.clear();
+        if (emitter.isFrustumCullingParticles()) {
+            for (GameItem gameItem : emitter.getParticles()) {
+                if (gameItem.isInsideFrustum()) {
+                    mFilteredGameItemList.add(gameItem);
+                }
+            }
+        }
     }
 
     public void clear() {

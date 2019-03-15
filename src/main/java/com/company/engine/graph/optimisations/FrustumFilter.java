@@ -1,6 +1,7 @@
 package com.company.engine.graph.optimisations;
 
 import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.scene.items.GameItem;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
@@ -57,12 +58,41 @@ public class FrustumFilter {
         }
     }
 
+    public void filterParticleEmitter(IParticleEmitter emitter) {
+        Vector3f position = emitter.getBaseParticle().getPosition();
+        float boundingRadius = emitter.getBaseParticle().getMesh().getBoundingRadius();
+
+        if (emitter.isFrustumCullingParticles()) {
+            filter(emitter.getParticles(), boundingRadius);
+        }
+
+        emitter.setInsideFrustum(calculateIfInsideFrustum(
+                position.x,
+                position.y,
+                position.z,
+                boundingRadius
+        ));
+    }
+
+    public void filterParticleEmitters(IParticleEmitter[] emitters) {
+        for (IParticleEmitter emitter : emitters) {
+            if (!emitter.ignoresFrustumCulling()) {
+                filterParticleEmitter(emitter);
+            }
+        }
+    }
+
     public boolean calculateIfInsideFrustum(
             float x0,
             float y0,
             float z0,
             float boundingRadius
     ) {
-        return mFrustumIntersection.testSphere(x0, y0, z0, boundingRadius);
+        return mFrustumIntersection.testSphere(
+                x0,
+                y0,
+                z0,
+                boundingRadius
+        );
     }
 }
