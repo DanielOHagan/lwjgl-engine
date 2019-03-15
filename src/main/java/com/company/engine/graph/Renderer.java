@@ -551,9 +551,6 @@ public class Renderer {
 
                 filterEmitterParticles(emitter);
 
-                System.out.println("filtered: " + mFilteredGameItemList.size() + "\n");
-                System.out.println(emitter.getParticles().size());
-
                 mesh.renderList(
                         emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticles(),
                         (GameItem gameItem) -> {
