@@ -80,7 +80,7 @@ public class TestGame implements IGameLogic {
 
         float reflectance = 1f;
         int instances = NUM_ROWS * NUM_COLS;
-        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", 1, MeshType.STANDARD);
+        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", instances, MeshType.INSTANCED);
         mesh.setBoundingRadius(1.5f);
         Texture texture = new Texture("/textures/grassblock.png");
         Material material = new Material(texture, reflectance);
@@ -110,15 +110,15 @@ public class TestGame implements IGameLogic {
 
         //mScene.addSceneGameItems(new GameItem[]{ testGameItem });
 
-        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 1, MeshType.STANDARD);
+        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
         particleMesh.setBoundingRadius(1.5f);
         Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
         Material particleMaterial = new Material(particleTexture, reflectance);
-        particleMaterial.setUsingTexture(false);
+        particleMaterial.setUsingTexture(true);
         particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
         particleMesh.setMaterial(particleMaterial);
         Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
-        particle.setAnimated(false);
+        particle.setAnimated(true);
         testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
         testParticleEmitter.setActive(true);
         testParticleEmitter.setFrustumCullingParticles(true);

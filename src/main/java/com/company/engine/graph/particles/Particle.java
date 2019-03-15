@@ -88,6 +88,7 @@ public class Particle extends GameItem {
         mUpdateTextureTime = updateTextureTime;
         mAnimated = animated;
         mTextured = textured;
+        mParticleColour = colour;
         if (mTextured) {
             Texture texture = getMesh().getMaterial().getTexture();
             mAnimatedFrameCount = texture.getNumColumns() * texture.getNumRows();

@@ -7,6 +7,7 @@ import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -94,5 +95,58 @@ public class FrustumFilter {
                 z0,
                 boundingRadius
         );
+    }
+
+    /**
+     * Fill a target List with pass a filter
+     * @param gameItemList the unfiltered List
+     * @param filteredGameItemList the target List
+     */
+    public void populateFilteredList(
+            List<GameItem> gameItemList,
+            List<GameItem> filteredGameItemList
+    ) {
+        filteredGameItemList.clear();
+        for (GameItem gameItem : gameItemList) {
+            if (gameItem.isInsideFrustum()) {
+                filteredGameItemList.add(gameItem);
+            }
+        }
+    }
+
+    /**
+     * Fill a target List with pass a filter
+     * @param emitterArray the unfiltered List
+     * @param filteredEmitterList the target List
+     */
+    public void populateFilteredList(
+            IParticleEmitter[] emitterArray,
+            List<IParticleEmitter> filteredEmitterList
+    ) {
+        filteredEmitterList.clear();
+        for (IParticleEmitter emitter : emitterArray) {
+            if (emitter.isInsideFrustum() || emitter.isFrustumCullingParticles()) {
+                filteredEmitterList.add(emitter);
+            }
+        }
+    }
+
+    /**
+     * Fill a target List with pass a filter
+     * @param emitter the unfiltered List
+     * @param filteredEmitterParticleList the target List
+     */
+    public void populateFilteredList(
+            IParticleEmitter emitter,
+            List<GameItem> filteredEmitterParticleList
+    ) {
+        filteredEmitterParticleList.clear();
+        if (emitter.isFrustumCullingParticles()) {
+            for (GameItem gameItem : emitter.getParticles()) {
+                if (gameItem.isInsideFrustum()) {
+                    filteredEmitterParticleList.add(gameItem);
+                }
+            }
+        }
     }
 }
