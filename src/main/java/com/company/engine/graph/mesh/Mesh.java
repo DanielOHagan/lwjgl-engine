@@ -17,7 +17,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class Mesh {
 
     public static final int MAX_WEIGHTS = 4;
-    private static final float DEFAULT_BOUNDING_RADIUS = 1.5f;
+    private static final float DEFAULT_BOUNDING_RADIUS_SCALE = 1.5f;
 
     protected int mVaoId;
     protected List<Integer> mVboIdList;
@@ -30,6 +30,7 @@ public class Mesh {
     private boolean mUsingWeights;
     private boolean mUsingJointIndices;
 
+    private float mBoundingRadiusScale;
     private float mBoundingRadius;
 
     public Mesh(
@@ -64,7 +65,7 @@ public class Mesh {
                 jointIndices,
                 weights
         );
-        mBoundingRadius = DEFAULT_BOUNDING_RADIUS;
+        mBoundingRadiusScale = DEFAULT_BOUNDING_RADIUS_SCALE;
     }
 
     /**
@@ -93,6 +94,8 @@ public class Mesh {
         IntBuffer joinIndicesBuffer;
 
         try {
+            calculateBoundRadius(positions);
+
             mVertexCount = indices.length;
             mVboIdList = new ArrayList<>();
 
@@ -183,6 +186,14 @@ public class Mesh {
             //unbind the buffers
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindVertexArray(0);
+        }
+    }
+
+    private void calculateBoundRadius(float[] positions) {
+        mBoundingRadius = 0;
+
+        for (float pos : positions) {
+            mBoundingRadius = Math.max(Math.abs(pos), mBoundingRadius);
         }
     }
 

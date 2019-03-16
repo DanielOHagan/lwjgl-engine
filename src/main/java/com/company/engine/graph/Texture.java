@@ -1,13 +1,15 @@
 package com.company.engine.graph;
 
-import de.matthiasmann.twl.utils.PNGDecoder;
+import com.company.engine.utils.FileUtils;
+import org.lwjgl.system.MemoryStack;
 
-import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 
 public class Texture {
 
@@ -19,7 +21,7 @@ public class Texture {
     private int mNumRows = 1;
 
     public Texture(String fileName) throws Exception {
-        this(Texture.class.getResourceAsStream(fileName));
+        this(FileUtils.ioResourceToByteBuffer(fileName, 1024));
     }
 
     public Texture(int width, int height, int pixelFormat) {
@@ -46,26 +48,29 @@ public class Texture {
     }
 
     public Texture(String fileName, int numColumns, int numRows) throws Exception {
-        this(Texture.class.getResourceAsStream(fileName));
+        this(fileName);
         mNumColumns = numColumns;
         mNumRows = numRows;
     }
 
-    public Texture(InputStream inputStream) throws Exception {
+    public Texture(ByteBuffer imageData) throws Exception {
 
-        try {
-            //load texture file
-            PNGDecoder decoder = new PNGDecoder(inputStream);
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            IntBuffer width = stack.mallocInt(1);
+            IntBuffer height = stack.mallocInt(1);
+            IntBuffer avChannels = stack.mallocInt(1);
 
-            mWidth = decoder.getWidth();
-            mHeight = decoder.getHeight();
-
-            //load texture contents into a byte buffer
-            ByteBuffer byteBuffer = ByteBuffer.allocateDirect(
-                    4 * decoder.getWidth() * decoder.getHeight()
+            //turn image into byte buffer
+            ByteBuffer decodedImage = stbi_load_from_memory(
+                    imageData,
+                    width,
+                    height,
+                    avChannels,
+                    4
             );
-            decoder.decode(byteBuffer, decoder.getWidth() * 4, PNGDecoder.Format.RGBA);
-            byteBuffer.flip();
+
+            mWidth = width.get();
+            mHeight = height.get();
 
             //create new OpenGL texture
             mId = glGenTextures();
@@ -82,21 +87,15 @@ public class Texture {
                     GL_TEXTURE_2D,
                     0,
                     GL_RGBA,
-                    decoder.getWidth(),
-                    decoder.getHeight(),
+                    mWidth,
+                    mHeight,
                     0,
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
-                    byteBuffer
+                    decodedImage
             );
             //generate Mip Map
             glGenerateMipmap(GL_TEXTURE_2D);
-
-            inputStream.close();
-        } finally {
-            if (inputStream != null) {
-                inputStream.close();
-            }
         }
     }
 

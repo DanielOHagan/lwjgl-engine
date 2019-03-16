@@ -1,6 +1,5 @@
 package com.company.engine.graph;
 
-import com.company.engine.graph.maths.Transformation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 

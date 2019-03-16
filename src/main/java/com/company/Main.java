@@ -27,7 +27,7 @@ public class Main {
 
             GameEngine gameEngine = new GameEngine(
                     "Game",
-                    WindowMode.WINDOWED,
+                    WindowMode.BORDERLESS_WINDOWED,
                     options,
                     gameLogic
             );

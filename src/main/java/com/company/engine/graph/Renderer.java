@@ -2,7 +2,6 @@ package com.company.engine.graph;
 
 import com.company.engine.graph.optimisations.FrustumFilter;
 import com.company.engine.graph.particles.Particle;
-import com.company.engine.graph.maths.Transformation;
 import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;

@@ -11,6 +11,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class ObjLoader {
 
     public static Mesh loadMesh(String fileName, MeshType meshType) throws Exception {

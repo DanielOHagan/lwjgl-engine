@@ -2,7 +2,7 @@ package com.company.engine.graph.mesh;
 
 import com.company.engine.utils.ArrayUtils;
 import com.company.engine.graph.Texture;
-import com.company.engine.graph.maths.Transformation;
+import com.company.engine.graph.Transformation;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;

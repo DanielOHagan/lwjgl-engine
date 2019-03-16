@@ -109,4 +109,14 @@ public class GameItem {
     public boolean isInsideFrustum() {
         return mInsideFrustum;
     }
+
+    public void setUsingTexture(boolean usingTexture) {
+        if (mMeshes != null && mMeshes.length > 0) {
+            for (Mesh mesh : mMeshes) {
+                if (mesh.getMaterial() != null) {
+                    mesh.getMaterial().setUsingTexture(usingTexture);
+                }
+            }
+        }
+    }
 }

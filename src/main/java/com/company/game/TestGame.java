@@ -1,24 +1,16 @@
 package com.company.game;
 
 import com.company.engine.IGameLogic;
-import com.company.engine.audio.AudioBuffer;
-import com.company.engine.audio.AudioListener;
-import com.company.engine.audio.AudioManager;
-import com.company.engine.audio.AudioSource;
-import com.company.engine.graph.mesh.Mesh;
-import com.company.engine.graph.mesh.MeshType;
-import com.company.engine.graph.particles.IParticleEmitter;
-import com.company.engine.graph.particles.Particle;
-import com.company.engine.input.MouseOptions;
+import com.company.engine.audio.*;
+import com.company.engine.graph.mesh.*;
+import com.company.engine.graph.particles.*;
 import com.company.engine.loaders.ObjLoader;
-import com.company.engine.scene.items.GameItem;
-import com.company.engine.scene.items.SkyBox;
+import com.company.engine.loaders.assimp.StaticMeshesLoader;
+import com.company.engine.scene.items.*;
 import com.company.engine.window.Window;
 import com.company.engine.graph.*;
-import com.company.engine.input.KeyboardInput;
-import com.company.engine.input.MouseInput;
+import com.company.engine.input.*;
 import com.company.engine.scene.Scene;
-import de.matthiasmann.twl.utils.PNGDecoder;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.openal.AL11;
@@ -61,59 +53,21 @@ public class TestGame implements IGameLogic {
         mScene = new Scene();
         setUpMouseOptions();
 
-        // Setup  GameItems
-        float blockScale = 0.5f;
-        float skyBoxScale = 50.0f;
-        float extension = 2.0f;
+        Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
+                "src/main/resources/models/Tabel/table.obj",
+                "src/main/resources/models/Tabel/tex"
+        );
 
-        float startx = extension * (-skyBoxScale + blockScale);
-        float startz = extension * (skyBoxScale - blockScale);
-        float starty = -1.0f;
-        float inc = blockScale * 2;
+        GameItem gameItem = new GameItem(legoManMeshes);
+        gameItem.setUsingTexture(false);
+//        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
+//        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 
-        float posx = startx;
-        float posz = startz;
-        float incy = 0.0f;
-        int NUM_ROWS = (int)(extension * skyBoxScale * 2 / inc);
-        int NUM_COLS = (int)(extension * skyBoxScale * 2/ inc);
-        GameItem[] gameItems  = new GameItem[NUM_ROWS * NUM_COLS];
-
-        float reflectance = 1f;
-        int instances = NUM_ROWS * NUM_COLS;
-        Mesh mesh = ObjLoader.loadMesh("/models/cube.obj", instances, MeshType.INSTANCED);
-        mesh.setBoundingRadius(1.5f);
-        Texture texture = new Texture("/textures/grassblock.png");
-        Material material = new Material(texture, reflectance);
-        mesh.setMaterial(material);
-
-        for(int i = 0; i< NUM_ROWS; i++) {
-            for(int j = 0; j < NUM_COLS; j++) {
-                GameItem gameItem = new GameItem(mesh);
-                gameItem.setScale(blockScale);
-                incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
-                gameItem.setPosition(posx, starty + incy, posz);
-                gameItems[i*NUM_COLS + j] = gameItem;
-
-                posx += inc;
-            }
-            posx = startx;
-            posz -= inc;
-        }
-
-//        Mesh legoManMesh = ObjLoader.loadMesh("/models/lego_man.obj", 1, MeshType.STANDARD);
-//        Texture legoManTexture = new Texture("/textures/Face_04.png");
-//        Material legoManMaterial = new Material(legoManTexture);
-//        legoManMesh.setMaterial(legoManMaterial);
-//        legoManMaterial.setUsingTexture(true);
-//        GameItem testGameItem = new GameItem(legoManMesh);
-//        testGameItem.setScale(2);
-
-        //mScene.addSceneGameItems(new GameItem[]{ testGameItem });
+        mScene.addSceneGameItems(new GameItem[] {gameItem});
 
         Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
-        particleMesh.setBoundingRadius(1.5f);
         Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
-        Material particleMaterial = new Material(particleTexture, reflectance);
+        Material particleMaterial = new Material(particleTexture, Material.DEFAULT_REFLECTANCE);
         particleMaterial.setUsingTexture(true);
         particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
         particleMesh.setMaterial(particleMaterial);
@@ -123,11 +77,11 @@ public class TestGame implements IGameLogic {
         testParticleEmitter.setActive(true);
         testParticleEmitter.setFrustumCullingParticles(true);
 
-        mScene.addSceneGameItems(gameItems);
+//        mScene.addSceneGameItems(gameItems);
 
-        setUpSounds();
-        mAudioManager.playAudioSource(Sounds.MUSIC.toString());
-        mAudioManager.playAudioSource(Sounds.FIRE.toString());
+//        setUpSounds();
+//        mAudioManager.playAudioSource(Sounds.MUSIC.toString());
+//        mAudioManager.playAudioSource(Sounds.FIRE.toString());
 
         //mScene.addSceneGameItems(gameItems);
         //mScene.setHud(testHud);
@@ -191,12 +145,16 @@ public class TestGame implements IGameLogic {
         if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             mCamera.getRotation().x += 0.4;
         }
+
+        if (window.isKeyPressed(GLFW_KEY_ENTER)) {
+
+        }
     }
 
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         testParticleEmitter.update((long) (interval * 1000));
-        mAudioManager.updateListenerPosition(mCamera);
+//        mAudioManager.updateListenerPosition(mCamera);
     }
 
     @Override

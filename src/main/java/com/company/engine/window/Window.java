@@ -1,6 +1,7 @@
 package com.company.engine.window;
 
 import org.joml.Matrix4f;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -84,6 +85,7 @@ public class Window {
                 mOptions.fullscreen ? mCurrentMonitor : NULL,
                 NULL
         );
+
         if (mWindowHandle == NULL) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -156,6 +158,9 @@ public class Window {
                     vidMode.height(),
                     vidMode.refreshRate()
             );
+
+            mWidth = vidMode.width();
+            mHeight = vidMode.height();
         }
 
         if (!mMaximised && !mOptions.fullscreen) {
@@ -296,6 +301,10 @@ public class Window {
 
     public boolean shouldWindowClose() {
         return glfwWindowShouldClose(mWindowHandle);
+    }
+
+    public void setShouldWindowClose(boolean shouldWindowClose) {
+        glfwSetWindowShouldClose(mWindowHandle, shouldWindowClose);
     }
 
     public void setClearColour(float red, float green, float blue, float alpha) {
