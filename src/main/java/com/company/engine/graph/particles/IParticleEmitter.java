@@ -15,9 +15,11 @@ public interface IParticleEmitter {
     boolean isInsideFrustum();
     boolean ignoresFrustumCulling();
     boolean isFrustumCullingParticles();
+    int getMaxParticleCount();
 
     void setIgnoresFrustumCulling(boolean ignoresFrustumCulling);
     void setInsideFrustum(boolean insideFrustum);
     void setActive(boolean active);
     void setFrustumCullingParticles(boolean frustumCullingParticles);
+    void setMaxParticleCount(int maxParticleCount);
 }

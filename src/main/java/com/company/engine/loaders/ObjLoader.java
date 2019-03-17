@@ -2,16 +2,15 @@ package com.company.engine.loaders;
 
 import com.company.engine.utils.ArrayUtils;
 import com.company.engine.utils.FileUtils;
-import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.mesh.MeshType;
+import com.company.engine.utils.MeshUtils;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Deprecated
 public class ObjLoader {
 
     public static Mesh loadMesh(String fileName, MeshType meshType) throws Exception {
@@ -125,30 +124,14 @@ public class ObjLoader {
 
         int[] indicesArr = ArrayUtils.listToIntArray(indices);
 
-        switch (meshType) {
-            case STANDARD:
-                return new Mesh(
-                        positionsArr,
-                        textureCoordinatesArr,
-                        normalsArr,
-                        indicesArr
-                );
-            case INSTANCED:
-                return new InstancedMesh(
-                        positionsArr,
-                        textureCoordinatesArr,
-                        normalsArr,
-                        indicesArr,
-                        instances
-                );
-            default:
-                return new Mesh(
-                        positionsArr,
-                        textureCoordinatesArr,
-                        normalsArr,
-                        indicesArr
-                );
-        }
+        return MeshUtils.createMeshByType(
+                positionsArr,
+                textureCoordinatesArr,
+                normalsArr,
+                indicesArr,
+                instances,
+                meshType
+        );
     }
 
     private static void processFaceVertex(

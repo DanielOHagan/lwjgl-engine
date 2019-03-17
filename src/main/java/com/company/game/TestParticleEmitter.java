@@ -79,6 +79,11 @@ public class TestParticleEmitter implements IParticleEmitter {
     }
 
     @Override
+    public int getMaxParticleCount() {
+        return mMaxParticleCount;
+    }
+
+    @Override
     public void setIgnoresFrustumCulling(boolean ignoresFrustumCulling) {
         mIgnoresFrustumCulling = ignoresFrustumCulling;
     }
@@ -96,6 +101,11 @@ public class TestParticleEmitter implements IParticleEmitter {
     @Override
     public void setFrustumCullingParticles(boolean frustumCullingParticles) {
         mFrustumCullingParticles = frustumCullingParticles;
+    }
+
+    @Override
+    public void setMaxParticleCount(int maxParticleCount) {
+        mMaxParticleCount = maxParticleCount;
     }
 
     public void update(long elapsedTime) {

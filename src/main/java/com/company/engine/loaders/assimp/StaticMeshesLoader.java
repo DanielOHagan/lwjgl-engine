@@ -2,7 +2,8 @@ package com.company.engine.loaders.assimp;
 
 import com.company.engine.graph.Material;
 import com.company.engine.graph.Texture;
-import com.company.engine.graph.mesh.Mesh;
+import com.company.engine.graph.mesh.*;
+import com.company.engine.utils.MeshUtils;
 import org.joml.Vector4f;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.*;
@@ -16,22 +17,50 @@ import static org.lwjgl.assimp.Assimp.*;
 
 public class StaticMeshesLoader {
 
-    public static Mesh[] loadMeshes(String filePath, String texturesDirectory) throws Exception {
+    public static Mesh[] loadMeshes(
+            String filePath,
+            String texturesDirectory,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
         return loadMeshes(
                 filePath,
                 texturesDirectory,
                 aiProcess_JoinIdenticalVertices |
                         aiProcess_Triangulate |
-                        aiProcess_FixInfacingNormals
+                        aiProcess_FixInfacingNormals,
+                instances,
+                meshType
         );
     }
 
-    public static Mesh[] loadMeshes(String filePath, String texturesDirectory, int flags) throws Exception {
+    public static Mesh[] loadMeshes(
+            String filePath,
+            Material material,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
+        return loadMeshes(
+                filePath,
+                material,
+                aiProcess_JoinIdenticalVertices |
+                        aiProcess_Triangulate |
+                        aiProcess_FixInfacingNormals,
+                instances,
+                meshType
+        );
+    }
+
+    public static Mesh[] loadMeshes(
+            String filePath,
+            String texturesDirectory,
+            int flags,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
         AIScene aiScene = aiImportFile(filePath, flags);
 
-        if (aiScene == null) {
-            throw new Exception("Error loading model");
-        }
+        checkForErrors(aiScene, instances, meshType);
 
         int numMaterials = aiScene.mNumMaterials();
         PointerBuffer aiMaterials = aiScene.mMaterials();
@@ -44,21 +73,25 @@ public class StaticMeshesLoader {
             }
         }
 
-        int numMeshes = aiScene.mNumMeshes();
-        PointerBuffer aiMeshes = aiScene.mMeshes();
-        Mesh[] meshArray = new Mesh[numMeshes];
+        return generateMeshArray(aiScene, materialList, instances, meshType);
+    }
 
-        if (aiMeshes != null) {
-            for (int i = 0; i < numMeshes; i++) {
-                AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
-                Mesh mesh = processMesh(aiMesh, materialList);
-                meshArray[i] = mesh;
-            }
-        } else {
-            throw new Exception("No Meshes were loaded.");
+    public static Mesh[] loadMeshes(
+            String filePath,
+            Material material,
+            int flags,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
+        AIScene aiScene = aiImportFile(filePath, flags);
+
+        checkForErrors(aiScene, instances, meshType);
+
+        if (instances > 1 && meshType != MeshType.INSTANCED) {
+            throw new Exception("Mesh type must be instanced if instance count is greater that 1");
         }
 
-        return meshArray;
+        return generateMeshArray(aiScene, material, instances, meshType);
     }
 
     private static void processMaterial(
@@ -96,43 +129,13 @@ public class StaticMeshesLoader {
         }
 
         Vector4f ambient = Material.DEFAULT_COLOUR;
-        int result = aiGetMaterialColor(
-                aiMaterial,
-                AI_MATKEY_COLOR_AMBIENT,
-                aiTextureType_NONE,
-                0,
-                colour
-        );
-
-        if (result == 0) {
-            ambient = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
-        }
+        loadMeshLightValue(aiMaterial, ambient, AI_MATKEY_COLOR_AMBIENT, colour);
 
         Vector4f specular = Material.DEFAULT_COLOUR;
-        result = aiGetMaterialColor(
-                aiMaterial,
-                AI_MATKEY_COLOR_SPECULAR,
-                aiTextureType_NONE,
-                0,
-                colour
-        );
-
-        if (result == 0) {
-            specular = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
-        }
+        loadMeshLightValue(aiMaterial, specular, AI_MATKEY_COLOR_SPECULAR, colour);
 
         Vector4f diffuse = Material.DEFAULT_COLOUR;
-        result = aiGetMaterialColor(
-                aiMaterial,
-                AI_MATKEY_COLOR_DIFFUSE,
-                aiTextureType_NONE,
-                0,
-                colour
-        );
-
-        if (result == 0) {
-            diffuse = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
-        }
+        loadMeshLightValue(aiMaterial, diffuse, AI_MATKEY_COLOR_DIFFUSE, colour);
 
         materialList.add(new Material(
                 ambient,
@@ -144,12 +147,119 @@ public class StaticMeshesLoader {
         ));
     }
 
-    private static Mesh processMesh(AIMesh aiMesh, List<Material> materialList) {
+    private static void loadMeshLightValue(
+            AIMaterial aiMaterial,
+            Vector4f light,
+            String lightType,
+            AIColor4D colour
+    ) {
+        int result = aiGetMaterialColor(
+                aiMaterial,
+                lightType,
+                aiTextureType_NONE,
+                0,
+                colour
+        );
+
+        if (result == 0) {
+            light = new Vector4f(colour.r(), colour.g(), colour.b(), colour.a());
+        }
+    }
+
+    private static Mesh processMesh(
+            AIMesh aiMesh,
+            List<Material> materialList,
+            int instances,
+            MeshType meshType
+    ) {
         List<Float> vertexList = new ArrayList<>();
         List<Float> textCoordList = new ArrayList<>();
         List<Float> normalList = new ArrayList<>();
         List<Integer> indexList = new ArrayList<>();
 
+        populateMeshLists(aiMesh, vertexList, textCoordList, normalList, indexList);
+
+        Mesh mesh;
+
+        switch (meshType) {
+            case STANDARD:
+                mesh = new Mesh(
+                        listToFloatArray(vertexList),
+                        listToFloatArray(textCoordList),
+                        listToFloatArray(normalList),
+                        listToIntArray(indexList)
+                );
+                break;
+            case INSTANCED:
+                mesh = new InstancedMesh(
+                        listToFloatArray(vertexList),
+                        listToFloatArray(textCoordList),
+                        listToFloatArray(normalList),
+                        listToIntArray(indexList),
+                        instances
+                );
+                break;
+            default:
+                mesh = new Mesh(
+                        listToFloatArray(vertexList),
+                        listToFloatArray(textCoordList),
+                        listToFloatArray(normalList),
+                        listToIntArray(indexList)
+                );
+                break;
+        }
+
+        Material material;
+        int materialIndex = aiMesh.mMaterialIndex();
+
+        if (materialIndex >= 0 && materialIndex < materialList.size()) {
+            material = materialList.get(materialIndex);
+        } else {
+            material = new Material();
+        }
+
+        mesh.setMaterial(material);
+
+        return mesh;
+    }
+
+    private static Mesh processMesh(
+            AIMesh aiMesh,
+            Material material,
+            int instances,
+            MeshType meshType
+    ) {
+        List<Float> vertexList = new ArrayList<>();
+        List<Float> textCoordList = new ArrayList<>();
+        List<Float> normalList = new ArrayList<>();
+        List<Integer> indexList = new ArrayList<>();
+
+        populateMeshLists(aiMesh, vertexList, textCoordList, normalList, indexList);
+
+        Mesh mesh = MeshUtils.createMeshByType(
+                vertexList,
+                textCoordList,
+                normalList,
+                indexList,
+                instances,
+                meshType
+        );
+
+        if (material.getTexture() != null) {
+            material.setUsingTexture(true);
+        }
+        mesh.setMaterial(material);
+
+        return mesh;
+    }
+
+    private static void populateMeshLists(
+            AIMesh aiMesh,
+            List<Float> vertexList,
+            List<Float> textCoordList,
+            List<Float> normalList,
+            List<Integer> indexList
+    ) {
         processVertexList(
                 aiMesh.mVertices(),
                 vertexList
@@ -167,26 +277,6 @@ public class StaticMeshesLoader {
                 aiMesh.mFaces(),
                 indexList
         );
-
-        Mesh mesh = new Mesh(
-                listToFloatArray(vertexList),
-                listToFloatArray(textCoordList),
-                listToFloatArray(normalList),
-                listToIntArray(indexList)
-        );
-
-        Material material;
-        int materialIndex = aiMesh.mMaterialIndex();
-
-        if (materialIndex >= 0 && materialIndex < materialList.size()) {
-            material = materialList.get(materialIndex);
-        } else {
-            material = new Material();
-        }
-
-        mesh.setMaterial(material);
-
-        return mesh;
     }
 
     private static void processVertexList(
@@ -242,5 +332,69 @@ public class StaticMeshesLoader {
                 indexList.add(intBuffer.get());
             }
         }
+    }
+
+    private static void checkForErrors(
+            AIScene aiScene,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
+        if (aiScene == null) {
+            throw new Exception("Error loading model");
+        }
+
+        if (instances < 1) {
+            throw new Exception("Must have at least one instance");
+        }
+
+        if (instances > 1 && meshType != MeshType.INSTANCED) {
+            throw new Exception("Mesh type must be instanced if instance count is greater that 1");
+        }
+    }
+
+    private static Mesh[] generateMeshArray(
+            AIScene aiScene,
+            List<Material> materialList,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
+        int numMeshes = aiScene.mNumMeshes();
+        PointerBuffer aiMeshes = aiScene.mMeshes();
+        Mesh[] meshArray = new Mesh[numMeshes];
+
+        if (aiMeshes != null) {
+            for (int i = 0; i < numMeshes; i++) {
+                AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
+                Mesh mesh = processMesh(aiMesh, materialList, instances, meshType);
+                meshArray[i] = mesh;
+            }
+        } else {
+            throw new Exception("No Meshes were loaded.");
+        }
+
+        return meshArray;
+    }
+
+    private static Mesh[] generateMeshArray(
+            AIScene aiScene,
+            Material material,
+            int instances,
+            MeshType meshType
+    ) throws Exception {
+        int numMeshes = aiScene.mNumMeshes();
+        PointerBuffer aiMeshes = aiScene.mMeshes();
+        Mesh[] meshArray = new Mesh[numMeshes];
+
+        if (aiMeshes != null) {
+            for (int i = 0; i < numMeshes; i++) {
+                AIMesh aiMesh = AIMesh.create(aiMeshes.get(i));
+                Mesh mesh = processMesh(aiMesh, material, instances, meshType);
+                meshArray[i] = mesh;
+            }
+        } else {
+            throw new Exception("No Meshes were loaded.");
+        }
+
+        return meshArray;
     }
 }

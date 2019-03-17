@@ -7,6 +7,7 @@ import com.company.engine.graph.particles.*;
 import com.company.engine.loaders.ObjLoader;
 import com.company.engine.loaders.assimp.StaticMeshesLoader;
 import com.company.engine.scene.items.*;
+import com.company.engine.utils.MeshUtils;
 import com.company.engine.window.Window;
 import com.company.engine.graph.*;
 import com.company.engine.input.*;
@@ -53,29 +54,94 @@ public class TestGame implements IGameLogic {
         mScene = new Scene();
         setUpMouseOptions();
 
+        float blockScale = 0.5f;
+        float skyBoxScale = 50.0f;
+        float extension = 2.0f;
+
+        float startx = extension * (-skyBoxScale + blockScale);
+        float startz = extension * (skyBoxScale - blockScale);
+        float starty = -1.0f;
+        float inc = blockScale * 2;
+
+        float posx = startx;
+        float posz = startz;
+        float incy = 0.0f;
+        int NUM_ROWS = (int)(extension * skyBoxScale * 2 / inc);
+        int NUM_COLS = (int)(extension * skyBoxScale * 2/ inc);
+        GameItem[] gameItems  = new GameItem[NUM_ROWS * NUM_COLS];
+
+        float reflectance = 1f;
+        int instances = NUM_ROWS * NUM_COLS;
+        Texture texture = new Texture("/textures/grassblock.png");
+        Material material = new Material(texture, reflectance);
+        Mesh[] mesh = StaticMeshesLoader.loadMeshes(
+                "src/main/resources/models/cube.obj",
+                material,
+                instances,
+                MeshType.INSTANCED
+        );
+        MeshUtils.setBoundingRadius(mesh, 1.5f);
+
+        for(int i = 0; i< NUM_ROWS; i++) {
+            for(int j = 0; j < NUM_COLS; j++) {
+                GameItem gameItem = new GameItem(mesh);
+                gameItem.setScale(blockScale);
+                incy = Math.random() > 0.9f ? blockScale * 2 : 0f;
+                gameItem.setPosition(posx, starty + incy, posz);
+                gameItems[i*NUM_COLS + j] = gameItem;
+
+                posx += inc;
+            }
+            posx = startx;
+            posz -= inc;
+        }
+
+        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
+        Material particleMaterial = new Material(particleTexture, reflectance);
+        particleMaterial.setUsingTexture(true);
+        particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
+
+        int maxParticleCount = 20;
+
+        Mesh particleMesh = ObjLoader.loadMesh(
+                "/models/particle.obj",
+                maxParticleCount,
+                MeshType.INSTANCED
+        );
+        particleMesh.setMaterial(particleMaterial);
+        Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
+        particle.setAnimated(true);
+        testParticleEmitter = new TestParticleEmitter(particle, maxParticleCount, 300);
+        testParticleEmitter.setActive(true);
+        testParticleEmitter.setFrustumCullingParticles(true);
+
+        mScene.addSceneGameItems(gameItems);
+
         Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/Tabel/table.obj",
-                "src/main/resources/models/Tabel/tex"
+                "src/main/resources/models/walker/Neck_Mech_Walker_by_3dHaupt-(Wavefront OBJ).obj",
+                "src/main/resources/models/walker",
+                1,
+                MeshType.STANDARD
         );
 
         GameItem gameItem = new GameItem(legoManMeshes);
-        gameItem.setUsingTexture(false);
+//        gameItem.getMesh().getMaterial().setUsingTexture(true);
 //        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
 //        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 
         mScene.addSceneGameItems(new GameItem[] {gameItem});
 
-        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
-        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
-        Material particleMaterial = new Material(particleTexture, Material.DEFAULT_REFLECTANCE);
-        particleMaterial.setUsingTexture(true);
-        particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
-        particleMesh.setMaterial(particleMaterial);
-        Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
-        particle.setAnimated(true);
-        testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
-        testParticleEmitter.setActive(true);
-        testParticleEmitter.setFrustumCullingParticles(true);
+//        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
+//        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
+//        Material particleMaterial = new Material(particleTexture, Material.DEFAULT_REFLECTANCE);
+//        particleMaterial.setUsingTexture(true);
+//        particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
+//        particleMesh.setMaterial(particleMaterial);
+//        Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
+//        particle.setAnimated(true);
+//        testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
+//        testParticleEmitter.setActive(true);
+//        testParticleEmitter.setFrustumCullingParticles(true);
 
 //        mScene.addSceneGameItems(gameItems);
 
@@ -144,10 +210,6 @@ public class TestGame implements IGameLogic {
         }
         if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             mCamera.getRotation().x += 0.4;
-        }
-
-        if (window.isKeyPressed(GLFW_KEY_ENTER)) {
-
         }
     }
 
