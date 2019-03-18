@@ -283,7 +283,7 @@ public class Renderer {
 
 //                if (gameItem instanceof AnimGameItem) {
 //                    AnimGameItem animGameItem = (AnimGameItem) gameItem;
-//                    AnimFrame animFrame = animGameItem.getCurrentFrame();
+//                    AnimatedFrame animatedFrame = animGameItem.getCurrentFrame();
 //
 //                    shaderProgram.setUniform("jointMatrix", animFrame.getJointMatrices);
 //                }
