@@ -12,6 +12,7 @@ import com.company.engine.window.Window;
 import com.company.engine.graph.*;
 import com.company.engine.input.*;
 import com.company.engine.scene.Scene;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.openal.AL11;
@@ -125,6 +126,7 @@ public class TestGame implements IGameLogic {
         );
 
         GameItem gameItem = new GameItem(legoManMeshes);
+        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
 //        gameItem.getMesh().getMaterial().setUsingTexture(true);
 //        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
 //        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
@@ -217,6 +219,8 @@ public class TestGame implements IGameLogic {
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         testParticleEmitter.update((long) (interval * 1000));
 //        mAudioManager.updateListenerPosition(mCamera);
+        //update camera view matrix each cycle
+        mCamera.updateViewMatrix();
     }
 
     @Override
