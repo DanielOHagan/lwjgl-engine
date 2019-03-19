@@ -20,7 +20,7 @@ public class Main {
 
             options.vSync = false;
             options.resizable = true;
-            options.showMeshLines = false;
+            options.showMeshLines = true;
             options.cullFace = true;
             options.showFps = true;
             options.frustumCulling = true;
