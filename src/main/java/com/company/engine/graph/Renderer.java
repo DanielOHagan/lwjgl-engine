@@ -150,8 +150,8 @@ public class Renderer {
         //Update projection matrix once per render cycle
         window.updateProjectionMatrix(camera.getFov(), camera.getViewDistanceStart(), camera.getViewDistanceEnd());
 
-        //update camera view matrix each cycle
-        camera.updateViewMatrix();
+        //this has been left here as a reminder that the camera can also be updated in the game logic where the dev has more control
+        //camera.updateViewMatrix();
 
         renderScene(window, camera, scene);
 

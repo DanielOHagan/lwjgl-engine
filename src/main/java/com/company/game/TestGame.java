@@ -12,6 +12,7 @@ import com.company.engine.window.Window;
 import com.company.engine.graph.*;
 import com.company.engine.input.*;
 import com.company.engine.scene.Scene;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.openal.AL11;
@@ -118,18 +119,21 @@ public class TestGame implements IGameLogic {
         mScene.addSceneGameItems(gameItems);
 
         Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/walker/Neck_Mech_Walker_by_3dHaupt-(Wavefront OBJ).obj",
-                "src/main/resources/models/walker",
+                "src/main/resources/models/city/City Template.obj",
+                new Material(new Vector4f(1, 1, 1, 1)),
                 1,
                 MeshType.STANDARD
         );
 
+//        MeshUtils.setBoundingRadius(legoManMeshes, 15f);
+
         GameItem gameItem = new GameItem(legoManMeshes);
+        gameItem.setIgnoresFrustumCulling(true);
 //        gameItem.getMesh().getMaterial().setUsingTexture(true);
 //        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
 //        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 
-        mScene.addSceneGameItems(new GameItem[] {gameItem});
+//        mScene.addSceneGameItems(new GameItem[] {gameItem});
 
 //        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
 //        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
@@ -217,6 +221,8 @@ public class TestGame implements IGameLogic {
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
         testParticleEmitter.update((long) (interval * 1000));
 //        mAudioManager.updateListenerPosition(mCamera);
+        //update camera view matrix each cycle
+        mCamera.updateViewMatrix();
     }
 
     @Override
