@@ -55,7 +55,7 @@ void main() {
 
     //texture atlas support
     float x = (texCoord.x / numColumns + textOffset.x);
-    float x = (texCoord.y / numRows + textOffset.y);
+    float y = (texCoord.y / numRows + textOffset.y);
 
     outTexCoord = vec2(x, y);
     outModelViewMatrix = modelViewMatrix;

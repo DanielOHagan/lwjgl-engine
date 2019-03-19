@@ -120,7 +120,7 @@ public class TestGame implements IGameLogic {
 
         Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
                 "src/main/resources/models/city/City Template.obj",
-                new Material(new Vector4f(1, 1, 1, 1)),
+                new Material(new Vector4f(1, 0, 1, 1)),
                 1,
                 MeshType.STANDARD
         );

@@ -204,8 +204,14 @@ public class Renderer {
 
         mSceneShaderProgram.bind();
 
-        mSceneShaderProgram.setUniform("textureSampler", 0);
-        mSceneShaderProgram.setUniform("projectionMatrix", window.getProjectionMatrix());
+        mSceneShaderProgram.setUniform(
+                "textureSampler",
+                0
+        );
+        mSceneShaderProgram.setUniform(
+                "projectionMatrix",
+                window.getProjectionMatrix()
+        );
 
         if (scene.getGameItemMeshMap().size() > 0) {
             renderNonInstancedMeshes(
@@ -224,8 +230,6 @@ public class Renderer {
                     lightViewMatrix
             );
         }
-
-//        renderGameItems(camera, scene);
 
         mSceneShaderProgram.unbind();
     }
@@ -285,7 +289,7 @@ public class Renderer {
 //                    AnimGameItem animGameItem = (AnimGameItem) gameItem;
 //                    AnimatedFrame animatedFrame = animGameItem.getCurrentFrame();
 //
-//                    shaderProgram.setUniform("jointMatrix", animFrame.getJointMatrices);
+//                    shaderProgram.setUniform("jointMatrices", animFrame.getJointMatrices());
 //                }
             });
         }
@@ -464,49 +468,6 @@ public class Renderer {
                 renderInstancedParticleEmitter(emitter, mesh, viewMatrix, useTexture);
             } else {
                 renderNonInstancedParticleEmitter(emitter, mesh, viewMatrix, texture, useTexture);
-//                mParticleShaderProgram.setUniform("isInstanced", 0);
-//
-//                mFrustumFilter.populateFilteredList(
-//                        emitter,
-//                        mFilteredGameItemList
-//                );
-//
-//                mesh.renderList(
-//                        emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticles(),
-//                        (GameItem gameItem) -> {
-//                    if (useTexture) {
-//                        int column = gameItem.getTexturePos() % texture.getNumColumns();
-//                        int row = gameItem.getTexturePos() / texture.getNumColumns();
-//                        float textOffsetX = (float) column / texture.getNumColumns();
-//                        float textOffsetY = (float) row / texture.getNumRows();
-//
-//                        mParticleShaderProgram.setUniform(
-//                                "nonInstancedTextOffsetX",
-//                                textOffsetX
-//                        );
-//                        mParticleShaderProgram.setUniform(
-//                                "nonInstancedTextOffsetY",
-//                                textOffsetY
-//                        );
-//                    }
-//
-//                    mParticleShaderProgram.setUniform(
-//                            "nonInstancedParticleColour",
-//                            ((Particle) gameItem).getParticleColour()
-//                    );
-//
-//                    Matrix4f modelMatrix = mTransformation.generateModelMatrix(gameItem);
-//                    viewMatrix.transpose3x3(modelMatrix);
-//                    viewMatrix.scale(gameItem.getScale());
-//                    Matrix4f modelViewMatrix = mTransformation.generateModelViewMatrix(
-//                            modelMatrix, viewMatrix
-//                    );
-//                    modelViewMatrix.scale(gameItem.getScale());
-//                    mParticleShaderProgram.setUniform(
-//                            "nonInstancedModelViewMatrix",
-//                            modelViewMatrix
-//                    );
-//                });
             }
         }
     }
