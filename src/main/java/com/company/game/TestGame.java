@@ -116,17 +116,17 @@ public class TestGame implements IGameLogic {
         testParticleEmitter.setActive(true);
         testParticleEmitter.setFrustumCullingParticles(true);
 
-        mScene.addSceneGameItems(gameItems);
+//        mScene.addSceneGameItems(gameItems);
 
         Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/walker/Neck_Mech_Walker_by_3dHaupt-(Wavefront OBJ).obj",
-                "src/main/resources/models/walker",
+                "src/main/resources/models/city/City Template.obj",
+                new Material(new Vector4f(1, 1, 1, 1)),
                 1,
                 MeshType.STANDARD
         );
 
         GameItem gameItem = new GameItem(legoManMeshes);
-        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
+//        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
 //        gameItem.getMesh().getMaterial().setUsingTexture(true);
 //        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
 //        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
