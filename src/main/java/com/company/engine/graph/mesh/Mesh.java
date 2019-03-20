@@ -1,7 +1,7 @@
 package com.company.engine.graph.mesh;
 
-import com.company.engine.graph.Material;
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Material;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.scene.items.GameItem;
 import org.lwjgl.system.MemoryUtil;
 
@@ -11,13 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.company.engine.graph.ShaderProgram.*;
+import static com.company.engine.graph.rendering.ShaderProgram.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class Mesh {
 
     public static final int MAX_WEIGHTS = 4;
-    private static final float DEFAULT_BOUNDING_RADIUS_SCALE = 1.5f;
 
     protected int mVaoId;
     protected List<Integer> mVboIdList;
@@ -30,7 +29,6 @@ public class Mesh {
     private boolean mUsingWeights;
     private boolean mUsingJointIndices;
 
-    private float mBoundingRadiusScale;
     private float mBoundingRadius;
 
     public Mesh(
@@ -65,7 +63,6 @@ public class Mesh {
                 jointIndices,
                 weights
         );
-        mBoundingRadiusScale = DEFAULT_BOUNDING_RADIUS_SCALE;
     }
 
     /**
@@ -236,7 +233,6 @@ public class Mesh {
             glBindTexture(GL_TEXTURE_2D, texture.getId());
         }
 
-        /* TODO:
         Texture normalMap = mMaterial != null &&
                 mMaterial.getNormalMap() != null ? mMaterial.getNormalMap() : null;
 
@@ -246,7 +242,6 @@ public class Mesh {
             //bind texture
             glBindTexture(GL_TEXTURE_2D, normalMap.getId());
         }
-        */
 
         glBindVertexArray(mVaoId);
 

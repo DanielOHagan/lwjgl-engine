@@ -1,4 +1,4 @@
-package com.company.engine.graph;
+package com.company.engine.graph.material;
 
 import org.joml.Vector4f;
 
@@ -13,6 +13,7 @@ public class Material {
     private Vector4f mColour;
     private float mReflectance;
     private Texture mTexture;
+    private Texture mNormalMap;
     private boolean mUsingTexture;
 
     public Material() {
@@ -158,5 +159,17 @@ public class Material {
 
     public float getOpacity() {
         return mColour.w;
+    }
+
+    public boolean hasNormalMap() {
+        return mNormalMap != null;
+    }
+
+    public Texture getNormalMap() {
+        return mNormalMap;
+    }
+
+    public void setNormalMap(Texture normalMap) {
+        mNormalMap = normalMap;
     }
 }

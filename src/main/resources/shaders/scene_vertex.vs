@@ -19,9 +19,10 @@ uniform mat4 projectionMatrix;
 uniform int numColumns;
 uniform int numRows;
 
-out vec2 outTexCoord;
-out vec3 mvVertexNormal;
-out vec3 mvVertexPosition;
+out vec2 out_texCoord;
+out vec3 out_modelViewVertexNormal;
+out vec3 out_modelViewVertexPosition;
+out mat4 out_modelViewMatrix;
 
 out mat4 outModelViewMatrix;
 
@@ -43,8 +44,8 @@ void main() {
         //lightViewMatrix = nonInstancedModelLightViewMatrix;
 
         int count = 0;
-
-
+        //cycle through joints and apply matrix transformations
+        //TODO: animate joints
         if (count == 0) {
             positionTemp = vec4(position, 1.0);
             normalTemp = vec4(vertexNormal, 0.0);
@@ -53,14 +54,10 @@ void main() {
 
     vec4 vertexPosition = modelViewMatrix * positionTemp;
 
-    //texture atlas support
-    float x = (texCoord.x / numColumns + textOffset.x);
-    float y = (texCoord.y / numRows + textOffset.y);
-
-    outTexCoord = vec2(x, y);
-    outModelViewMatrix = modelViewMatrix;
-    mvVertexNormal = normalize(modelViewMatrix * normalTemp).xyz;
-    mvVertexPosition = vertexPosition.xyz;
+    out_texCoord = texCoord;
+    out_modelViewMatrix = modelViewMatrix;
+    out_modelViewVertexNormal = normalize(modelViewMatrix * normalTemp).xyz;
+    out_modelViewVertexPosition = vertexPosition.xyz;
 
     gl_Position = projectionMatrix * vertexPosition;
 }

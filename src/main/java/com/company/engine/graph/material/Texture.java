@@ -1,4 +1,4 @@
-package com.company.engine.graph;
+package com.company.engine.graph.material;
 
 import com.company.engine.utils.FileUtils;
 import org.lwjgl.system.MemoryStack;

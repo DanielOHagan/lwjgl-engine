@@ -2,22 +2,31 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.audio.*;
+import com.company.engine.graph.lighting.Attenuation;
+import com.company.engine.graph.lighting.DirectionalLight;
+import com.company.engine.graph.lighting.PointLight;
+import com.company.engine.graph.lighting.SpotLight;
+import com.company.engine.graph.material.Material;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.mesh.*;
 import com.company.engine.graph.particles.*;
+import com.company.engine.graph.rendering.Camera;
+import com.company.engine.graph.rendering.Renderer;
 import com.company.engine.loaders.ObjLoader;
 import com.company.engine.loaders.assimp.StaticMeshesLoader;
+import com.company.engine.scene.SceneLighting;
 import com.company.engine.scene.items.*;
+import com.company.engine.utils.ArrayUtils;
 import com.company.engine.utils.MeshUtils;
 import com.company.engine.window.Window;
-import com.company.engine.graph.*;
 import com.company.engine.input.*;
 import com.company.engine.scene.Scene;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.openal.AL11;
 
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -40,12 +49,27 @@ public class TestGame implements IGameLogic {
         FIRE
     }
 
+    private float spotAngle = 0;
+    private float spotInc = 1;
+    private Vector3f ambientLight;
+
+    private List<PointLight> pointLightList;
+
+    private List<SpotLight> spotLightList;
+
+    private DirectionalLight directionalLight;
+    private PointLight camPointLight;
+
+    private float lightAngle;
+
     public TestGame() {
         mRenderer = new Renderer();
         mCamera = new Camera();
         mMouseOptions = new MouseOptions();
         mInitialCycle = true;
         mAudioManager = new AudioManager();
+        pointLightList = new ArrayList<>();
+        spotLightList = new ArrayList<>();
     }
 
     @Override
@@ -116,11 +140,11 @@ public class TestGame implements IGameLogic {
         testParticleEmitter.setActive(true);
         testParticleEmitter.setFrustumCullingParticles(true);
 
-        mScene.addSceneGameItems(gameItems);
+//        mScene.addSceneGameItems(gameItems);
 
         Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/city/City Template.obj",
-                new Material(new Vector4f(1, 0, 1, 1)),
+                "src/main/resources/models/walker/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj",
+                "src/main/resources/models/walker",
                 1,
                 MeshType.STANDARD
         );
@@ -129,11 +153,13 @@ public class TestGame implements IGameLogic {
 
         GameItem gameItem = new GameItem(legoManMeshes);
         gameItem.setIgnoresFrustumCulling(true);
+        gameItem.setUsingTexture(true);
+        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 //        gameItem.getMesh().getMaterial().setUsingTexture(true);
 //        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
 //        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 
-//        mScene.addSceneGameItems(new GameItem[] {gameItem});
+        mScene.addSceneGameItems(new GameItem[] {gameItem});
 
 //        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
 //        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
@@ -153,10 +179,38 @@ public class TestGame implements IGameLogic {
 //        mAudioManager.playAudioSource(Sounds.MUSIC.toString());
 //        mAudioManager.playAudioSource(Sounds.FIRE.toString());
 
-        //mScene.addSceneGameItems(gameItems);
+//        mScene.addSceneGameItems(gameItems);
         //mScene.setHud(testHud);
         //mScene.setSkyBox(skyBox);
         mScene.setParticleEmitters(new IParticleEmitter[]{ testParticleEmitter });
+
+        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
+
+        // Point Light
+        Vector3f lightPosition = new Vector3f(0, 0, 1);
+        float lightIntensity = 1.0f;
+        PointLight pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity, true);
+        Attenuation att = new Attenuation(0.0f, 0.0f, 1.0f);
+        pointLight.setAttenuation(att);
+        pointLightList.add(pointLight);
+
+        camPointLight = new PointLight(new Vector3f(mCamera.getPosition()), new Vector3f(1, 0, 1), lightIntensity, true);
+
+        // Spot Light
+        lightPosition = new Vector3f(0, 0.0f, 10f);
+        pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity, true);
+        att = new Attenuation(0.0f, 0.0f, 0.02f);
+        pointLight.setAttenuation(att);
+        Vector3f coneDir = new Vector3f(0, 0, -1);
+        float cutoff = (float) Math.cos(Math.toRadians(140));
+        SpotLight spotLight = new SpotLight(pointLight, coneDir, cutoff);
+        spotLightList.add(new SpotLight(spotLight));
+
+        lightPosition = new Vector3f(-1, 0, 0);
+        directionalLight = new DirectionalLight(new Vector3f(0, 0, 0), lightPosition, lightIntensity / 10);
+
+
+        mScene.setSceneLighting(new SceneLighting(null, pointLightList, null, null));
     }
 
     private void setUpSounds() throws Exception {
@@ -215,6 +269,14 @@ public class TestGame implements IGameLogic {
         if (window.isKeyPressed(GLFW_KEY_DOWN)) {
             mCamera.getRotation().x += 0.4;
         }
+
+        float lightPos = spotLightList.get(0).getPointLight().getPosition().z;
+        if (window.isKeyPressed(GLFW_KEY_N)) {
+            this.spotLightList.get(0).getPointLight().getPosition().z = lightPos + 0.1f;
+        } else if (window.isKeyPressed(GLFW_KEY_M)) {
+            this.spotLightList.get(0).getPointLight().getPosition().z = lightPos - 0.1f;
+        }
+
     }
 
     @Override
@@ -223,6 +285,39 @@ public class TestGame implements IGameLogic {
 //        mAudioManager.updateListenerPosition(mCamera);
         //update camera view matrix each cycle
         mCamera.updateViewMatrix();
+
+        // Update spot light direction
+        spotAngle += spotInc * 0.05f;
+        if (spotAngle > 2) {
+            spotInc = -1;
+        } else if (spotAngle < -2) {
+            spotInc = 1;
+        }
+        double spotAngleRad = Math.toRadians(spotAngle);
+        Vector3f coneDir = spotLightList.get(0).getConeDirection();
+        coneDir.y = (float) Math.sin(spotAngleRad);
+
+        // Update directional light direction, intensity and colour
+        lightAngle += 1.1f;
+        if (lightAngle > 90) {
+            directionalLight.setIntensity(0);
+            if (lightAngle >= 360) {
+                lightAngle = -90;
+            }
+        } else if (lightAngle <= -80 || lightAngle >= 80) {
+            float factor = 1 - (float) (Math.abs(lightAngle) - 80) / 10.0f;
+            directionalLight.setIntensity(factor);
+            directionalLight.getColour().y = Math.max(factor, 0.9f);
+            directionalLight.getColour().z = Math.max(factor, 0.5f);
+        } else {
+            directionalLight.setIntensity(1);
+            directionalLight.getColour().x = 1;
+            directionalLight.getColour().y = 1;
+            directionalLight.getColour().z = 1;
+        }
+        double angRad = Math.toRadians(lightAngle);
+        directionalLight.getDirection().x = (float) Math.sin(angRad);
+        directionalLight.getDirection().y = (float) Math.cos(angRad);
     }
 
     @Override

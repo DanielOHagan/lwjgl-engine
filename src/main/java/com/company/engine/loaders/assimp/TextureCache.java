@@ -1,6 +1,6 @@
 package com.company.engine.loaders.assimp;
 
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Texture;
 
 import java.util.HashMap;
 import java.util.Map;

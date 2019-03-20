@@ -1,7 +1,7 @@
 package com.company.engine.scene.items;
 
-import com.company.engine.graph.Material;
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Material;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.mesh.MeshType;
 import com.company.engine.loaders.assimp.StaticMeshesLoader;

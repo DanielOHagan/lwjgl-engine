@@ -1,7 +1,7 @@
 package com.company.engine.loaders.assimp;
 
-import com.company.engine.graph.Material;
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Material;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.mesh.*;
 import com.company.engine.utils.MeshUtils;
 import org.joml.Vector4f;

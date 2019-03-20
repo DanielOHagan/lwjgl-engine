@@ -1,4 +1,4 @@
-package com.company.engine.graph.optimisations;
+package com.company.engine.graph.rendering;
 
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;

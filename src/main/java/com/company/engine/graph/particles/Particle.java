@@ -1,6 +1,6 @@
 package com.company.engine.graph.particles;
 
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Vector3f;

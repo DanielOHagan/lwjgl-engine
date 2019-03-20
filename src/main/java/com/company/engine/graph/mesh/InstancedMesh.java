@@ -1,7 +1,7 @@
 package com.company.engine.graph.mesh;
 
 import com.company.engine.utils.ArrayUtils;
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.Transformation;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
@@ -206,7 +206,8 @@ public class InstancedMesh extends Mesh {
                     viewMatrix.transpose3x3(modelMatrix);
                 }
 
-                Matrix4f modelViewMatrix = transformation.generateModelViewMatrix(modelMatrix, viewMatrix);
+                Matrix4f modelViewMatrix =
+                        transformation.generateModelViewMatrix(modelMatrix, viewMatrix);
 
                 if (billboard) {
                     modelViewMatrix.scale(gameItem.getScale());

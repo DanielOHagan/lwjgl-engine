@@ -1,8 +1,8 @@
 package com.company.engine.scene.items.ui;
 
 import com.company.engine.utils.ArrayUtils;
-import com.company.engine.graph.Material;
-import com.company.engine.graph.Texture;
+import com.company.engine.graph.material.Material;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.scene.items.GameItem;
 

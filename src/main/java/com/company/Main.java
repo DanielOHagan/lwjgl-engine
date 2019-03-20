@@ -13,7 +13,6 @@ public class Main {
         try {
             IGameLogic gameLogic = new TestGame();
 
-
             WindowOptions options = new WindowOptions();
 
             /*Application should set Window Options here*/

@@ -1,7 +1,12 @@
-package com.company.engine.graph;
+package com.company.engine.graph.rendering;
 
-import com.company.engine.graph.optimisations.FrustumFilter;
+import com.company.engine.graph.lighting.DirectionalLight;
+import com.company.engine.graph.lighting.PointLight;
+import com.company.engine.graph.lighting.SpotLight;
+import com.company.engine.graph.material.Texture;
+import com.company.engine.graph.Transformation;
 import com.company.engine.graph.particles.Particle;
+import com.company.engine.scene.SceneLighting;
 import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
@@ -12,6 +17,8 @@ import com.company.engine.window.Window;
 import com.company.engine.scene.Scene;
 import com.company.engine.scene.items.GameItem;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +28,16 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Renderer {
 
+    private static final int MAX_POINT_LIGHTS = 5;
+    private static final int MAX_SPOT_LIGHTS = 5;
+
+    public static final int TEXTURE_BANK_INDEX = 0;
+    public static final int NORMAL_MAP_BANK_INDEX = 1;
+
+    private static final float DEFAULT_SPECULAR_POWER = 10;
+
     private final Transformation mTransformation;
+    private final float mSpecularPower;
 
     //shader programs
     private ShaderProgram mDepthShaderProgram;
@@ -40,6 +56,7 @@ public class Renderer {
         mFrustumFilter = new FrustumFilter();
         mFilteredGameItemList = new ArrayList<>();
         mFilteredParticleEmitterList = new ArrayList<>();
+        mSpecularPower = DEFAULT_SPECULAR_POWER;
     }
 
     public void init(Window window) throws Exception {
@@ -57,7 +74,7 @@ public class Renderer {
         mSkyBoxShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/skyBox_fragment.fs"));
         mSkyBoxShaderProgram.link();
 
-        ShaderUtils.setUpShaderUniforms(
+        ShaderUtils.createShaderUniforms(
                 mSkyBoxShaderProgram,
                 new String[] {
                         "textureSampler",
@@ -75,22 +92,28 @@ public class Renderer {
         mSceneShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/scene_fragment.fs"));
         mSceneShaderProgram.link();
 
-        ShaderUtils.setUpShaderUniforms(
-                mSceneShaderProgram,
-                new String[] {
-                        "textureSampler",
-                        "projectionMatrix",
-                        "nonInstancedModelViewMatrix",
-//                        "nonInstancedModelLightViewMatrix",
-                        "isInstanced"
-                }
+        mSceneShaderProgram.createUniform("projectionMatrix");
+        mSceneShaderProgram.createUniform("nonInstancedModelViewMatrix");
+        mSceneShaderProgram.createUniform("textureSampler");
+        mSceneShaderProgram.createUniform("normalMap");
+        mSceneShaderProgram.createMaterialUniform("material");
+        mSceneShaderProgram.createUniform("specularPower");
+        mSceneShaderProgram.createUniform("isInstanced");
+
+        //lights
+        mSceneShaderProgram.createUniform("ambientLight");
+        mSceneShaderProgram.createPointLightArrayUniform(
+                "pointLightArray",
+                MAX_POINT_LIGHTS
         );
-        ShaderUtils.setUpMaterialUniforms(
-                mSceneShaderProgram,
-                new String[] {
-                        "material"
-                }
+        mSceneShaderProgram.createSpotLightArrayUniform(
+                "spotLightArray",
+                MAX_SPOT_LIGHTS
         );
+        mSceneShaderProgram.createDirectionalLightUniform(
+                "directionalLight"
+        );
+
     }
 
     private void setUpParticleShader() throws Exception {
@@ -99,7 +122,7 @@ public class Renderer {
         mParticleShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/particle_fragment.fs"));
         mParticleShaderProgram.link();
 
-        ShaderUtils.setUpShaderUniforms(
+        ShaderUtils.createShaderUniforms(
                 mParticleShaderProgram,
                 new String[] {
                         "projectionMatrix",
@@ -124,7 +147,7 @@ public class Renderer {
         mHudShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/hud_fragment.fs"));
         mHudShaderProgram.link();
 
-        ShaderUtils.setUpShaderUniforms(
+        ShaderUtils.createShaderUniforms(
                 mHudShaderProgram,
                 new String[] {
                         "projectionModelMatrix",
@@ -163,23 +186,6 @@ public class Renderer {
             renderParticles(window, camera, scene);
         }
 
-        //TODO: light rendering
-//        if (scene.getSceneLighting() != null) {
-//            SceneLighting sl = scene.getSceneLighting();
-//
-//            initLightRendering();
-//
-//            if (sl.getPointLights() != null) {
-//                renderPointLights(window, camera, scene);
-//            }
-//
-//            if (sl.getDirectionLights() != null) {
-//                renderDirectional(window, camera, scene);
-//            }
-//
-//            endLightRendering();
-//        }
-
         if (scene.getHud() != null) {
             renderHud(window, camera, scene);
         }
@@ -206,7 +212,11 @@ public class Renderer {
 
         mSceneShaderProgram.setUniform(
                 "textureSampler",
-                0
+                TEXTURE_BANK_INDEX
+        );
+        mSceneShaderProgram.setUniform(
+                "normalMap",
+                NORMAL_MAP_BANK_INDEX
         );
         mSceneShaderProgram.setUniform(
                 "projectionMatrix",
@@ -231,7 +241,83 @@ public class Renderer {
             );
         }
 
+        if (scene.getSceneLighting() != null) {
+            renderSceneLighting(camera.getViewMatrix(), scene.getSceneLighting());
+        }
+
         mSceneShaderProgram.unbind();
+    }
+
+    public void renderSceneLighting(
+            Matrix4f viewMatrix,
+            SceneLighting sceneLighting
+    ) {
+
+        mSceneShaderProgram.setUniform(
+                "ambientLight",
+                sceneLighting.getAmbientLight() != null ?
+                        sceneLighting.getAmbientLight() : SceneLighting.DEFAULT_AMBIENT_LIGHT
+        );
+        mSceneShaderProgram.setUniform("specularPower", mSpecularPower);
+
+        //point lights
+        List<PointLight> pointLightList = sceneLighting.getPointLightList();
+        int length = pointLightList != null ? pointLightList.size() : 0;
+
+        for (int i = 0; i < length; i++) {
+            //get each point light object and transform its position to view coords
+            PointLight pointLight = new PointLight(pointLightList.get(i));
+            Vector3f lightPosition = pointLight.getPosition();
+            Vector4f aux = new Vector4f(lightPosition, 1);
+
+            aux.mul(viewMatrix);
+            lightPosition.x = aux.x;
+            lightPosition.y = aux.y;
+            lightPosition.z = aux.z;
+
+            mSceneShaderProgram.setUniform("pointLightArray", pointLight, i);
+        }
+
+        //spot lights
+        List<SpotLight> spotLightList = sceneLighting.getSpotLightList();
+        length = spotLightList != null ? spotLightList.size() : 0;
+
+        for (int i = 0; i < length; i++) {
+            SpotLight spotLight = new SpotLight(spotLightList.get(i));
+            Vector4f direction = new Vector4f(spotLight.getConeDirection(), 0);
+
+            direction.mul(viewMatrix);
+            spotLight.setConeDirection(new Vector3f(
+                    direction.x,
+                    direction.y,
+                    direction.z
+            ));
+
+            Vector3f lightPosition = spotLight.getPointLight().getPosition();
+            Vector4f aux = new Vector4f(lightPosition, 1);
+
+            aux.mul(viewMatrix);
+            lightPosition.x = aux.x;
+            lightPosition.y = aux.y;
+            lightPosition.z = aux.z;
+
+            mSceneShaderProgram.setUniform("spotLightArray", spotLight, i);
+        }
+
+        //directional light
+        if (sceneLighting.getDirectionLight() != null) {
+            DirectionalLight dirLight = new DirectionalLight(sceneLighting.getDirectionLight());
+            Vector4f direction = new Vector4f(dirLight.getDirection(), 0);
+
+            direction.mul(viewMatrix);
+
+            dirLight.setDirection(new Vector3f(
+                    direction.x,
+                    direction.y,
+                    direction.z
+            ));
+            mSceneShaderProgram.setUniform("directionalLight", dirLight);
+        }
     }
 
     private void renderNonInstancedMeshes(
@@ -318,6 +404,8 @@ public class Renderer {
             }
 
             if (viewMatrix != null) {
+//                mesh.getMaterial().setUsingTexture(false);
+//                mesh.getMaterial().setColour(new Vector4f(1, 0, 1, 1));
                 shaderProgram.setUniform("material", mesh.getMaterial());
 
 //                glActiveTexture(GL_TEXTURE2);

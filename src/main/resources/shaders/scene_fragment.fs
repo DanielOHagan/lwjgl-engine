@@ -1,6 +1,12 @@
 #version 330
 
-in vec2 outTexCoord;
+const int MAX_POINT_LIGHTS = 5;
+const int MAX_SPOT_LIGHTS = 5;
+
+in vec2 out_texCoord;
+in vec3 out_modelViewVertexNormal;
+in vec3 out_modelViewVertexPosition;
+in mat4 out_modelViewMatrix;
 
 out vec4 fragColour;
 
@@ -19,8 +25,8 @@ struct DirectionalLight {
 struct Material {
     vec4 colour;
     int useTexture;
+    int hasNormalMap;
 
-    vec4 ambient;
     vec4 diffuse;
     vec4 specular;
     float reflectance;
@@ -34,17 +40,187 @@ struct PointLight {
     vec3 position;
     float intensity;
     Attenuation attenuation;
+    int isActive;
+};
+
+struct SpotLight {
+    PointLight pointLight;
+    vec3 coneDir;
+    float cutOff;
 };
 
 uniform Material material;
 uniform sampler2D textureSampler;
-uniform int useTexture;
-uniform vec4 colour;
+uniform sampler2D normalMap;
+
+uniform PointLight pointLightArray[MAX_POINT_LIGHTS];
+uniform SpotLight spotLightArray[MAX_SPOT_LIGHTS];
+uniform DirectionalLight directionalLight;
+
+uniform vec3 ambientLight;
+uniform float specularPower;
+
+vec4 ambientComponent;
+vec4 diffuseComponent;
+vec4 specularComponent;
+
+
+void configureColours(Material material, vec2 textCoord) {
+    if (material.useTexture > 0) {
+        ambientComponent = texture(textureSampler, textCoord);
+        diffuseComponent = ambientComponent;
+        specularComponent = ambientComponent;
+    } else {
+        ambientComponent = material.colour;
+        diffuseComponent = material.diffuse;
+        specularComponent = material.specular;
+    }
+}
+
+vec4 calculateLightColour(
+    vec3 lightColour,
+    float lightIntensity,
+    vec3 position,
+    vec3 lightSourceDirection,
+    vec3 normal
+) {
+    vec4 diffuseColour = vec4(0, 0, 0, 0);
+    vec4 specularColour = vec4(0, 0, 0, 0);
+
+    //diffuse light
+    float diffuseFactor = max(dot(normal, lightSourceDirection), 0.0);
+    diffuseColour = diffuseComponent * vec4(lightColour, 1.0) * lightIntensity * diffuseFactor;
+
+    //specular light
+    vec3 camDirection = normalize(-position);
+    vec3 fromLightSourceDirection = -lightSourceDirection;
+    vec3 reflectedLight = normalize(reflect(fromLightSourceDirection, normal));
+    float specularFactor = max(dot(camDirection, reflectedLight), 0.0);
+    specularFactor = pow(specularFactor, specularPower);
+    specularColour = specularComponent * lightIntensity *
+        specularFactor * material.reflectance * vec4(lightColour, 1.0);
+
+    return (diffuseColour + specularColour);
+}
+
+vec4 calculatePointLight(PointLight pointLight, vec3 position, vec3 normal) {
+    vec3 lightDirection = pointLight.position - position;
+    vec3 lightSourceDirection = normalize(lightDirection);
+    vec4 lightColour = calculateLightColour(
+        pointLight.colour,
+        pointLight.intensity,
+        position,
+        lightSourceDirection,
+        normal
+    );
+
+    //attenuation
+    float lightRayLength = length(lightDirection);
+    float attenuationInv = pointLight.attenuation.constant + pointLight.attenuation.linear *
+        lightRayLength + pointLight.attenuation.exponent * lightRayLength * lightRayLength;
+
+    return lightColour / attenuationInv;
+}
+
+vec4 calculateSpotLight(SpotLight spotLight, vec3 position, vec3 normal) {
+    vec3 lightDirection = spotLight.pointLight.position - position;
+    vec3 lightSourceDirection = normalize(lightDirection);
+    vec3 lightSourceDirectionInverse = -lightSourceDirection;
+    float spotAngle = dot(lightSourceDirectionInverse, normalize(spotLight.coneDir));
+
+    vec4 colour = vec4(0, 0, 0, 0);
+
+    if (spotAngle > spotLight.cutOff) {
+        colour = calculatePointLight(spotLight.pointLight, position, normal);
+
+        //the closer to the cutOff the less intense the light
+        colour *= (1.0 - (1.0 - spotAngle) / (1.0 - spotLight.cutOff));
+    }
+
+    return colour;
+}
+
+vec4 calculateDirectionalLight(
+    DirectionalLight dirLight,
+    vec3 position,
+    vec3 normal
+) {
+    return calculateLightColour(
+        dirLight.colour,
+        dirLight.intensity,
+        position,
+        normalize(dirLight.direction),
+        normal
+    );
+}
+
+vec3 calculateNormal(
+    Material material,
+    vec3 normal,
+    vec2 textCoord,
+    mat4 modelViewMatrix
+) {
+    vec3 newNormal = normal;
+
+    if (material.hasNormalMap > 0) {
+        newNormal = texture(normalMap, textCoord).rgb;
+        newNormal = normalize(newNormal * 2 - 1);
+        newNormal = normalize(modelViewMatrix * vec4(newNormal, 0.0)).xyz;
+    }
+
+    return newNormal;
+}
 
 void main() {
-    if (material.useTexture > 0) {
-        fragColour = texture(textureSampler, outTexCoord);
-    } else {
-        fragColour = material.colour;
+    configureColours(material, out_texCoord);
+
+    vec3 currentNormal = calculateNormal(
+        material,
+        out_modelViewVertexNormal,
+        out_texCoord,
+        out_modelViewMatrix
+    );
+
+    vec4 diffuseSpecularComponent = calculateDirectionalLight(
+        directionalLight,
+        out_modelViewVertexPosition,
+        currentNormal
+    );
+
+
+    for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+        if (
+            pointLightArray[i].isActive > 0 &&
+            pointLightArray[i].intensity > 0
+        ) {
+            diffuseSpecularComponent += calculatePointLight(
+                pointLightArray[i],
+                out_modelViewVertexPosition,
+                currentNormal
+            );
+        }
     }
+
+
+    for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
+        if (
+            spotLightArray[i].pointLight.isActive > 0 &&
+            spotLightArray[i].pointLight.intensity > 0
+        ) {
+            diffuseSpecularComponent += calculateSpotLight(
+                spotLightArray[i],
+                out_modelViewVertexPosition,
+                currentNormal
+            );
+        }
+    }
+
+    //float shadow = calculateShadow(out_modelLightViewVetexPosition);
+
+    //ambient component
+        ambientComponent *= vec4(ambientLight, 1.0);
+
+    fragColour = clamp(ambientComponent +
+        diffuseSpecularComponent /* * shadow*/ , 0, 1);
+
 }
