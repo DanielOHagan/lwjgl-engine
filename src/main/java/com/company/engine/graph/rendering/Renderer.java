@@ -1,8 +1,6 @@
 package com.company.engine.graph.rendering;
 
-import com.company.engine.graph.lighting.DirectionalLight;
-import com.company.engine.graph.lighting.PointLight;
-import com.company.engine.graph.lighting.SpotLight;
+import com.company.engine.graph.lighting.*;
 import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.Transformation;
 import com.company.engine.graph.particles.Particle;
@@ -92,15 +90,20 @@ public class Renderer {
         mSceneShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/scene_fragment.fs"));
         mSceneShaderProgram.link();
 
-        mSceneShaderProgram.createUniform("projectionMatrix");
-        mSceneShaderProgram.createUniform("nonInstancedModelViewMatrix");
-        mSceneShaderProgram.createUniform("textureSampler");
-        mSceneShaderProgram.createUniform("normalMap");
-        mSceneShaderProgram.createMaterialUniform("material");
-        mSceneShaderProgram.createUniform("specularPower");
         mSceneShaderProgram.createUniform("isInstanced");
 
-        //lights
+        //matrices
+        mSceneShaderProgram.createUniform("projectionMatrix");
+        mSceneShaderProgram.createUniform("nonInstancedModelViewMatrix");
+
+        //textures
+        mSceneShaderProgram.createUniform("textureSampler");
+        mSceneShaderProgram.createUniform("normalMap");
+
+        //material
+        mSceneShaderProgram.createMaterialUniform("material");
+
+        //lighting
         mSceneShaderProgram.createUniform("ambientLight");
         mSceneShaderProgram.createPointLightArrayUniform(
                 "pointLightArray",
@@ -113,7 +116,7 @@ public class Renderer {
         mSceneShaderProgram.createDirectionalLightUniform(
                 "directionalLight"
         );
-
+        mSceneShaderProgram.createUniform("specularPower");
     }
 
     private void setUpParticleShader() throws Exception {
@@ -241,8 +244,11 @@ public class Renderer {
             );
         }
 
-        if (scene.getSceneLighting() != null) {
-            renderSceneLighting(camera.getViewMatrix(), scene.getSceneLighting());
+        if (!window.getOptions().disableAllLighting && scene.getSceneLighting() != null) {
+            renderSceneLighting(
+                    camera.getViewMatrix(),
+                    scene.getSceneLighting()
+            );
         }
 
         mSceneShaderProgram.unbind();
@@ -252,7 +258,6 @@ public class Renderer {
             Matrix4f viewMatrix,
             SceneLighting sceneLighting
     ) {
-
         mSceneShaderProgram.setUniform(
                 "ambientLight",
                 sceneLighting.getAmbientLight() != null ?

@@ -17,8 +17,7 @@ public class SceneLighting {
     private List<SpotLight> mSpotLightList;
     private DirectionalLight mDirectionLight;
 
-    public SceneLighting() {
-    }
+    public SceneLighting() {}
 
     public SceneLighting(
             Vector3f ambientLight,
@@ -68,7 +67,7 @@ public class SceneLighting {
         mSpotLightList = spotLightList;
     }
 
-    public void setDirectionLight(DirectionalLight directionLight) {
+    public void setDirectionalLight(DirectionalLight directionLight) {
         mDirectionLight = directionLight;
     }
 }

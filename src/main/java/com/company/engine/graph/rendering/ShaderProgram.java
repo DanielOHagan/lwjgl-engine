@@ -32,6 +32,7 @@ public class ShaderProgram {
 
     private int mVertexShaderId;
     private int mFragmentShaderId;
+    private boolean mBound;
 
     public ShaderProgram() throws Exception {
         mProgramId = glCreateProgram();
@@ -39,6 +40,7 @@ public class ShaderProgram {
             throw new Exception("Could not create shader program");
         }
         mUniforms = new HashMap<>();
+        mBound = false;
     }
 
     private int createShader(String shaderCode, int shaderType) throws Exception {
@@ -135,6 +137,10 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, Matrix4f value) {
+        if (!mBound) {
+            throw new IllegalStateException("Can not create uniform when program is not bound");
+        }
+
         //dump the matrix into a float buffer
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer floatBuffer = stack.mallocFloat(16);
@@ -144,6 +150,10 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, Vector4f value) {
+        if (!mBound) {
+            throw new IllegalStateException("Can not create uniform when program is not bound");
+        }
+
         glUniform4f(
                 mUniforms.get(uniformName),
                 value.x,
@@ -215,6 +225,10 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, Vector3f vector3f) {
+        if (!mBound) {
+            throw new IllegalStateException("Can not create uniform when program is not bound");
+        }
+
         glUniform3f(
                 mUniforms.get(uniformName),
                 vector3f.x,
@@ -224,14 +238,26 @@ public class ShaderProgram {
     }
 
     public void setUniform(String uniformName, float value) {
+        if (!mBound) {
+            throw new IllegalStateException("Can not create uniform when program is not bound");
+        }
+
         glUniform1f(mUniforms.get(uniformName), value);
     }
 
     public void setUniform(String uniformName, int value) {
+        if (!mBound) {
+            throw new IllegalStateException("Can not create uniform when program is not bound");
+        }
+
         glUniform1i(mUniforms.get(uniformName), value);
     }
 
     public void setUniform(String uniformName, boolean value) {
+        if (!mBound) {
+            throw new IllegalStateException("Can not create uniform when program is not bound");
+        }
+
         glUniform1i(mUniforms.get(uniformName), value ? SHADER_TRUE : SHADER_FALSE);
     }
 
@@ -267,10 +293,12 @@ public class ShaderProgram {
     //the "activation" method
     public void bind() {
         glUseProgram(mProgramId);
+        mBound = true;
     }
 
     public void unbind() {
         glUseProgram(0);
+        mBound = false;
     }
 
     public void cleanUp() {

@@ -100,33 +100,24 @@ public class StaticMeshesLoader {
             String texturesDirectory
     ) throws Exception {
         AIColor4D colour = AIColor4D.create();
-        AIString path = AIString.calloc();
+        AIString aiStringTexturePath = AIString.calloc();
+        AIString aiStringNormalPath = AIString.calloc();
 
-        Assimp.aiGetMaterialTexture(
-                aiMaterial,
-                aiTextureType_DIFFUSE,
-                0,
-                path,
-                (IntBuffer) null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        loadTexturePath(aiMaterial, aiTextureType_DIFFUSE, aiStringTexturePath);
+        /*
+          CAUTION:
+            AssImp loads many Normal maps thinking they are Height Maps,
+            therefore this uses aiTextureType_HEIGHT
 
-        String texturePath = path.dataString();
-        Texture texture = null;
+          NOTE:
+            This engine only supports Object-Space normals.
+            Tangent Space Normal Maps MUST be converted before loaded here
+         */
+        loadTexturePath(aiMaterial, aiTextureType_HEIGHT, aiStringNormalPath);
 
-        if (texturePath != null && texturePath.length() > 0) {
+        Texture texture = loadTexture(aiStringTexturePath, texturesDirectory);
+        Texture normalMap = loadTexture(aiStringNormalPath, texturesDirectory);
 
-            if (texturePath.contains("..\\")) {
-                texturePath = texturePath.replace("..\\", "");
-            }
-
-            TextureCache textureCache = TextureCache.getInstance();
-            texture = textureCache.getTexture(texturesDirectory + "/" + texturePath);
-        }
 
         Vector4f ambient = Material.DEFAULT_COLOUR;
         loadMeshLightValue(aiMaterial, ambient, AI_MATKEY_COLOR_AMBIENT, colour);
@@ -137,14 +128,48 @@ public class StaticMeshesLoader {
         Vector4f diffuse = Material.DEFAULT_COLOUR;
         loadMeshLightValue(aiMaterial, diffuse, AI_MATKEY_COLOR_DIFFUSE, colour);
 
-        materialList.add(new Material(
+        Material material = new Material(
                 ambient,
                 diffuse,
                 specular,
                 Material.DEFAULT_COLOUR,
                 texture,
+                normalMap,
                 Material.DEFAULT_REFLECTANCE
-        ));
+        );
+
+        materialList.add(material);
+    }
+
+    private static void loadTexturePath(AIMaterial aiMaterial, int aiTextureType, AIString target) {
+        Assimp.aiGetMaterialTexture(
+                aiMaterial,
+                aiTextureType,
+                0,
+                target,
+                (IntBuffer) null,
+                null,
+                null,
+                null,
+                null,
+                null
+        );
+    }
+
+    private static Texture loadTexture(AIString aiString, String texturesDirectory) throws Exception{
+        String texturePath = aiString.dataString();
+
+        if (texturePath != null && texturePath.length() > 0) {
+
+            if (texturePath.contains("..\\")) {
+                texturePath = texturePath.replace("..\\", "");
+            }
+
+            TextureCache textureCache = TextureCache.getInstance();
+            return textureCache.getTexture(texturesDirectory + "/" + texturePath);
+        }
+
+        return null;
     }
 
     private static void loadMeshLightValue(

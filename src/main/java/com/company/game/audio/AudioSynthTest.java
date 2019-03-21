@@ -4,6 +4,12 @@ import com.company.engine.IGameLogic;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.window.Window;
+import net.beadsproject.beads.core.AudioContext;
+import net.beadsproject.beads.core.io.JavaSoundAudioIO;
+import net.beadsproject.beads.data.Buffer;
+import net.beadsproject.beads.ugens.Gain;
+import net.beadsproject.beads.ugens.Glide;
+import net.beadsproject.beads.ugens.WavePlayer;
 //import net.beadsproject.beads.core.AudioContext;
 //import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 //import net.beadsproject.beads.data.Buffer;
@@ -20,7 +26,11 @@ import java.util.Map;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class AudioSynthTest /*implements IGameLogic */{
-//
+
+    /*
+    Simple Monophonic audio synth with 12 notes and 8 pitch levels
+     */
+
 //    private static final float MIN_GAIN = 0;
 //    private static final float MAX_GAIN = 2;
 //    private static final float DEFAULT_GAIN = 1;

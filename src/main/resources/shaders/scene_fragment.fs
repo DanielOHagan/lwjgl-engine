@@ -187,7 +187,7 @@ void main() {
         currentNormal
     );
 
-
+    //point lights
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         if (
             pointLightArray[i].isActive > 0 &&
@@ -201,7 +201,7 @@ void main() {
         }
     }
 
-
+    //spot lights
     for (int i = 0; i < MAX_SPOT_LIGHTS; i++) {
         if (
             spotLightArray[i].pointLight.isActive > 0 &&
@@ -217,8 +217,7 @@ void main() {
 
     //float shadow = calculateShadow(out_modelLightViewVetexPosition);
 
-    //ambient component
-        ambientComponent *= vec4(ambientLight, 1.0);
+    ambientComponent *= vec4(ambientLight, 1.0);
 
     fragColour = clamp(ambientComponent +
         diffuseSpecularComponent /* * shadow*/ , 0, 1);

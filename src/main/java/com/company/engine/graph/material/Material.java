@@ -13,6 +13,9 @@ public class Material {
     private Vector4f mColour;
     private float mReflectance;
     private Texture mTexture;
+    /**
+     * Only object-space normal maps are supported
+     */
     private Texture mNormalMap;
     private boolean mUsingTexture;
 
@@ -33,6 +36,7 @@ public class Material {
                 colour,
                 colour,
                 null,
+                null,
                 reflectance
         );
     }
@@ -43,6 +47,7 @@ public class Material {
                 colour,
                 colour,
                 colour,
+                null,
                 null,
                 DEFAULT_REFLECTANCE
         );
@@ -55,6 +60,7 @@ public class Material {
                 DEFAULT_COLOUR,
                 DEFAULT_COLOUR,
                 texture,
+                null,
                 DEFAULT_REFLECTANCE
         );
     }
@@ -66,6 +72,7 @@ public class Material {
                 DEFAULT_COLOUR,
                 DEFAULT_COLOUR,
                 texture,
+                null,
                 reflectance
         );
     }
@@ -76,6 +83,7 @@ public class Material {
             Vector4f specularColour,
             Vector4f colour,
             Texture texture,
+            Texture normalMap,
             float reflectance
     ) {
         mAmbientColour = new Vector4f(ambientColour.x, ambientColour.y, ambientColour.z, ambientColour.w);
@@ -85,6 +93,7 @@ public class Material {
         mUsingTexture = mTexture != null;
         mColour = colour;
         mReflectance = reflectance;
+        mNormalMap = normalMap;
     }
 
     public void cleanUp() {

@@ -15,7 +15,9 @@ public class Main {
 
             WindowOptions options = new WindowOptions();
 
-            /*Application should set Window Options here*/
+            /*
+             Application should set Window Options here
+             */
 
             options.vSync = false;
             options.resizable = true;
