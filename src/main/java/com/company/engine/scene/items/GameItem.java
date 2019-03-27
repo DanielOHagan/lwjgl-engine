@@ -51,6 +51,10 @@ public class GameItem {
         mPosition.z = z;
     }
 
+    /**
+     *
+     * @param rotationQuaternion Quaternion with 4 values, measured in radians
+     */
     public void setRotation(Quaternionf rotationQuaternion) {
         mRotation.set(rotationQuaternion);
     }

@@ -4,19 +4,14 @@ import com.company.engine.IGameLogic;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
 import com.company.engine.window.Window;
+/*
 import net.beadsproject.beads.core.AudioContext;
 import net.beadsproject.beads.core.io.JavaSoundAudioIO;
 import net.beadsproject.beads.data.Buffer;
 import net.beadsproject.beads.ugens.Gain;
 import net.beadsproject.beads.ugens.Glide;
 import net.beadsproject.beads.ugens.WavePlayer;
-//import net.beadsproject.beads.core.AudioContext;
-//import net.beadsproject.beads.core.io.JavaSoundAudioIO;
-//import net.beadsproject.beads.data.Buffer;
-//import net.beadsproject.beads.ugens.Gain;
-//import net.beadsproject.beads.ugens.Glide;
-//import net.beadsproject.beads.ugens.WavePlayer;
-
+*/
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import java.util.ArrayList;

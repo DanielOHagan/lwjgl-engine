@@ -141,7 +141,7 @@ public class TestGame implements IGameLogic {
 //        testParticleEmitter.setActive(true);
 //        testParticleEmitter.setFrustumCullingParticles(true);
 //
-////        mScene.addSceneGameItems(gameItems);
+//        mScene.addSceneGameItems(gameItems);
 //
         Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
                 "src/main/resources/models/walker/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj",
@@ -149,12 +149,16 @@ public class TestGame implements IGameLogic {
                 1,
                 MeshType.STANDARD
         );
+
 //
         MeshUtils.setBoundingRadius(legoManMeshes, 15f);
+        MeshUtils.setColour(legoManMeshes, new Vector4f(1, 1, 1, 1));
 //
         GameItem gameItem = new GameItem(legoManMeshes);
         gameItem.setIgnoresFrustumCulling(true);
         gameItem.setUsingTexture(true);
+        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
+
 //        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 //        gameItem.getMesh().getMaterial().setUsingTexture(true);
 //        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
@@ -212,7 +216,7 @@ public class TestGame implements IGameLogic {
         directionalLight = new DirectionalLight(new Vector3f(0, 0, 0), lightPosition, lightIntensity / 10);
 
 
-        mScene.setSceneLighting(new SceneLighting(null, pointLightList, null, null));
+        mScene.setSceneLighting(new SceneLighting(ambientLight, pointLightList, spotLightList, directionalLight));
 
         // Setup  GameItems
 //        float reflectance = 0.65f;
