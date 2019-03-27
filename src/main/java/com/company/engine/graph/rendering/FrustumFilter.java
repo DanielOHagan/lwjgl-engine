@@ -7,7 +7,6 @@ import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +21,10 @@ public class FrustumFilter {
         mFrustumIntersection = new FrustumIntersection();
     }
 
-    public void updateFrustum(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+    public void updateFrustum(
+            Matrix4f projectionMatrix,
+            Matrix4f viewMatrix
+    ) {
         //calculate projection view matrix
         mProjectionViewMatrix.set(projectionMatrix);
         mProjectionViewMatrix.mul(viewMatrix);
@@ -31,7 +33,10 @@ public class FrustumFilter {
         mFrustumIntersection.set(mProjectionViewMatrix);
     }
 
-    public void filter(List<GameItem> gameItemList, float meshBoundingRadius) {
+    public void filter(
+            List<GameItem> gameItemList,
+            float meshBoundingRadius
+    ) {
         float boundingRadius;
         Vector3f position;
 
@@ -64,7 +69,7 @@ public class FrustumFilter {
         float boundingRadius = emitter.getBaseParticle().getMesh().getBoundingRadius();
 
         if (emitter.isFrustumCullingParticles()) {
-            filter(emitter.getParticles(), boundingRadius);
+            filter(emitter.getParticleList(), boundingRadius);
         }
 
         emitter.setInsideFrustum(calculateIfInsideFrustum(
@@ -142,7 +147,7 @@ public class FrustumFilter {
     ) {
         filteredEmitterParticleList.clear();
         if (emitter.isFrustumCullingParticles()) {
-            for (GameItem gameItem : emitter.getParticles()) {
+            for (GameItem gameItem : emitter.getParticleList()) {
                 if (gameItem.isInsideFrustum()) {
                     filteredEmitterParticleList.add(gameItem);
                 }

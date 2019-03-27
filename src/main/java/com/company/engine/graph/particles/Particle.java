@@ -9,7 +9,12 @@ import org.joml.Vector4f;
 public class Particle extends GameItem {
 
     private static final int NO_VALUE = -1;
-    private static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
+    private static final Vector4f DEFAULT_COLOUR = new Vector4f(
+            1.0f,
+            1.0f,
+            1.0f,
+            1.0f
+    );
 
     private long mParticleLifeSpan;
     private Vector3f mSpeed;

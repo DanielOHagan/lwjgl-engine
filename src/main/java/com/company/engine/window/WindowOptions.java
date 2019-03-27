@@ -12,6 +12,7 @@ public class WindowOptions {
     public boolean fullscreen;
     public boolean resizable;
     public boolean disableAllLighting; //prevents the rendering of all light
+    public boolean applicationUpdatesCamera;
 
     public int minWidth = 0;
     public int minHeight = 0;

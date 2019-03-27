@@ -54,7 +54,7 @@ public class TestParticleEmitter implements IParticleEmitter {
     }
 
     @Override
-    public List<GameItem> getParticles() {
+    public List<GameItem> getParticleList() {
         return mParticles;
     }
 

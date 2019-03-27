@@ -9,7 +9,7 @@ public interface IParticleEmitter {
     void cleanUp();
 
     Particle getBaseParticle();
-    List<GameItem> getParticles();
+    List<GameItem> getParticleList();
 
     boolean isActive();
     boolean isInsideFrustum();

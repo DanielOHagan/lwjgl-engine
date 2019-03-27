@@ -29,19 +29,25 @@ public class InstancedMesh extends Mesh {
     private FloatBuffer mInstanceDataBuffer;
 
     public InstancedMesh(
-            float[] positions,
-            float[] textCoords,
-            float[] normals,
-            int[] indices,
+            float[] positionArray,
+            float[] textCoordArray,
+            float[] normalArray,
+            int[] indexArray,
             int numberOfInstances
     ) {
         super(
-                positions,
-                textCoords,
-                normals,
-                indices,
-                ArrayUtils.createIntArray(MAX_WEIGHTS * positions.length / 3, 0),
-                ArrayUtils.createFloatArray(MAX_WEIGHTS * positions.length / 3, 0)
+                positionArray,
+                textCoordArray,
+                normalArray,
+                indexArray,
+                ArrayUtils.createIntArray(
+                        MAX_WEIGHTS * positionArray.length / 3,
+                        0
+                ),
+                ArrayUtils.createFloatArray(
+                        MAX_WEIGHTS * positionArray.length / 3,
+                        0
+                )
         );
 
         mNumberOfInstances = numberOfInstances;
@@ -111,6 +117,7 @@ public class InstancedMesh extends Mesh {
 
         //light view matrix
         //store the matrix as 4 vectors that store 4 values each
+        //used in lighting animated models
         for (int i = 0; i < 4; i++) {
 //            glVertexAttribPointer(
 //                    start,

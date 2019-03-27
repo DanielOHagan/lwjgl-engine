@@ -19,6 +19,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,21 +29,29 @@ public class Renderer {
 
     private static final int MAX_POINT_LIGHTS = 5;
     private static final int MAX_SPOT_LIGHTS = 5;
+    private static final float DEFAULT_SPECULAR_POWER = 10;
 
+    /**
+     * Integer Keys storing the location of
+     * ShaderPrograms in mShaderProgramMap.
+     */
+    private static final Integer DEPTH_SHADER_KEY = 0;
+    private static final Integer SKY_BOX_SHADER_KEY = 1;
+    private static final Integer SCENE_SHADER_KEY = 2;
+    private static final Integer PARTICLE_SHADER_KEY = 3;
+    private static final Integer HUD_SHADER_KEY = 4;
+
+    /**
+     * Location of which texture banks the engine uses to store
+     * the model's textures.
+     */
     public static final int TEXTURE_BANK_INDEX = 0;
     public static final int NORMAL_MAP_BANK_INDEX = 1;
-
-    private static final float DEFAULT_SPECULAR_POWER = 10;
 
     private final Transformation mTransformation;
     private final float mSpecularPower;
 
-    //shader programs
-    private ShaderProgram mDepthShaderProgram;
-    private ShaderProgram mSkyBoxShaderProgram;
-    private ShaderProgram mSceneShaderProgram;
-    private ShaderProgram mParticleShaderProgram;
-    private ShaderProgram mHudShaderProgram;
+    private Map<Integer, ShaderProgram> mShaderProgramMap;
 
     //frustum culling
     private final FrustumFilter mFrustumFilter;
@@ -50,6 +59,7 @@ public class Renderer {
     private final List<IParticleEmitter> mFilteredParticleEmitterList;
 
     public Renderer() {
+        mShaderProgramMap = new HashMap<>();
         mTransformation = new Transformation();
         mFrustumFilter = new FrustumFilter();
         mFilteredGameItemList = new ArrayList<>();
@@ -67,13 +77,18 @@ public class Renderer {
     }
 
     public void setUpSkyBoxShader() throws Exception {
-        mSkyBoxShaderProgram = new ShaderProgram();
-        mSkyBoxShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/skyBox_vertex.vs"));
-        mSkyBoxShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/skyBox_fragment.fs"));
-        mSkyBoxShaderProgram.link();
+        ShaderProgram shaderProgram = new ShaderProgram();
+        //mSkyBoxShaderProgram = new ShaderProgram();
+        shaderProgram.createVertexShader(FileUtils.loadResource(
+                "/shaders/skyBox_vertex.vs"
+        ));
+        shaderProgram.createFragmentShader(FileUtils.loadResource(
+                "/shaders/skyBox_fragment.fs"
+        ));
+        shaderProgram.link();
 
         ShaderUtils.createShaderUniforms(
-                mSkyBoxShaderProgram,
+                shaderProgram,
                 new String[] {
                         "textureSampler",
                         "useTexture",
@@ -82,51 +97,63 @@ public class Renderer {
                         "modelViewMatrix"
                 }
         );
+
+        mShaderProgramMap.put(SKY_BOX_SHADER_KEY, shaderProgram);
     }
 
     public void setUpSceneShader() throws Exception {
-        mSceneShaderProgram = new ShaderProgram();
-        mSceneShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/scene_vertex.vs"));
-        mSceneShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/scene_fragment.fs"));
-        mSceneShaderProgram.link();
+        ShaderProgram shaderProgram = new ShaderProgram();
+        shaderProgram.createVertexShader(FileUtils.loadResource(
+                "/shaders/scene_vertex.vs"
+        ));
+        shaderProgram.createFragmentShader(FileUtils.loadResource(
+                "/shaders/scene_fragment.fs"
+        ));
+        shaderProgram.link();
 
-        mSceneShaderProgram.createUniform("isInstanced");
+        shaderProgram.createUniform("isInstanced");
 
         //matrices
-        mSceneShaderProgram.createUniform("projectionMatrix");
-        mSceneShaderProgram.createUniform("nonInstancedModelViewMatrix");
+        shaderProgram.createUniform("projectionMatrix");
+        shaderProgram.createUniform("nonInstancedModelViewMatrix");
 
         //textures
-        mSceneShaderProgram.createUniform("textureSampler");
-        mSceneShaderProgram.createUniform("normalMap");
+        shaderProgram.createUniform("textureSampler");
+        shaderProgram.createUniform("normalMap");
 
         //material
-        mSceneShaderProgram.createMaterialUniform("material");
+        shaderProgram.createMaterialUniform("material");
 
         //lighting
-        mSceneShaderProgram.createUniform("ambientLight");
-        mSceneShaderProgram.createPointLightArrayUniform(
+        shaderProgram.createUniform("ambientLight");
+        shaderProgram.createPointLightArrayUniform(
                 "pointLightArray",
                 MAX_POINT_LIGHTS
         );
-        mSceneShaderProgram.createSpotLightArrayUniform(
+        shaderProgram.createSpotLightArrayUniform(
                 "spotLightArray",
                 MAX_SPOT_LIGHTS
         );
-        mSceneShaderProgram.createDirectionalLightUniform(
+        shaderProgram.createDirectionalLightUniform(
                 "directionalLight"
         );
-        mSceneShaderProgram.createUniform("specularPower");
+        shaderProgram.createUniform("specularPower");
+
+        mShaderProgramMap.put(SCENE_SHADER_KEY, shaderProgram);
     }
 
     private void setUpParticleShader() throws Exception {
-        mParticleShaderProgram = new ShaderProgram();
-        mParticleShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/particle_vertex.vs"));
-        mParticleShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/particle_fragment.fs"));
-        mParticleShaderProgram.link();
+        ShaderProgram shaderProgram = new ShaderProgram();
+        shaderProgram.createVertexShader(FileUtils.loadResource(
+                "/shaders/particle_vertex.vs"
+        ));
+        shaderProgram.createFragmentShader(FileUtils.loadResource(
+                "/shaders/particle_fragment.fs"
+        ));
+        shaderProgram.link();
 
         ShaderUtils.createShaderUniforms(
-                mParticleShaderProgram,
+                shaderProgram,
                 new String[] {
                         "projectionMatrix",
                         "nonInstancedModelViewMatrix",
@@ -142,22 +169,30 @@ public class Renderer {
                         "nonInstancedParticleColour"
                 }
         );
+
+        mShaderProgramMap.put(PARTICLE_SHADER_KEY, shaderProgram);
     }
 
     private void setUpHudShader() throws Exception {
-        mHudShaderProgram = new ShaderProgram();
-        mHudShaderProgram.createVertexShader(FileUtils.loadResource("/shaders/hud_vertex.vs"));
-        mHudShaderProgram.createFragmentShader(FileUtils.loadResource("/shaders/hud_fragment.fs"));
-        mHudShaderProgram.link();
+        ShaderProgram shaderProgram = new ShaderProgram();
+        shaderProgram.createVertexShader(FileUtils.loadResource(
+                "/shaders/hud_vertex.vs"
+        ));
+        shaderProgram.createFragmentShader(FileUtils.loadResource(
+                "/shaders/hud_fragment.fs"
+        ));
+        shaderProgram.link();
 
         ShaderUtils.createShaderUniforms(
-                mHudShaderProgram,
+                shaderProgram,
                 new String[] {
                         "projectionModelMatrix",
                         "colour",
                         "textureSampler"
                 }
         );
+
+        mShaderProgramMap.put(HUD_SHADER_KEY, shaderProgram);
     }
 
     public void render(Window window, Camera camera, Scene scene, boolean sceneChanged) throws Exception {
@@ -176,8 +211,9 @@ public class Renderer {
         //Update projection matrix once per render cycle
         window.updateProjectionMatrix(camera.getFov(), camera.getViewDistanceStart(), camera.getViewDistanceEnd());
 
-        //this has been left here as a reminder that the camera can also be updated in the game logic where the dev has more control
-        //camera.updateViewMatrix();
+        if (!window.getOptions().applicationUpdatesCamera) {
+            camera.updateViewMatrix();
+        }
 
         renderScene(window, camera, scene);
 
@@ -210,18 +246,19 @@ public class Renderer {
     public void renderScene(Window window, Camera camera, Scene scene) {
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f lightViewMatrix = mTransformation.getLightViewMatrix();
+        ShaderProgram sceneShaderProgram = mShaderProgramMap.get(SCENE_SHADER_KEY);
 
-        mSceneShaderProgram.bind();
+        sceneShaderProgram.bind();
 
-        mSceneShaderProgram.setUniform(
+        sceneShaderProgram.setUniform(
                 "textureSampler",
                 TEXTURE_BANK_INDEX
         );
-        mSceneShaderProgram.setUniform(
+        sceneShaderProgram.setUniform(
                 "normalMap",
                 NORMAL_MAP_BANK_INDEX
         );
-        mSceneShaderProgram.setUniform(
+        sceneShaderProgram.setUniform(
                 "projectionMatrix",
                 window.getProjectionMatrix()
         );
@@ -229,7 +266,7 @@ public class Renderer {
         if (scene.getGameItemMeshMap().size() > 0) {
             renderNonInstancedMeshes(
                     scene,
-                    mSceneShaderProgram,
+                    sceneShaderProgram,
                     viewMatrix,
                     lightViewMatrix
             );
@@ -238,7 +275,7 @@ public class Renderer {
         if (scene.getGameItemInstancedMeshMap().size() > 0) {
             renderInstancedMeshes(
                     scene,
-                    mSceneShaderProgram,
+                    sceneShaderProgram,
                     viewMatrix,
                     lightViewMatrix
             );
@@ -251,19 +288,20 @@ public class Renderer {
             );
         }
 
-        mSceneShaderProgram.unbind();
+        sceneShaderProgram.unbind();
     }
 
     public void renderSceneLighting(
             Matrix4f viewMatrix,
             SceneLighting sceneLighting
     ) {
-        mSceneShaderProgram.setUniform(
+        ShaderProgram sceneShaderProgram = mShaderProgramMap.get(SCENE_SHADER_KEY);
+        sceneShaderProgram.setUniform(
                 "ambientLight",
                 sceneLighting.getAmbientLight() != null ?
                         sceneLighting.getAmbientLight() : SceneLighting.DEFAULT_AMBIENT_LIGHT
         );
-        mSceneShaderProgram.setUniform("specularPower", mSpecularPower);
+        sceneShaderProgram.setUniform("specularPower", mSpecularPower);
 
         //point lights
         List<PointLight> pointLightList = sceneLighting.getPointLightList();
@@ -280,7 +318,7 @@ public class Renderer {
             lightPosition.y = aux.y;
             lightPosition.z = aux.z;
 
-            mSceneShaderProgram.setUniform("pointLightArray", pointLight, i);
+            sceneShaderProgram.setUniform("pointLightArray", pointLight, i);
         }
 
         //spot lights
@@ -306,7 +344,7 @@ public class Renderer {
             lightPosition.y = aux.y;
             lightPosition.z = aux.z;
 
-            mSceneShaderProgram.setUniform("spotLightArray", spotLight, i);
+            sceneShaderProgram.setUniform("spotLightArray", spotLight, i);
         }
 
         //directional light
@@ -321,7 +359,7 @@ public class Renderer {
                     direction.y,
                     direction.z
             ));
-            mSceneShaderProgram.setUniform("directionalLight", dirLight);
+            sceneShaderProgram.setUniform("directionalLight", dirLight);
         }
     }
 
@@ -432,7 +470,8 @@ public class Renderer {
     }
 
     private void renderHud(Window window, Camera camera, Scene scene) {
-        mHudShaderProgram.bind();
+        ShaderProgram hudShaderProgram = mShaderProgramMap.get(HUD_SHADER_KEY);
+        hudShaderProgram.bind();
 
         Matrix4f orthoProjection = mTransformation.generateOrtho2DProjectionMatrix(
                 0, window.getWidth(), window.getHeight(), 0
@@ -442,11 +481,14 @@ public class Renderer {
         TODO: MIGHT BE ABLE TO CHANGE THIS TO RENDERING PER MESH TYPE
          */
         for (GameItem gameItem : scene.getHud().getGameItems()) {
-            mHudShaderProgram.setUniform(
+            hudShaderProgram.setUniform(
                     "projectionModelMatrix",
-                    mTransformation.generateOrthoProjectionModelMatrix(gameItem, orthoProjection)
+                    mTransformation.generateOrthoProjectionModelMatrix(
+                            gameItem,
+                            orthoProjection
+                    )
             );
-            mHudShaderProgram.setUniform(
+            hudShaderProgram.setUniform(
                     "colour",
                     gameItem.getMesh().getMaterial().getColour()
             );
@@ -454,12 +496,13 @@ public class Renderer {
             gameItem.getMesh().render();
         }
 
-        mHudShaderProgram.unbind();
+        hudShaderProgram.unbind();
     }
 
     private void renderSkyBox(Window window, Camera camera, Scene scene) {
         SkyBox skybox = scene.getSkyBox();
         Matrix4f vm = camera.getViewMatrix();
+        ShaderProgram skyBoxShaderProgram = mShaderProgramMap.get(SKY_BOX_SHADER_KEY);
 
         //store the translation elements of the view matrix
         float m30 = vm.m30();
@@ -473,19 +516,25 @@ public class Renderer {
             vm.m32(0);
         }
 
-        mSkyBoxShaderProgram.bind();
+        skyBoxShaderProgram.bind();
 
-        mSkyBoxShaderProgram.setUniform("textureSampler", 0);
-        mSkyBoxShaderProgram.setUniform("projectionMatrix", window.getProjectionMatrix());
-        mSkyBoxShaderProgram.setUniform(
+        skyBoxShaderProgram.setUniform("textureSampler", 0);
+        skyBoxShaderProgram.setUniform(
+                "projectionMatrix",
+                window.getProjectionMatrix()
+        );
+        skyBoxShaderProgram.setUniform(
                 "modelViewMatrix",
                 mTransformation.generateModelViewMatrix(skybox, vm)
         );
-        mSkyBoxShaderProgram.setUniform(
+        skyBoxShaderProgram.setUniform(
                 "useTexture",
                 skybox.getMesh().getMaterial().isUsingTexture() ? 1 : 0
         );
-        mSkyBoxShaderProgram.setUniform("colour", skybox.getMesh().getMaterial().getColour());
+        skyBoxShaderProgram.setUniform(
+                "colour",
+                skybox.getMesh().getMaterial().getColour()
+        );
 
         skybox.getMesh().render();
 
@@ -496,16 +545,17 @@ public class Renderer {
             vm.m32(m32);
         }
 
-        mSkyBoxShaderProgram.unbind();
+        skyBoxShaderProgram.unbind();
     }
 
     private void renderParticles(Window window, Camera camera, Scene scene) throws Exception {
         Matrix4f viewMatrix = camera.getViewMatrix();
+        ShaderProgram particleShaderProgram = mShaderProgramMap.get(PARTICLE_SHADER_KEY);
 
-        mParticleShaderProgram.bind();
+        particleShaderProgram.bind();
 
-        mParticleShaderProgram.setUniform("textureSampler", 0);
-        mParticleShaderProgram.setUniform(
+        particleShaderProgram.setUniform("textureSampler", 0);
+        particleShaderProgram.setUniform(
                 "projectionMatrix",
                 window.getProjectionMatrix()
         );
@@ -519,17 +569,22 @@ public class Renderer {
                 mFilteredParticleEmitterList
         );
 
-        renderParticleEmitters(mFilteredParticleEmitterList, viewMatrix);
+        renderParticleEmitters(
+                mFilteredParticleEmitterList,
+                viewMatrix,
+                particleShaderProgram
+        );
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(true);
 
-        mParticleShaderProgram.unbind();
+        particleShaderProgram.unbind();
     }
 
     private void renderParticleEmitters(
             List<IParticleEmitter> particleEmitterList,
-            Matrix4f viewMatrix
+            Matrix4f viewMatrix,
+            ShaderProgram particleShaderProgram
     ) throws Exception {
         for (IParticleEmitter emitter : particleEmitterList) {
 
@@ -544,28 +599,43 @@ public class Renderer {
             boolean useTexture = mesh.getMaterial().isUsingTexture();
             Texture texture = mesh.getMaterial().getTexture();
 
-            mParticleShaderProgram.setUniform(
+            particleShaderProgram.setUniform(
                     "numColumns",
                     useTexture ? texture.getNumColumns() : 1
             );
-            mParticleShaderProgram.setUniform(
+            particleShaderProgram.setUniform(
                     "numRows",
                     useTexture ? texture.getNumRows() : 1
             );
-            mParticleShaderProgram.setUniform(
+            particleShaderProgram.setUniform(
                     "useTexture",
                     useTexture ? 1 : 0
             );
 
             if (mesh instanceof InstancedMesh) {
-                renderInstancedParticleEmitter(emitter, mesh, viewMatrix, useTexture);
+                renderInstancedParticleEmitter(
+                        particleShaderProgram,
+                        emitter,
+                        mesh,
+                        viewMatrix,
+                        useTexture
+                );
             } else {
-                renderNonInstancedParticleEmitter(emitter, mesh, viewMatrix, texture, useTexture);
+                renderNonInstancedParticleEmitter(
+                        particleShaderProgram,
+                        emitter,
+                        mesh,
+                        viewMatrix,
+                        texture,
+                        useTexture
+                );
+
             }
         }
     }
 
     private void renderInstancedParticleEmitter(
+            ShaderProgram particleShaderProgram,
             IParticleEmitter emitter,
             Mesh mesh,
             Matrix4f viewMatrix,
@@ -577,8 +647,8 @@ public class Renderer {
 
         InstancedMesh instancedMesh = (InstancedMesh) mesh;
 
-        mParticleShaderProgram.setUniform("isInstanced", 1);
-        mParticleShaderProgram.setUniform("useTexture", 1);
+        particleShaderProgram.setUniform("isInstanced", 1);
+        particleShaderProgram.setUniform("useTexture", 1);
 
         mFrustumFilter.populateFilteredList(
                 emitter,
@@ -586,7 +656,7 @@ public class Renderer {
         );
 
         instancedMesh.renderInstancedList(
-                emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticles(),
+                emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticleList(),
                 true,
                 mTransformation,
                 viewMatrix,
@@ -595,13 +665,14 @@ public class Renderer {
     }
 
     private void renderNonInstancedParticleEmitter(
+            ShaderProgram particleShaderProgram,
             IParticleEmitter emitter,
             Mesh mesh,
             Matrix4f viewMatrix,
             Texture texture,
             boolean useTexture
     ) {
-        mParticleShaderProgram.setUniform("isInstanced", 0);
+        particleShaderProgram.setUniform("isInstanced", 0);
 
         mFrustumFilter.populateFilteredList(
                 emitter,
@@ -609,7 +680,7 @@ public class Renderer {
         );
 
         mesh.renderList(
-                emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticles(),
+                emitter.isFrustumCullingParticles() ? mFilteredGameItemList : emitter.getParticleList(),
                 (GameItem gameItem) -> {
                     if (useTexture) {
                         int column = gameItem.getTexturePos() % texture.getNumColumns();
@@ -617,17 +688,17 @@ public class Renderer {
                         float textOffsetX = (float) column / texture.getNumColumns();
                         float textOffsetY = (float) row / texture.getNumRows();
 
-                        mParticleShaderProgram.setUniform(
+                        particleShaderProgram.setUniform(
                                 "nonInstancedTextOffsetX",
                                 textOffsetX
                         );
-                        mParticleShaderProgram.setUniform(
+                        particleShaderProgram.setUniform(
                                 "nonInstancedTextOffsetY",
                                 textOffsetY
                         );
                     }
 
-                    mParticleShaderProgram.setUniform(
+                    particleShaderProgram.setUniform(
                             "nonInstancedParticleColour",
                             ((Particle) gameItem).getParticleColour()
                     );
@@ -639,7 +710,7 @@ public class Renderer {
                             modelMatrix, viewMatrix
                     );
                     modelViewMatrix.scale(gameItem.getScale());
-                    mParticleShaderProgram.setUniform(
+                    particleShaderProgram.setUniform(
                             "nonInstancedModelViewMatrix",
                             modelViewMatrix
                     );
@@ -651,24 +722,10 @@ public class Renderer {
     }
 
     public void cleanUp() {
-        if (mSceneShaderProgram != null) {
-            mSceneShaderProgram.cleanUp();
-        }
-
-        if (mHudShaderProgram != null) {
-            mHudShaderProgram.cleanUp();
-        }
-
-        if (mSkyBoxShaderProgram != null) {
-            mSkyBoxShaderProgram.cleanUp();
-        }
-
-        if (mDepthShaderProgram != null) {
-            mDepthShaderProgram.cleanUp();
-        }
-
-        if (mParticleShaderProgram != null) {
-            mParticleShaderProgram.cleanUp();
+        for (ShaderProgram shaderProgram : mShaderProgramMap.values()) {
+            if (shaderProgram != null) {
+                shaderProgram.cleanUp();
+            }
         }
     }
 }

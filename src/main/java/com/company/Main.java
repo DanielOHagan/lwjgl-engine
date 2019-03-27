@@ -25,6 +25,7 @@ public class Main {
             options.cullFace = true;
             options.showFps = true;
             options.frustumCulling = true;
+            options.applicationUpdatesCamera = true;
 
             GameEngine gameEngine = new GameEngine(
                     "Game",
