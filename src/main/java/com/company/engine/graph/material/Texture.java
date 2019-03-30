@@ -54,7 +54,6 @@ public class Texture {
     }
 
     public Texture(ByteBuffer imageData) throws Exception {
-
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer width = stack.mallocInt(1);
             IntBuffer height = stack.mallocInt(1);

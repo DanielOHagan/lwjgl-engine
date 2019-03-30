@@ -80,6 +80,34 @@ public class TestGame implements IGameLogic {
         mScene = new Scene();
         setUpMouseOptions();
 
+        // Setup  GameItems
+        float reflectance = 1f;
+        Mesh[] cubeMesh = StaticMeshesLoader.loadMeshes(
+                "src/main/resources/models/cube.obj",
+                new Material(new Vector4f(1, 0, 1, 1), Material.DEFAULT_REFLECTANCE),
+                1,
+                MeshType.STANDARD
+        );
+        GameItem cubeGameItem = new GameItem(cubeMesh);
+        cubeGameItem.setPosition(0, 0, 0);
+        cubeGameItem.setScale(0.5f);
+
+
+        Material quadMaterial = new Material(new Vector4f(0.0f, 0.0f, 1.0f, 1.0f), reflectance);
+        Mesh[] quadMesh = StaticMeshesLoader.loadMeshes("src/main/resources/models/plane.obj", quadMaterial, 1, MeshType.STANDARD);
+        GameItem quadGameItem = new GameItem(quadMesh);
+        quadGameItem.setPosition(0, -1, 0);
+        quadGameItem.setScale(2.5f);
+
+        mScene.addSceneGameItems(new GameItem[]{cubeGameItem, quadGameItem});
+
+//        SkyBox skyBox = new SkyBox(
+//                "src/main/resources/models/skybox.obj",
+//                new Material(new Texture("src/main/resources/textures/skybox.png"))
+//        );
+//
+//        mScene.setSkyBox(skyBox);
+
 //        float blockScale = 0.5f;
 //        float skyBoxScale = 50.0f;
 //        float extension = 2.0f;
@@ -143,28 +171,28 @@ public class TestGame implements IGameLogic {
 //
 //        mScene.addSceneGameItems(gameItems);
 //
-        Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/walker/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj",
-                "src/main/resources/models/walker",
-                1,
-                MeshType.STANDARD
-        );
-
+//        Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
+//                "src/main/resources/models/walker/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj",
+//                "src/main/resources/models/walker",
+//                1,
+//                MeshType.STANDARD
+//        );
 //
-        MeshUtils.setBoundingRadius(legoManMeshes, 15f);
-        MeshUtils.setColour(legoManMeshes, new Vector4f(1, 1, 1, 1));
-//
-        GameItem gameItem = new GameItem(legoManMeshes);
-        gameItem.setIgnoresFrustumCulling(true);
-        gameItem.setUsingTexture(true);
-        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
+////
+//        MeshUtils.setBoundingRadius(legoManMeshes, 15f);
+//        MeshUtils.setColour(legoManMeshes, new Vector4f(1, 1, 1, 1));
+////
+//        GameItem gameItem = new GameItem(legoManMeshes);
+//        gameItem.setIgnoresFrustumCulling(true);
+//        gameItem.setUsingTexture(true);
+//        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
 
-//        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
+//        gameItem.getMeshArray()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 //        gameItem.getMesh().getMaterial().setUsingTexture(true);
-//        gameItem.getMeshes()[1].getMaterial().setUsingTexture(false);
-//        gameItem.getMeshes()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
+//        gameItem.getMeshArray()[1].getMaterial().setUsingTexture(false);
+//        gameItem.getMeshArray()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 //
-        mScene.addSceneGameItems(new GameItem[] {gameItem});
+//        mScene.addSceneGameItems(new GameItem[] {gameItem});
 //
         Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
         Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
@@ -189,34 +217,34 @@ public class TestGame implements IGameLogic {
 //        mScene.setSkyBox(skyBox);
         mScene.setParticleEmitters(new IParticleEmitter[]{ testParticleEmitter });
 //
-        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
+//        ambientLight = new Vector3f(0.3f, 0.3f, 0.3f);
 
-        // Point Light
-        Vector3f lightPosition = new Vector3f(0, 0, 1);
-        float lightIntensity = 1.0f;
-        PointLight pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity, true);
-        Attenuation att = new Attenuation(0.0f, 0.0f, 1.0f);
-        pointLight.setAttenuation(att);
-        pointLightList.add(pointLight);
-
-        camPointLight = new PointLight(new Vector3f(mCamera.getPosition()), new Vector3f(1, 0, 1), lightIntensity, true);
-        pointLightList.add(camPointLight);
-
-        // Spot Light
-        lightPosition = new Vector3f(0, 0.0f, 10f);
-        pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity, true);
-        att = new Attenuation(0.0f, 0.0f, 0.02f);
-        pointLight.setAttenuation(att);
-        Vector3f coneDir = new Vector3f(0, 0, -1);
-        float cutoff = (float) Math.cos(Math.toRadians(140));
-        SpotLight spotLight = new SpotLight(pointLight, coneDir, cutoff);
-        spotLightList.add(new SpotLight(spotLight));
-
-        lightPosition = new Vector3f(-1, 0, 0);
-        directionalLight = new DirectionalLight(new Vector3f(0, 0, 0), lightPosition, lightIntensity / 10);
-
-
-        mScene.setSceneLighting(new SceneLighting(ambientLight, pointLightList, spotLightList, directionalLight));
+//        // Point Light
+//        Vector3f lightPosition = new Vector3f(0, 0, 1);
+//        float lightIntensity = 1.0f;
+//        PointLight pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity, true);
+//        Attenuation att = new Attenuation(0.0f, 0.0f, 1.0f);
+//        pointLight.setAttenuation(att);
+//        pointLightList.add(pointLight);
+//
+//        camPointLight = new PointLight(new Vector3f(mCamera.getPosition()), new Vector3f(1, 0, 1), lightIntensity, true);
+//        pointLightList.add(camPointLight);
+//
+//        // Spot Light
+//        lightPosition = new Vector3f(0, 0.0f, 10f);
+//        pointLight = new PointLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity, true);
+//        att = new Attenuation(0.0f, 0.0f, 0.02f);
+//        pointLight.setAttenuation(att);
+//        Vector3f coneDir = new Vector3f(0, 0, -1);
+//        float cutoff = (float) Math.cos(Math.toRadians(140));
+//        SpotLight spotLight = new SpotLight(pointLight, coneDir, cutoff);
+//        spotLightList.add(new SpotLight(spotLight));
+//
+//        lightPosition = new Vector3f(-1, 0, 0);
+//        directionalLight = new DirectionalLight(new Vector3f(0, 0, 0), lightPosition, lightIntensity / 10);
+//
+//
+//        mScene.setSceneLighting(new SceneLighting(ambientLight, pointLightList, spotLightList, directionalLight));
 
         // Setup  GameItems
 //        float reflectance = 0.65f;
@@ -251,10 +279,22 @@ public class TestGame implements IGameLogic {
 //        quadGameItem2.setRotation(new Quaternionf(90, 0, 0, 0));
 
 //        mScene.addSceneGameItems(new GameItem[]{quadGameItem1, quadGameItem2});
-//        setupLights();
+        setupLights();
     }
 
     private void setupLights() {
+//        SceneLighting sceneLight = new SceneLighting();
+//        mScene.setSceneLighting(sceneLight);
+//
+//        // Ambient Light
+//        sceneLight.setAmbientLight(new Vector3f(0.3f, 0.3f, 0.3f));
+//        sceneLight.setSkyBoxLight(new Vector3f(1.0f, 1.0f, 1.0f));
+//
+//        // Directional Light
+//        float lightIntensity = 1.0f;
+//        Vector3f lightPosition = new Vector3f(1, 1, 0);
+//        sceneLight.setDirectionalLight(new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity));
+
         SceneLighting sceneLight = new SceneLighting();
         mScene.setSceneLighting(sceneLight);
 
@@ -264,8 +304,11 @@ public class TestGame implements IGameLogic {
 
         // Directional Light
         float lightIntensity = 1.0f;
-        Vector3f lightPosition = new Vector3f(1, 1, 0);
-        sceneLight.setDirectionalLight(new DirectionalLight(new Vector3f(1, 1, 1), lightPosition, lightIntensity));
+        Vector3f lightDirection = new Vector3f(0, 1, 1);
+        DirectionalLight directionalLight = new DirectionalLight(new Vector3f(1, 1, 1), lightDirection, lightIntensity);
+        directionalLight.setShadowPositionMultiplier(5);
+        directionalLight.setOrthoCoords(-10.0f, 10.0f, -10.0f, 10.0f, -1.0f, 20.0f);
+        sceneLight.setDirectionalLight(directionalLight);
     }
 
     private void setUpSounds() throws Exception {
@@ -379,11 +422,10 @@ public class TestGame implements IGameLogic {
     public void render(Window window) {
 //        testHud.updateSize(window);
         if (mInitialCycle) {
-            mSceneChanged = true;
             mInitialCycle = false;
         }
         try {
-            mRenderer.render(window, mCamera, mScene, mSceneChanged);
+            mRenderer.render(window, mCamera, mScene);
         } catch (Exception e) {
             e.printStackTrace();
         }

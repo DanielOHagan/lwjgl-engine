@@ -1,7 +1,6 @@
 package com.company.engine.scene.items;
 
 import com.company.engine.graph.material.Material;
-import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.mesh.MeshType;
 import com.company.engine.loaders.assimp.StaticMeshesLoader;
@@ -11,32 +10,34 @@ public class SkyBox extends GameItem {
 
     private boolean mInFixedPosition;
 
-    /*
-    Create a SkyBox instance using an obj file and a texture
-     */
-    public SkyBox(String objModelFilePath, String textureFilePath) throws Exception {
+    public SkyBox(
+            String filePath,
+            String textureFilePathDirectory
+    ) throws Exception {
         super();
-//        Mesh mesh = ObjLoader.loadMesh(objModelFilePath, MeshType.STANDARD);
-        Mesh mesh = StaticMeshesLoader.loadMeshes(objModelFilePath, "", 1, MeshType.STANDARD)[0];
-        Texture texture = new Texture(textureFilePath);
+        Mesh[] meshArray = StaticMeshesLoader.loadMeshes(
+                filePath,
+                textureFilePathDirectory,
+                1,
+                MeshType.STANDARD
+        );
 
-        mesh.setMaterial(new Material(texture, 0.0f));
-        setMesh(mesh);
+        setMeshArray(meshArray);
         setPosition(0, 0, 0);
         setInFixedPosition(true);
     }
 
-
-    /*
-    Create a SkyBox instance using an obj file and a specified colour
-     */
-    public SkyBox(String objModelFilePath, Vector4f colour) throws Exception {
+    public SkyBox(String filePath, Material material) throws Exception {
         super();
-        Mesh mesh = StaticMeshesLoader.loadMeshes(objModelFilePath, "", 1, MeshType.STANDARD)[0];
-        Material material = new Material(colour, 0);
 
-        mesh.setMaterial(material);
-        setMesh(mesh);
+        Mesh[] meshArray = StaticMeshesLoader.loadMeshes(
+                filePath,
+                material,
+                1,
+                MeshType.STANDARD
+        );
+
+        setMeshArray(meshArray);
         setPosition(0, 0, 0);
         setInFixedPosition(true);
     }

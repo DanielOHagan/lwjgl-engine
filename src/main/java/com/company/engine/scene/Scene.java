@@ -24,10 +24,12 @@ public class Scene {
     private KeyboardInput mKeyboardInput;
     private SceneLighting mSceneLighting;
     private SkyBox mSkyBox;
+//    private boolean mRenderingShadows;
 
     public Scene() {
         mGameItemMeshMap = new HashMap<>();
         mGameItemInstancedMesh = new HashMap<>();
+//        mRenderingShadows = true;
     }
 
     public void addSceneGameItems(GameItem[] gameItems) {
@@ -35,7 +37,7 @@ public class Scene {
 
         for (int i = 0; i < gameItemsLength; i++) {
             GameItem gameItem = gameItems[i];
-            Mesh[] meshes = gameItem.getMeshes();
+            Mesh[] meshes = gameItem.getMeshArray();
 
             for (Mesh mesh : meshes) {
                 boolean isInstanced = mesh instanceof InstancedMesh;
@@ -137,4 +139,12 @@ public class Scene {
     public Map<InstancedMesh, List<GameItem>> getGameItemInstancedMeshMap() {
         return mGameItemInstancedMesh;
     }
+
+//    public boolean isRenderingShadows() {
+//        return mRenderingShadows;
+//    }
+
+//    public void setRenderingShadows(boolean renderingShadows) {
+//        mRenderingShadows = renderingShadows;
+//    }
 }

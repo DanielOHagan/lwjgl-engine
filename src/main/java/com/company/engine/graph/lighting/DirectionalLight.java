@@ -4,14 +4,20 @@ import org.joml.Vector3f;
 
 public class DirectionalLight {
 
+    private final static float DEFAULT_SHADOW_POTION_MULTIPLIER = 1;
+
     private Vector3f mColour;
     private Vector3f mDirection;
     private float mIntensity;
+    private OrthoCoords mOrthoCoords;
+    private float mShadowPositionMultiplier;
 
     public DirectionalLight(Vector3f colour, Vector3f direction, float intensity) {
         mColour = colour;
         mDirection = direction;
         mIntensity = intensity;
+        mOrthoCoords = new OrthoCoords();
+        mShadowPositionMultiplier = DEFAULT_SHADOW_POTION_MULTIPLIER;
     }
 
     public DirectionalLight(DirectionalLight directionalLight) {
@@ -46,12 +52,42 @@ public class DirectionalLight {
         mIntensity = intensity;
     }
 
-    public static class OrthoCoords {
-        public float left;
-        public float right;
-        public float bottom;
-        public float top;
-        public float near;
-        public float far;
+    public void setShadowPositionMultiplier(float shadowPositionMultiplier) {
+        mShadowPositionMultiplier = shadowPositionMultiplier;
+    }
+
+    public float getShadowPositionMultiplier() {
+        return mShadowPositionMultiplier;
+    }
+
+    public OrthoCoords getOrthoCoords() {
+        return mOrthoCoords;
+    }
+
+    public void setOrthoCoords(
+            float left,
+            float right,
+            float bottom,
+            float top,
+            float near,
+            float far
+    ) {
+        mOrthoCoords.setLeft(left);
+        mOrthoCoords.setRight(right);
+        mOrthoCoords.setBottom(bottom);
+        mOrthoCoords.setTop(top);
+        mOrthoCoords.setNear(near);
+        mOrthoCoords.setFar(far);
+    }
+
+    public void setOrthoCoords(OrthoCoords orthoCoords) {
+        setOrthoCoords(
+                orthoCoords.getLeft(),
+                orthoCoords.getRight(),
+                orthoCoords.getBottom(),
+                orthoCoords.getTop(),
+                orthoCoords.getNear(),
+                orthoCoords.getFar()
+        );
     }
 }

@@ -15,6 +15,8 @@ uniform int isInstanced;
 
 uniform mat4 nonInstancedModelViewMatrix;
 uniform mat4 projectionMatrix;
+//uniform mat4 orthoProjectionMatrix;
+//uniform mat4 lightViewMatrix;
 
 uniform int numColumns;
 uniform int numRows;
@@ -23,25 +25,24 @@ out vec2 out_texCoord;
 out vec3 out_modelViewVertexNormal;
 out vec3 out_modelViewVertexPosition;
 out mat4 out_modelViewMatrix;
-
-out mat4 outModelViewMatrix;
+//out vec4 out_modelLightViewVertexPosition;
 
 void main() {
 
     vec4 positionTemp;
     vec4 normalTemp;
     mat4 modelViewMatrix;
-    //mat4 modelLightViewMatrix;
+//    mat4 modelLightViewMatrix;
 
     if (isInstanced > 0) {
         modelViewMatrix = instancedModelViewMatrix;
-        //modelLightViewMatrix = instancedModelLightViewMatrix;
+//        modelLightViewMatrix = instancedModelLightViewMatrix;
 
         positionTemp = vec4(position, 1.0);
         normalTemp = vec4(vertexNormal, 0.0);
     } else {
         modelViewMatrix = nonInstancedModelViewMatrix;
-        //lightViewMatrix = nonInstancedModelLightViewMatrix;
+//        lightViewMatrix = nonInstancedModelLightViewMatrix;
 
         int count = 0;
         //cycle through joints and apply matrix transformations
@@ -58,6 +59,7 @@ void main() {
     out_modelViewMatrix = modelViewMatrix;
     out_modelViewVertexNormal = normalize(modelViewMatrix * normalTemp).xyz;
     out_modelViewVertexPosition = vertexPosition.xyz;
+//    out_modelLightViewVertexPosition = orthoProjectionMatrix * lightViewMatrix * positionTemp;
 
     gl_Position = projectionMatrix * vertexPosition;
 }

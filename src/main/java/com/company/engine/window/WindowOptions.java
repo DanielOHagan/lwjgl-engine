@@ -18,4 +18,5 @@ public class WindowOptions {
     public int minHeight = 0;
     public int maxWidth = 0;
     public int maxHeight = 0;
+//    public int shadowMapSizeMultiplier = 1;
 }

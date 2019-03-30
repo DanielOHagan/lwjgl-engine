@@ -9,7 +9,7 @@ public class GameItem {
     private Vector3f mPosition;
     private Quaternionf mRotation;
     private float mScale;
-    private Mesh[] mMeshes; //holds all of the item's meshes (e.g. if the model's head and body are separate, this stores them both here)
+    private Mesh[] mMeshArray; //holds all of the item's meshes (e.g. if the model's head and body are separate, this stores them both here)
     private int mTexturePos;
     private boolean mIgnoresFrustumCulling;
     private boolean mInsideFrustum;
@@ -25,24 +25,24 @@ public class GameItem {
 
     public GameItem(Mesh mesh) {
         this();
-        mMeshes = new Mesh[] { mesh };
+        mMeshArray = new Mesh[] { mesh };
     }
 
     public GameItem(Mesh[] meshes) {
         this();
-        mMeshes = meshes;
+        mMeshArray = meshes;
     }
 
     public void cleanUp() {
-        for (Mesh mesh : mMeshes) {
+        for (Mesh mesh : mMeshArray) {
             if (mesh != null) {
                 mesh.cleanUp();
             }
         }
     }
 
-    public void setMeshes(Mesh[] mMeshes) {
-        this.mMeshes = mMeshes;
+    public void setMeshArray(Mesh[] meshArray) {
+        this.mMeshArray = meshArray;
     }
 
     public void setPosition(float x, float y, float z) {
@@ -75,12 +75,12 @@ public class GameItem {
         return mScale;
     }
 
-    public Mesh[] getMeshes() {
-        return mMeshes;
+    public Mesh[] getMeshArray() {
+        return mMeshArray;
     }
 
     public Mesh getMesh() {
-        return mMeshes[0];
+        return mMeshArray[0];
     }
 
     public void setTexturePos(int texturePos) {
@@ -92,10 +92,10 @@ public class GameItem {
     }
 
     public void setMesh(Mesh mesh) {
-        if (mMeshes == null) {
-            mMeshes = new Mesh[1];
+        if (mMeshArray == null) {
+            mMeshArray = new Mesh[1];
         }
-        mMeshes[0] = mesh;
+        mMeshArray[0] = mesh;
     }
 
     public void setIgnoresFrustumCulling(boolean ignoresFrustumCulling) {
@@ -115,8 +115,8 @@ public class GameItem {
     }
 
     public void setUsingTexture(boolean usingTexture) {
-        if (mMeshes != null && mMeshes.length > 0) {
-            for (Mesh mesh : mMeshes) {
+        if (mMeshArray != null && mMeshArray.length > 0) {
+            for (Mesh mesh : mMeshArray) {
                 if (mesh.getMaterial() != null) {
                     mesh.getMaterial().setUsingTexture(usingTexture);
                 }

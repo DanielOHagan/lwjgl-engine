@@ -11,6 +11,7 @@ public class Transformation {
     private final Matrix4f mModelViewMatrix;
     private final Matrix4f mModelLightViewMatrix;
     private final Matrix4f mLightViewMatrix;
+    private final Matrix4f mOrthographicProjectionMatrix;
     private final Matrix4f mOrthographic2dMatrix;
     private final Matrix4f mOrthographicModelMatrix;
 
@@ -19,6 +20,7 @@ public class Transformation {
         mModelViewMatrix = new Matrix4f();
         mModelLightViewMatrix = new Matrix4f();
         mLightViewMatrix = new Matrix4f();
+        mOrthographicProjectionMatrix = new Matrix4f();
         mOrthographic2dMatrix = new Matrix4f();
         mOrthographicModelMatrix = new Matrix4f();
     }
@@ -28,10 +30,24 @@ public class Transformation {
             Vector3f rotation,
             Matrix4f matrix
     ) {
-
         return matrix.rotationX((float) Math.toRadians(rotation.x))
                 .rotateY((float) Math.toRadians(rotation.y))
                 .translate(-position.x, position.y, position.z);
+    }
+
+    public void updateOrthographicProjectionMatrix(
+            float left,
+            float right,
+            float bottom,
+            float top,
+            float near,
+            float far
+    ) {
+        mOrthographicProjectionMatrix.setOrtho(left, right, bottom, top, near, far);
+    }
+
+    public void updateLightViewMatrix(Vector3f position, Vector3f rotation) {
+        updateGenericViewMatrix(position, rotation, mLightViewMatrix);
     }
 
     public Matrix4f generateModelMatrix(GameItem gameItem) {
@@ -59,10 +75,18 @@ public class Transformation {
         return orthoMatrix.mulAffine(generateModelMatrix(gameItem), mOrthographicModelMatrix);
     }
 
+    public Matrix4f generateModelLightViewMatrix(Matrix4f modelMatrix, Matrix4f lightViewMatrix) {
+        return lightViewMatrix.mulAffine(modelMatrix, mModelViewMatrix);
+    }
+
 
     /* Getters and Setters */
 
     public Matrix4f getLightViewMatrix() {
         return mLightViewMatrix;
+    }
+
+    public Matrix4f getOrthographicProjectionMatrix() {
+        return mOrthographicProjectionMatrix;
     }
 }
