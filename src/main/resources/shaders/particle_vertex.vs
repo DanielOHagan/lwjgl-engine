@@ -1,5 +1,8 @@
 #version 330
 
+const int SHADER_TRUE = 1;
+const int SHADER_FALSE = 0;
+
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoord;
 layout (location = 2) in vec3 vertexNormal;
@@ -23,7 +26,7 @@ void main() {
     float y;
     mat4 modelViewMatrixTemp;
 
-    if (isInstanced > 0) { //is instanced
+    if (isInstanced == SHADER_TRUE) {
         modelViewMatrixTemp = instancedModelViewMatrix;
 
         //for texture atlas

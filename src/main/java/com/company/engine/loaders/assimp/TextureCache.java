@@ -1,11 +1,12 @@
 package com.company.engine.loaders.assimp;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.material.Texture;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TextureCache {
+public class TextureCache implements IUsesResources {
 
     private static TextureCache INSTANCE;
 
@@ -33,5 +34,22 @@ public class TextureCache {
         }
 
         return texture;
+    }
+
+    @Override
+    public void cleanUp() {
+        for (String string : mTextureMap.keySet()) {
+            Texture texture = mTextureMap.get(string);
+
+            if (texture != null) {
+                texture.cleanUp();
+            }
+
+            mTextureMap.remove(string);
+        }
+
+        mTextureMap.clear();
+
+        INSTANCE = null;
     }
 }

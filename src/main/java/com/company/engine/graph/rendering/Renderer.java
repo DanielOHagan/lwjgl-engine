@@ -1,5 +1,6 @@
 package com.company.engine.graph.rendering;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.lighting.*;
 import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.Transformation;
@@ -27,7 +28,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL30.*;
 
-public class Renderer {
+public class Renderer implements IUsesResources {
 
     private static final int MAX_POINT_LIGHTS = 5;
     private static final int MAX_SPOT_LIGHTS = 5;
@@ -71,6 +72,15 @@ public class Renderer {
         mFilteredGameItemList = new ArrayList<>();
         mFilteredParticleEmitterList = new ArrayList<>();
         mSpecularPower = DEFAULT_SPECULAR_POWER;
+    }
+
+    @Override
+    public void cleanUp() {
+        for (ShaderProgram shaderProgram : mShaderProgramMap.values()) {
+            if (shaderProgram != null) {
+                shaderProgram.cleanUp();
+            }
+        }
     }
 
     public void init(Window window) throws Exception {
@@ -866,13 +876,5 @@ public class Renderer {
 
     public void clear() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
-    protected void cleanUp() {
-        for (ShaderProgram shaderProgram : mShaderProgramMap.values()) {
-            if (shaderProgram != null) {
-                shaderProgram.cleanUp();
-            }
-        }
     }
 }

@@ -1,5 +1,8 @@
 #version 330
 
+const int SHADER_TRUE = 1;
+const int SHADER_FALSE = 0;
+
 in vec2 outTexCoord;
 in vec3 mVectorPos;
 
@@ -11,7 +14,7 @@ uniform int useTexture;
 uniform vec4 nonInstancedParticleColour;
 
 void main() {
-    if (useTexture > 0) { //is instanced
+    if (useTexture == SHADER_TRUE) { //is instanced
         fragColour = texture(textureSampler, outTexCoord);
     } else { //is not instanced
         fragColour = nonInstancedParticleColour;

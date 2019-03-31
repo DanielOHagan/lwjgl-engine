@@ -1,5 +1,6 @@
 package com.company.engine.graph.material;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.utils.FileUtils;
 import org.lwjgl.system.MemoryStack;
 
@@ -11,7 +12,7 @@ import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 
-public class Texture {
+public class Texture implements IUsesResources {
 
     private final int mId;
     private final int mWidth;
@@ -102,6 +103,7 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D, mId);
     }
 
+    @Override
     public void cleanUp() {
         glDeleteTextures(mId);
     }

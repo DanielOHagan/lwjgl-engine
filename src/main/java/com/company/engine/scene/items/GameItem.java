@@ -1,10 +1,11 @@
 package com.company.engine.scene.items;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.mesh.Mesh;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class GameItem {
+public class GameItem  implements IUsesResources {
 
     private Vector3f mPosition;
     private Quaternionf mRotation;
@@ -33,6 +34,7 @@ public class GameItem {
         mMeshArray = meshes;
     }
 
+    @Override
     public void cleanUp() {
         for (Mesh mesh : mMeshArray) {
             if (mesh != null) {

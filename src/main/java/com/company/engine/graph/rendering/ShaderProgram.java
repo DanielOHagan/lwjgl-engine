@@ -1,5 +1,6 @@
 package com.company.engine.graph.rendering;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.lighting.Attenuation;
 import com.company.engine.graph.lighting.DirectionalLight;
 import com.company.engine.graph.lighting.PointLight;
@@ -16,7 +17,7 @@ import java.util.Map;
 
 import static org.lwjgl.opengl.GL20.*;
 
-public class ShaderProgram {
+public class ShaderProgram implements IUsesResources {
 
     public static final int POSITION_VBO_INDEX = 0;
     public static final int TEXTURE_COORDINATES_VBO_INDEX = 1;
@@ -28,7 +29,7 @@ public class ShaderProgram {
     public static final int SHADER_TRUE = 1;
 
     private final int mProgramId;
-    private final Map<String, Integer> mUniforms;
+    private final Map<String, Integer> mUniformIdMap;
 
     private int mVertexShaderId;
     private int mFragmentShaderId;
@@ -39,7 +40,7 @@ public class ShaderProgram {
         if (mProgramId == 0) {
             throw new Exception("Could not create shader program");
         }
-        mUniforms = new HashMap<>();
+        mUniformIdMap = new HashMap<>();
         mBound = false;
     }
 
@@ -71,7 +72,7 @@ public class ShaderProgram {
         if (uniformLocation < 0) {
             throw new Exception("Could not find uniform in compiled shader: " + uniformName);
         }
-        mUniforms.put(uniformName, uniformLocation);
+        mUniformIdMap.put(uniformName, uniformLocation);
     }
 
     public void createUniformArray(String uniformName, int size) throws Exception {
@@ -145,7 +146,20 @@ public class ShaderProgram {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             FloatBuffer floatBuffer = stack.mallocFloat(16);
             value.get(floatBuffer);
-            glUniformMatrix4fv(mUniforms.get(uniformName), false, floatBuffer);
+            glUniformMatrix4fv(mUniformIdMap.get(uniformName), false, floatBuffer);
+        }
+    }
+
+    public void setUniform(String uniformName, Matrix4f[] matrixArray) {
+        try (MemoryStack memoryStack = MemoryStack.stackPush()) {
+            int length = matrixArray != null ? matrixArray.length : 0;
+            FloatBuffer floatBuffer = memoryStack.mallocFloat(16 * length);
+
+            for (int i = 0; i < length; i++) {
+                matrixArray[i].get(16 * i, floatBuffer);
+            }
+
+            glUniformMatrix4fv(mUniformIdMap.get(uniformName), false, floatBuffer);
         }
     }
 
@@ -155,7 +169,7 @@ public class ShaderProgram {
         }
 
         glUniform4f(
-                mUniforms.get(uniformName),
+                mUniformIdMap.get(uniformName),
                 value.x,
                 value.y,
                 value.z,
@@ -230,7 +244,7 @@ public class ShaderProgram {
         }
 
         glUniform3f(
-                mUniforms.get(uniformName),
+                mUniformIdMap.get(uniformName),
                 vector3f.x,
                 vector3f.y,
                 vector3f.z
@@ -242,7 +256,7 @@ public class ShaderProgram {
             throw new IllegalStateException("Can not create uniform when program is not bound");
         }
 
-        glUniform1f(mUniforms.get(uniformName), value);
+        glUniform1f(mUniformIdMap.get(uniformName), value);
     }
 
     public void setUniform(String uniformName, int value) {
@@ -250,7 +264,7 @@ public class ShaderProgram {
             throw new IllegalStateException("Can not create uniform when program is not bound");
         }
 
-        glUniform1i(mUniforms.get(uniformName), value);
+        glUniform1i(mUniformIdMap.get(uniformName), value);
     }
 
     public void setUniform(String uniformName, boolean value) {
@@ -258,7 +272,7 @@ public class ShaderProgram {
             throw new IllegalStateException("Can not create uniform when program is not bound");
         }
 
-        glUniform1i(mUniforms.get(uniformName), value ? SHADER_TRUE : SHADER_FALSE);
+        glUniform1i(mUniformIdMap.get(uniformName), value ? SHADER_TRUE : SHADER_FALSE);
     }
 
     public void link() throws Exception {
@@ -301,6 +315,7 @@ public class ShaderProgram {
         mBound = false;
     }
 
+    @Override
     public void cleanUp() {
         unbind();
         if (mProgramId != 0) {

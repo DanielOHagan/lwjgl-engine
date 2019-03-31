@@ -1,11 +1,13 @@
 package com.company.engine.graph.particles;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.scene.items.GameItem;
 
 import java.util.List;
 
-public interface IParticleEmitter {
+public interface IParticleEmitter extends IUsesResources {
 
+    @Override
     void cleanUp();
 
     Particle getBaseParticle();

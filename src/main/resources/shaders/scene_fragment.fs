@@ -2,15 +2,14 @@
 
 const int MAX_POINT_LIGHTS = 5;
 const int MAX_SPOT_LIGHTS = 5;
-
-const int SHADER_FALSE = 0;
 const int SHADER_TRUE = 1;
+const int SHADER_FALSE = 0;
 
 in vec2 out_texCoord;
 in vec3 out_modelViewVertexNormal;
 in vec3 out_modelViewVertexPosition;
 in mat4 out_modelViewMatrix;
-//in vec4 out_modelLightViewVertexPosition;
+in vec4 out_modelLightViewVertexPosition;
 
 out vec4 fragColour;
 
@@ -56,9 +55,9 @@ struct SpotLight {
 uniform Material material;
 uniform sampler2D textureSampler;
 uniform sampler2D normalMap;
-uniform sampler2D shadowMap;
+//uniform sampler2D shadowMap;
 
-uniform int isRenderingShadows;
+//uniform int isRenderingShadows;
 
 uniform PointLight pointLightArray[MAX_POINT_LIGHTS];
 uniform SpotLight spotLightArray[MAX_SPOT_LIGHTS];
@@ -178,34 +177,34 @@ vec3 calculateNormal(
     return newNormal;
 }
 
-float calculateShadow(vec4 position) {
-    if (isRenderingShadows == SHADER_FALSE) {
-        return 1.0;
-    }
-
-    vec3 projectionCoords = position.xyz;
-    //transform from screen coords to texture coords
-    projectionCoords = projectionCoords * 0.5 + 0.5;
-    float bias = 0.05;
-    float shadowFactor = 0.0;
-    vec2 inc = 1.0 / textureSize(shadowMap, 0);
-
-    for (int row = -1; row <= 1; ++row) {
-        for (int column = -1; column <= 1; ++column) {
-            float textureDepth =
-                texture(shadowMap, projectionCoords.xy + vec2(row, column) * inc).r;
-            shadowFactor += projectionCoords.z - bias > textureDepth ? 1.0 : 0.0;
-        }
-    }
-
-    shadowFactor /= 9.0;
-
-    if (projectionCoords.z > 1.0) {
-        shadowFactor = 1.0;
-    }
-
-    return 1 - shadowFactor;
-}
+//float calculateShadow(vec4 position) {
+//    if (isRenderingShadows == SHADER_TRUE) {
+//        return 1.0;
+//    }
+//
+//    vec3 projectionCoords = position.xyz;
+//    //transform from screen coords to texture coords
+//    projectionCoords = projectionCoords * 0.5 + 0.5;
+//    float bias = 0.05;
+//    float shadowFactor = 0.0;
+//    vec2 inc = 1.0 / textureSize(shadowMap, 0);
+//
+//    for (int row = -1; row <= 1; ++row) {
+//        for (int column = -1; column <= 1; ++column) {
+//            float textureDepth =
+//                texture(shadowMap, projectionCoords.xy + vec2(row, column) * inc).r;
+//            shadowFactor += projectionCoords.z - bias > textureDepth ? 1.0 : 0.0;
+//        }
+//    }
+//
+//    shadowFactor /= 9.0;
+//
+//    if (projectionCoords.z > 1.0) {
+//        shadowFactor = 1.0;
+//    }
+//
+//    return 1 - shadowFactor;
+//}
 
 void main() {
     configureColours(material, out_texCoord);
@@ -251,10 +250,10 @@ void main() {
         }
     }
 
-//    float shadow = calculateShadow(out_modelLightViewVertexPosition);
+    //float shadow = calculateShadow(out_modelLightViewVertexPosition);
 
     ambientComponent *= vec4(ambientLight, 1.0);
 
     fragColour = clamp(ambientComponent +
-        diffuseSpecularComponent /* *shadow*/, 0, 1);
+        diffuseSpecularComponent  /* * shadow */, 0, 1);
 }

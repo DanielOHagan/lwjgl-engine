@@ -164,6 +164,20 @@ public class InstancedMesh extends Mesh {
     }
 
     public void renderInstancedList(
+            List<GameItem> gameItemList,
+            Transformation transformation,
+            Matrix4f viewMatrix
+    ) {
+        renderInstancedList(
+                gameItemList,
+                false,
+                transformation,
+                viewMatrix,
+                null
+        );
+    }
+
+    public void renderInstancedList(
             List<GameItem> gameItems,
             boolean billboard,
             Transformation transformation,
@@ -223,14 +237,14 @@ public class InstancedMesh extends Mesh {
                 modelViewMatrix.get(INSTANCE_SIZE_FLOATS * i, mInstanceDataBuffer);
             }
 
-            if (lightViewMatrix != null) {
+//            if (lightViewMatrix != null) {
 //                Matrix4f modelLightViewMatrix =
 //                        transformation.generateModelLightViewMatrix(modelMatrix, lightViewMatrix);
 //                modelLightViewMatrix.get(
 //                        INSTANCE_SIZE_FLOATS * i + MATRIX_SIZE_FLOATS,
 //                        mInstanceDataBuffer
 //                );
-            }
+//            }
 
             //texture offsets
             if (texture != null) {
@@ -242,7 +256,6 @@ public class InstancedMesh extends Mesh {
                 mInstanceDataBuffer.put(bufferPosition, textOffsetX);
                 mInstanceDataBuffer.put(bufferPosition + 1, textOffsetY);
             }
-
 
             i++;
         }

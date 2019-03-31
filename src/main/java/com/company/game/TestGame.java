@@ -2,7 +2,6 @@ package com.company.game;
 
 import com.company.engine.IGameLogic;
 import com.company.engine.audio.*;
-import com.company.engine.graph.lighting.Attenuation;
 import com.company.engine.graph.lighting.DirectionalLight;
 import com.company.engine.graph.lighting.PointLight;
 import com.company.engine.graph.lighting.SpotLight;
@@ -16,12 +15,9 @@ import com.company.engine.loaders.ObjLoader;
 import com.company.engine.loaders.assimp.StaticMeshesLoader;
 import com.company.engine.scene.SceneLighting;
 import com.company.engine.scene.items.*;
-import com.company.engine.utils.ArrayUtils;
-import com.company.engine.utils.MeshUtils;
 import com.company.engine.window.Window;
 import com.company.engine.input.*;
 import com.company.engine.scene.Scene;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.openal.AL11;
@@ -94,7 +90,8 @@ public class TestGame implements IGameLogic {
 
 
         Material quadMaterial = new Material(new Vector4f(0.0f, 0.0f, 1.0f, 1.0f), reflectance);
-        Mesh[] quadMesh = StaticMeshesLoader.loadMeshes("src/main/resources/models/plane.obj", quadMaterial, 1, MeshType.STANDARD);
+        Mesh[] quadMesh = StaticMeshesLoader.loadMeshes(
+                "src/main/resources/models/plane.obj", quadMaterial, 1, MeshType.STANDARD);
         GameItem quadGameItem = new GameItem(quadMesh);
         quadGameItem.setPosition(0, -1, 0);
         quadGameItem.setScale(2.5f);

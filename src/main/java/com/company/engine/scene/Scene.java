@@ -1,5 +1,6 @@
 package com.company.engine.scene;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
@@ -14,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Scene {
+public class Scene implements IUsesResources {
 
     private IHud mHud;
     private Map<Mesh, List<GameItem>> mGameItemMeshMap; //stores GameItems based on their Mesh
@@ -58,6 +59,7 @@ public class Scene {
         }
     }
 
+    @Override
     public void cleanUp() {
         if (mHud != null) {
             mHud.cleanUp();

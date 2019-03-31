@@ -2,6 +2,8 @@
 
 const int MAX_WEIGHTS = 4;
 const int MAX_JOINTS = 150;
+const int SHADER_TRUE = 1;
+const int SHADER_FALSE = 0;
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texCoord;
@@ -34,7 +36,7 @@ void main() {
     mat4 modelViewMatrix;
 //    mat4 modelLightViewMatrix;
 
-    if (isInstanced > 0) {
+    if (isInstanced == SHADER_TRUE) {
         modelViewMatrix = instancedModelViewMatrix;
 //        modelLightViewMatrix = instancedModelLightViewMatrix;
 

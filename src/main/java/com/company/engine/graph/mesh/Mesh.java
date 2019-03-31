@@ -1,6 +1,8 @@
 package com.company.engine.graph.mesh;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.material.*;
+import com.company.engine.graph.material.Texture;
 import com.company.engine.scene.items.GameItem;
 import org.lwjgl.system.MemoryUtil;
 
@@ -13,7 +15,7 @@ import java.util.function.Consumer;
 import static com.company.engine.graph.rendering.ShaderProgram.*;
 import static org.lwjgl.opengl.GL30.*;
 
-public class Mesh {
+public class Mesh implements IUsesResources {
 
     public static final int MAX_WEIGHTS = 4;
 
@@ -308,6 +310,7 @@ public class Mesh {
         glDeleteVertexArrays(mVaoId);
     }
 
+    @Override
     public void cleanUp() {
         deleteBuffers();
 
