@@ -47,7 +47,8 @@ public class InstancedMesh extends Mesh {
                 ArrayUtils.createFloatArray(
                         MAX_WEIGHTS * positionArray.length / 3,
                         0
-                )
+                ),
+                false
         );
 
         mNumberOfInstances = numberOfInstances;

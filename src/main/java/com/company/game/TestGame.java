@@ -169,19 +169,19 @@ public class TestGame implements IGameLogic {
 
 //        mScene.addSceneGameItems(gameItems);
 
-        Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/walker/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj",
-                "src/main/resources/models/walker",
-                1,
-                MeshType.STANDARD
-        );
-
-
-        MeshUtils.setBoundingRadius(legoManMeshes, 15f);
-        MeshUtils.setColour(legoManMeshes, new Vector4f(1, 1, 1, 1));
-
-        GameItem gameItem = new GameItem(legoManMeshes);
-        gameItem.setIgnoresFrustumCulling(true);
+//        Mesh[] legoManMeshes = StaticMeshesLoader.loadMeshes(
+//                "src/main/resources/models/walker/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj",
+//                "src/main/resources/models/walker",
+//                1,
+//                MeshType.STANDARD
+//        );
+//
+//
+//        MeshUtils.setBoundingRadius(legoManMeshes, 15f);
+//        MeshUtils.setColour(legoManMeshes, new Vector4f(1, 1, 1, 1));
+//
+//        GameItem gameItem = new GameItem(legoManMeshes);
+//        gameItem.setIgnoresFrustumCulling(true);
 //        gameItem.setUsingTexture(true);
 //        gameItem.setRotation(new Quaternionf(1, 0, 0, 0));
 
@@ -190,7 +190,7 @@ public class TestGame implements IGameLogic {
 //        gameItem.getMeshArray()[1].getMaterial().setUsingTexture(false);
 //        gameItem.getMeshArray()[1].getMaterial().setColour(new Vector4f(1, 0, 1, 1));
 //
-        mScene.addSceneGameItems(new GameItem[] {gameItem});
+//        mScene.addSceneGameItems(new GameItem[] {gameItem});
 //
         Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
         Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
@@ -227,6 +227,29 @@ public class TestGame implements IGameLogic {
 //
         camPointLight = new PointLight(new Vector3f(mCamera.getPosition()), new Vector3f(1, 0, 1), lightIntensity, true);
         pointLightList.add(camPointLight);
+
+        Mesh[] houseMeshCulled = StaticMeshesLoader.loadMeshes(
+                "src/main/resources/models/house/house.obj",
+                "src/main/resources/models/house",
+                1,
+                MeshType.STANDARD
+        );
+        MeshUtils.setCullingFaces(houseMeshCulled, true);
+        GameItem houseCullFaceTrue = new GameItem(houseMeshCulled);
+        MeshUtils.setCullingFaces(houseMeshCulled, true);
+
+        Mesh[] houseMeshCulledFalse = StaticMeshesLoader.loadMeshes(
+                "src/main/resources/models/house/house.obj",
+                "src/main/resources/models/house",
+                1,
+                MeshType.STANDARD
+        );
+        MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
+        GameItem houseCullFaceFalse = new GameItem(houseMeshCulledFalse);
+        MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
+        houseCullFaceFalse.setPosition(0, 0, -50);
+
+        mScene.addSceneGameItems(new GameItem[]{houseCullFaceFalse, houseCullFaceTrue});
 //
 //        // Spot Light
 //        lightPosition = new Vector3f(0, 0.0f, 10f);

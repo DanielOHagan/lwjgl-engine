@@ -59,6 +59,7 @@ public class StaticMeshesLoader {
             MeshType meshType
     ) throws Exception {
         AIScene aiScene = aiImportFile(filePath, flags);
+        ModelFileType modelFileType = determineFileType(filePath);
 
         checkForErrors(aiScene, instances, meshType);
 
@@ -69,11 +70,21 @@ public class StaticMeshesLoader {
         if (aiMaterials != null) {
             for (int i = 0; i < numMaterials; i++) {
                 AIMaterial aiMaterial = AIMaterial.create(aiMaterials.get(i));
-                processMaterial(aiMaterial, materialList, texturesDirectory);
+                processMaterial(aiMaterial, materialList, texturesDirectory, modelFileType);
             }
         }
 
         return generateMeshArray(aiScene, materialList, instances, meshType);
+    }
+
+    private static ModelFileType determineFileType(String filePath) {
+        for (ModelFileType modelFileType : ModelFileType.values()) {
+            if (filePath.contains(modelFileType.getFileExtension())) {
+                return modelFileType;
+            }
+        }
+
+        return ModelFileType.UNKNOWN;
     }
 
     public static Mesh[] loadMeshes(
@@ -97,7 +108,8 @@ public class StaticMeshesLoader {
     private static void processMaterial(
             AIMaterial aiMaterial,
             List<Material> materialList,
-            String texturesDirectory
+            String texturesDirectory,
+            ModelFileType modelFileType
     ) throws Exception {
         AIColor4D colour = AIColor4D.create();
         AIString aiStringTexturePath = AIString.calloc();
@@ -115,9 +127,8 @@ public class StaticMeshesLoader {
          */
         loadTexturePath(aiMaterial, aiTextureType_HEIGHT, aiStringNormalPath);
 
-        Texture texture = loadTexture(aiStringTexturePath, texturesDirectory);
-        Texture normalMap = loadTexture(aiStringNormalPath, texturesDirectory);
-
+        Texture texture = loadTexture(aiStringTexturePath, texturesDirectory, modelFileType);
+        Texture normalMap = loadTexture(aiStringNormalPath, texturesDirectory, modelFileType);
 
         Vector4f ambient = Material.DEFAULT_COLOUR;
         loadMeshLightValue(aiMaterial, ambient, AI_MATKEY_COLOR_AMBIENT, colour);
@@ -156,20 +167,52 @@ public class StaticMeshesLoader {
         );
     }
 
-    private static Texture loadTexture(AIString aiString, String texturesDirectory) throws Exception{
+    private static Texture loadTexture(
+            AIString aiString,
+            String texturesDirectory,
+            ModelFileType modelFileType
+    ) throws Exception{
         String texturePath = aiString.dataString();
 
         if (texturePath != null && texturePath.length() > 0) {
 
-            if (texturePath.contains("..\\")) {
-                texturePath = texturePath.replace("..\\", "");
+            texturePath = cleanTextureFilePath(texturePath, modelFileType);
+
+            if (texturePath == null) {
+                return null;
             }
 
             TextureCache textureCache = TextureCache.getInstance();
+
             return textureCache.getTexture(texturesDirectory + "/" + texturePath);
         }
 
         return null;
+    }
+
+    private static String cleanTextureFilePath(
+            String texturePath,
+            ModelFileType modelFileType
+    ) {
+
+        texturePath = texturePath.replace("..\\", "");
+        texturePath = texturePath.replace("//", "/");
+
+        switch (modelFileType) {
+            case OBJ:
+                //remove make texture null if it contains texture map statement arguments
+                if (texturePath.contains(" -")) {
+                    return null;
+                }
+                break;
+            case ANY:
+                break;
+            case UNKNOWN:
+
+                break;
+        }
+
+        return texturePath;
     }
 
     private static void loadMeshLightValue(

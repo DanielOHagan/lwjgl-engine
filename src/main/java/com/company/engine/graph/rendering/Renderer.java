@@ -55,12 +55,14 @@ public class Renderer implements IUsesResources {
     private final Transformation mTransformation;
     private final float mSpecularPower;
 
-    private Map<Integer, ShaderProgram> mShaderProgramMap;
-
     //Frustum culling
     private final FrustumFilter mFrustumFilter;
     private final List<GameItem> mFilteredGameItemList;
     private final List<IParticleEmitter> mFilteredParticleEmitterList;
+
+    private Map<Integer, ShaderProgram> mShaderProgramMap;
+
+    private boolean mCullingFacesEnabled;
 
     //Shadows
 //    private ShadowMap mShadowMap;
@@ -91,6 +93,8 @@ public class Renderer implements IUsesResources {
         setUpSceneShader();
         setUpParticleShader();
         setUpHudShader();
+
+        mCullingFacesEnabled = window.getOptions().enableCullFaces;
     }
 
     private void setUpDepthShader() throws Exception {
@@ -406,7 +410,8 @@ public class Renderer implements IUsesResources {
                     scene,
                     sceneShaderProgram,
                     viewMatrix,
-                    lightViewMatrix
+                    lightViewMatrix,
+                    window.getOptions().enableCullFaces
             );
         }
 
@@ -415,7 +420,8 @@ public class Renderer implements IUsesResources {
                     scene,
                     sceneShaderProgram,
                     viewMatrix,
-                    lightViewMatrix
+                    lightViewMatrix,
+                    window.getOptions().enableCullFaces
             );
         }
 
@@ -505,10 +511,50 @@ public class Renderer implements IUsesResources {
             Scene scene,
             ShaderProgram shaderProgram,
             Matrix4f viewMatrix,
-            Matrix4f lightViewMatrix
+            Matrix4f lightViewMatrix,
+            boolean windowCullsFaces
     ) {
 //        boolean isDepthShader = shaderProgram == mShaderProgramMap.get(DEPTH_SHADER_KEY);
-        Map<Mesh, List<GameItem>> meshGameItemMap = scene.getGameItemMeshMap();
+        Map<Mesh, List<GameItem>> meshGameItemMap;
+
+        if (windowCullsFaces) {
+            Map<Mesh, List<GameItem>> cullFacesEnabledMeshMap =
+                    generateCullFacesMeshMap(
+                            scene.getGameItemMeshMap(),
+                            true
+                    );
+
+            Map<Mesh, List<GameItem>> cullFacesDisabledMeshMap =
+                    generateCullFacesMeshMap(
+                            scene.getGameItemMeshMap(),
+                            false
+                    );
+
+            //replace meshGameItemMap with the two above
+            meshGameItemMap = new HashMap<>();
+
+            //populate meshGameItemMap with cull faces enabled meshes
+            for (Mesh mesh :
+                    cullFacesEnabledMeshMap.keySet()
+            ) {
+                meshGameItemMap.put(
+                        mesh,
+                        cullFacesEnabledMeshMap.get(mesh)
+                );
+            }
+
+            //populate meshGameItemMap with cull faces disabled meshes
+            for (Mesh mesh :
+                    cullFacesDisabledMeshMap.keySet()
+            ) {
+                meshGameItemMap.put(
+                        mesh,
+                        cullFacesDisabledMeshMap.get(mesh)
+                );
+            }
+        } else {
+            meshGameItemMap = scene.getGameItemMeshMap();
+        }
 
         mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform(
                 "isInstanced",
@@ -516,6 +562,12 @@ public class Renderer implements IUsesResources {
         );
 
         for (Mesh mesh : meshGameItemMap.keySet()) {
+            if (mesh.isCullingFaces()) {
+                enableFaceCulling(true);
+            } else {
+                enableFaceCulling(false);
+            }
+
             if (viewMatrix != null) {
                 shaderProgram.setUniform("material", mesh.getMaterial());
 
@@ -589,15 +641,61 @@ public class Renderer implements IUsesResources {
             Scene scene,
             ShaderProgram shaderProgram,
             Matrix4f viewMatrix,
-            Matrix4f lightViewMatrix
+            Matrix4f lightViewMatrix,
+            boolean windowCullsFaces
     ) {
 //        boolean isDepthShader = shaderProgram == mShaderProgramMap.get(DEPTH_SHADER_KEY);
 
-        shaderProgram.setUniform("isInstanced", 1);
+        shaderProgram.setUniform("isInstanced", ShaderProgram.SHADER_TRUE);
 
-        Map<InstancedMesh, List<GameItem>> instancedMeshMap = scene.getGameItemInstancedMeshMap();
+        Map<InstancedMesh, List<GameItem>> instancedMeshMap;
+
+        if (windowCullsFaces) {
+            Map<InstancedMesh, List<GameItem>> cullFacesEnabledInstancedMeshMap =
+                    generateCullFacesInstancedMeshMap(
+                            scene.getGameItemInstancedMeshMap(),
+                            true
+                    );
+
+            Map<InstancedMesh, List<GameItem>> cullFacesDisabledInstancedMeshMap =
+                    generateCullFacesInstancedMeshMap(
+                            scene.getGameItemInstancedMeshMap(),
+                            false
+                    );
+
+            //replace instancedMeshMap with the two above
+            instancedMeshMap = new HashMap<>();
+
+            //populate instancedMeshMap with cull faces enabled meshes
+            for (InstancedMesh instancedMesh :
+                    cullFacesEnabledInstancedMeshMap.keySet()
+            ) {
+                instancedMeshMap.put(
+                        instancedMesh,
+                        cullFacesEnabledInstancedMeshMap.get(instancedMesh)
+                );
+            }
+
+            //populate instancedMeshMap with cull faces disabled meshes
+            for (InstancedMesh instancedMesh :
+                    cullFacesDisabledInstancedMeshMap.keySet()
+            ) {
+                instancedMeshMap.put(
+                        instancedMesh,
+                        cullFacesDisabledInstancedMeshMap.get(instancedMesh)
+                );
+            }
+        } else {
+            instancedMeshMap = scene.getGameItemInstancedMeshMap();
+        }
 
         for (InstancedMesh mesh : instancedMeshMap.keySet()) {
+            if (mesh.isCullingFaces()) {
+                enableFaceCulling(true);
+            } else {
+                enableFaceCulling(false);
+            }
+
             Texture texture = mesh.getMaterial().getTexture();
 
             if (texture != null) {
@@ -614,9 +712,9 @@ public class Renderer implements IUsesResources {
 //                }
             }
 
-            if (lightViewMatrix != null /*&& !isDepthShader*/) {
-                shaderProgram.setUniform("lightViewMatrix", lightViewMatrix);
-            }
+//            if (lightViewMatrix != null /*&& !isDepthShader*/) {
+//                shaderProgram.setUniform("lightViewMatrix", lightViewMatrix);
+//            }
 
             mFrustumFilter.populateFilteredList(
                     instancedMeshMap.get(mesh),
@@ -884,6 +982,74 @@ public class Renderer implements IUsesResources {
                             modelViewMatrix
                     );
                 });
+    }
+
+    /**
+     * Enable GL face culling if it is not already enabled.
+     *
+     * The use of the member boolean mCullingFacesEnabled is
+     * to keep track of whether GL_CULL_FACE is currently enabled,
+     * this allows the engine to prevent needless calls to enable or disable
+     * GL_CULL_FACE.
+     *
+     * @param isFaceCulling Whether the current Window is allowing face culling
+     */
+    private void enableFaceCulling(boolean isFaceCulling) {
+        if (isFaceCulling && !mCullingFacesEnabled) {
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_BACK);
+            mCullingFacesEnabled = true;
+        } else if (!isFaceCulling && mCullingFacesEnabled){
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_BACK);
+            mCullingFacesEnabled = false;
+        }
+    }
+
+    /**
+     * Sorts a Mesh GameItem Map to return a Map with
+     * the Meshes that either allow or disallow Face Culling
+     *
+     * @param meshGameItemMap The Map to be sorted
+     * @param getCullFaceEnableMeshes Whether to sort for Face Culling enable or disabled
+     * @return The sorted Map
+     */
+    private Map<Mesh, List<GameItem>> generateCullFacesMeshMap(
+            Map<Mesh, List<GameItem>> meshGameItemMap,
+            boolean getCullFaceEnableMeshes
+    ) {
+        Map<Mesh, List<GameItem>> result = new HashMap<>();
+
+        for (Mesh mesh : meshGameItemMap.keySet()) {
+            if (mesh.isCullingFaces() == getCullFaceEnableMeshes) {
+                result.put(mesh, meshGameItemMap.get(mesh));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Sorts an InstancedMesh GameItem Map to return a Map with
+     * the Meshes that either allow or disallow Face Culling
+     *
+     * @param meshGameItemMap The Map to be sorted
+     * @param getCullFaceEnableMeshes Whether to sort for Face Culling enable or disabled
+     * @return The sorted Map
+     */
+    private Map<InstancedMesh, List<GameItem>> generateCullFacesInstancedMeshMap(
+            Map<InstancedMesh, List<GameItem>> meshGameItemMap,
+            boolean getCullFaceEnableMeshes
+    ) {
+        Map<InstancedMesh, List<GameItem>> result = new HashMap<>();
+
+        for (InstancedMesh mesh : meshGameItemMap.keySet()) {
+            if (mesh.isCullingFaces() == getCullFaceEnableMeshes) {
+                result.put(mesh, meshGameItemMap.get(mesh));
+            }
+        }
+
+        return result;
     }
 
     public void clear() {

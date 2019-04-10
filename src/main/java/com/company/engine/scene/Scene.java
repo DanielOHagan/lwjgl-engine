@@ -48,6 +48,7 @@ public class Scene implements IUsesResources {
 
             for (Mesh mesh : meshes) {
                 boolean isInstanced = mesh instanceof InstancedMesh;
+
                 List<GameItem> gameItemList = isInstanced ?
                         mGameItemInstancedMesh.get(mesh) : mGameItemMeshMap.get(mesh);
 

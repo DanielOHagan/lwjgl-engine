@@ -46,7 +46,8 @@ public class Mesh implements IUsesResources {
                 normalArray,
                 indexArray,
                 null,
-                null
+                null,
+                false
         );
     }
 
@@ -56,7 +57,8 @@ public class Mesh implements IUsesResources {
             float[] normalArray,
             int[] indexArray,
             int[] jointIndexArray,
-            float[] weightArray
+            float[] weightArray,
+            boolean cullingFaces
     ) {
         initialiseMesh(
                 positionArray,
@@ -66,7 +68,7 @@ public class Mesh implements IUsesResources {
                 jointIndexArray,
                 weightArray
         );
-        mCullingFaces = true;
+        mCullingFaces = cullingFaces;
     }
 
     /**

@@ -113,4 +113,12 @@ public class MeshUtils {
             }
         }
     }
+
+    public static void setCullingFaces(Mesh[] meshArray, boolean cullingFaces) {
+        for (Mesh mesh : meshArray) {
+            if (mesh != null) {
+                mesh.setCullingFaces(cullingFaces);
+            }
+        }
+    }
 }
