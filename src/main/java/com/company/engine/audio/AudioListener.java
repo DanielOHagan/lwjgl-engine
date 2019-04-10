@@ -33,6 +33,7 @@ public class AudioListener {
         data[0] = at.x;
         data[1] = at.y;
         data[2] = at.z;
+
         data[3] = up.x;
         data[4] = up.y;
         data[5] = up.z;

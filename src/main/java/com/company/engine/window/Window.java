@@ -1,7 +1,6 @@
 package com.company.engine.window;
 
 import org.joml.Matrix4f;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -191,7 +190,7 @@ public class Window {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
 
-        if (mOptions.cullFace) {
+        if (mOptions.enableCullFaces) {
             glEnable(GL_CULL_FACE);
             glEnable(GL_BACK);
         }

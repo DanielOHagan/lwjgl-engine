@@ -5,7 +5,6 @@ import com.company.engine.IGameLogic;
 import com.company.engine.window.WindowMode;
 import com.company.engine.window.WindowOptions;
 import com.company.game.TestGame;
-import com.company.game.audio.AudioSynthTest;
 
 public class Main {
 
@@ -22,7 +21,7 @@ public class Main {
             options.vSync = false;
             options.resizable = true;
             options.showMeshLines = false;
-            options.cullFace = true;
+            options.enableCullFaces = true;
             options.showFps = true;
             options.frustumCulling = true;
             options.applicationUpdatesCamera = true;

@@ -20,8 +20,8 @@ uniform mat4 projectionMatrix;
 //uniform mat4 orthoProjectionMatrix;
 //uniform mat4 lightViewMatrix;
 
-uniform int numColumns;
-uniform int numRows;
+uniform int textureColumnCount;
+uniform int textureRowCount;
 
 out vec2 out_texCoord;
 out vec3 out_modelViewVertexNormal;
@@ -57,7 +57,11 @@ void main() {
 
     vec4 vertexPosition = modelViewMatrix * positionTemp;
 
-    out_texCoord = texCoord;
+    //texture atlas
+    float x = (texCoord.x / textureColumnCount + textOffset.x);
+    float y = (texCoord.y / textureRowCount + textOffset.y);
+
+    out_texCoord = vec2(x, y);
     out_modelViewMatrix = modelViewMatrix;
     out_modelViewVertexNormal = normalize(modelViewMatrix * normalTemp).xyz;
     out_modelViewVertexPosition = vertexPosition.xyz;

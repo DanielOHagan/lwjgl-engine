@@ -13,8 +13,8 @@ out vec2 outTexCoord;
 
 uniform int isInstanced;
 uniform mat4 projectionMatrix;
-uniform int numColumns;
-uniform int numRows;
+uniform int textureColumnCount;
+uniform int textureRowCount;
 
 uniform mat4 nonInstancedModelViewMatrix;
 uniform float nonInstancedTextOffsetX;
@@ -30,15 +30,15 @@ void main() {
         modelViewMatrixTemp = instancedModelViewMatrix;
 
         //for texture atlas
-        x = (texCoord.x / numColumns + textOffset.x);
-        y = (texCoord.y / numRows + textOffset.y);
+        x = (texCoord.x / textureColumnCount + textOffset.x);
+        y = (texCoord.y / textureRowCount + textOffset.y);
 
     } else { //is not instanced
         modelViewMatrixTemp = nonInstancedModelViewMatrix;
 
         //for texture atlas
-        x = (texCoord.x / numColumns + nonInstancedTextOffsetX);
-        y = (texCoord.y / numRows + nonInstancedTextOffsetY);
+        x = (texCoord.x / textureColumnCount + nonInstancedTextOffsetX);
+        y = (texCoord.y / textureRowCount + nonInstancedTextOffsetY);
     }
 
     gl_Position = projectionMatrix * modelViewMatrixTemp * vec4(position, 1.0);

@@ -38,7 +38,7 @@ public class Renderer implements IUsesResources {
      * Integer Keys storing the location of
      * ShaderPrograms in mShaderProgramMap.
      */
-    private static final Integer DEPTH_SHADER_KEY = 0;
+    private static final int DEPTH_SHADER_KEY = 0;
     private static final Integer SKY_BOX_SHADER_KEY = 1;
     private static final Integer SCENE_SHADER_KEY = 2;
     private static final Integer PARTICLE_SHADER_KEY = 3;
@@ -93,7 +93,7 @@ public class Renderer implements IUsesResources {
         setUpHudShader();
     }
 
-    protected void setUpDepthShader() throws Exception {
+    private void setUpDepthShader() throws Exception {
         ShaderProgram depthShaderProgram = new ShaderProgram();
         depthShaderProgram.createVertexShader(FileUtils.loadResource(
                 "/shaders/depth_vertex.vs"
@@ -111,7 +111,7 @@ public class Renderer implements IUsesResources {
         mShaderProgramMap.put(DEPTH_SHADER_KEY, depthShaderProgram);
     }
 
-    protected void setUpSkyBoxShader() throws Exception {
+    private void setUpSkyBoxShader() throws Exception {
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.createVertexShader(FileUtils.loadResource(
                 "/shaders/skyBox_vertex.vs"
@@ -135,7 +135,7 @@ public class Renderer implements IUsesResources {
         mShaderProgramMap.put(SKY_BOX_SHADER_KEY, shaderProgram);
     }
 
-    protected void setUpSceneShader() throws Exception {
+    private void setUpSceneShader() throws Exception {
         ShaderProgram sceneShaderProgram = new ShaderProgram();
         sceneShaderProgram.createVertexShader(FileUtils.loadResource(
                 "/shaders/scene_vertex.vs"
@@ -157,6 +157,8 @@ public class Renderer implements IUsesResources {
         //textures
         sceneShaderProgram.createUniform("textureSampler");
         sceneShaderProgram.createUniform("normalMap");
+        sceneShaderProgram.createUniform("textureColumnCount");
+        sceneShaderProgram.createUniform("textureRowCount");
 //        sceneShaderProgram.createUniform("shadowMap");
 
         //material
@@ -180,7 +182,7 @@ public class Renderer implements IUsesResources {
         mShaderProgramMap.put(SCENE_SHADER_KEY, sceneShaderProgram);
     }
 
-    protected void setUpParticleShader() throws Exception {
+    private void setUpParticleShader() throws Exception {
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.createVertexShader(FileUtils.loadResource(
                 "/shaders/particle_vertex.vs"
@@ -196,8 +198,8 @@ public class Renderer implements IUsesResources {
                         "projectionMatrix",
                         "nonInstancedModelViewMatrix",
 //                        "viewMatrix",
-                        "numColumns",
-                        "numRows",
+                        "textureColumnCount",
+                        "textureRowCount",
                         "textureSampler",
                         "nonInstancedTextOffsetX",
                         "nonInstancedTextOffsetY",
@@ -211,7 +213,7 @@ public class Renderer implements IUsesResources {
         mShaderProgramMap.put(PARTICLE_SHADER_KEY, shaderProgram);
     }
 
-    protected void setUpHudShader() throws Exception {
+    private void setUpHudShader() throws Exception {
         ShaderProgram shaderProgram = new ShaderProgram();
         shaderProgram.createVertexShader(FileUtils.loadResource(
                 "/shaders/hud_vertex.vs"
@@ -242,7 +244,11 @@ public class Renderer implements IUsesResources {
         glViewport(0, 0, window.getWidth(), window.getHeight());
 
         //Update projection matrix once per render cycle
-        window.updateProjectionMatrix(camera.getFov(), camera.getViewDistanceStart(), camera.getViewDistanceEnd());
+        window.updateProjectionMatrix(
+                camera.getFov(),
+                camera.getViewDistanceStart(),
+                camera.getViewDistanceEnd()
+        );
 
         if (!window.getOptions().applicationUpdatesCamera) {
             camera.updateViewMatrix();
@@ -350,7 +356,7 @@ public class Renderer implements IUsesResources {
 //        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 //    }
 
-    protected void filter(Window window, Scene scene, Matrix4f viewMatrix) {
+    private void filter(Window window, Scene scene, Matrix4f viewMatrix) {
         //filter items outside of the camera's view frustum before rendering
         if (window.getOptions().frustumCulling) {
             mFrustumFilter.updateFrustum(window.getProjectionMatrix(), viewMatrix);
@@ -363,7 +369,7 @@ public class Renderer implements IUsesResources {
         }
     }
 
-    protected void renderScene(Window window, Camera camera, Scene scene) {
+    private void renderScene(Window window, Camera camera, Scene scene) {
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f lightViewMatrix = mTransformation.getLightViewMatrix();
         ShaderProgram sceneShaderProgram = mShaderProgramMap.get(SCENE_SHADER_KEY);
@@ -423,7 +429,7 @@ public class Renderer implements IUsesResources {
         sceneShaderProgram.unbind();
     }
 
-    protected void renderSceneLighting(
+    private void renderSceneLighting(
             Matrix4f viewMatrix,
             SceneLighting sceneLighting
     ) {
@@ -495,13 +501,13 @@ public class Renderer implements IUsesResources {
         }
     }
 
-    protected void renderNonInstancedMeshes(
+    private void renderNonInstancedMeshes(
             Scene scene,
             ShaderProgram shaderProgram,
             Matrix4f viewMatrix,
             Matrix4f lightViewMatrix
     ) {
-        boolean isDepthShader = shaderProgram == mShaderProgramMap.get(DEPTH_SHADER_KEY);
+//        boolean isDepthShader = shaderProgram == mShaderProgramMap.get(DEPTH_SHADER_KEY);
         Map<Mesh, List<GameItem>> meshGameItemMap = scene.getGameItemMeshMap();
 
         mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform(
@@ -522,8 +528,14 @@ public class Renderer implements IUsesResources {
             Texture texture = mesh.getMaterial().getTexture();
 
             if (texture != null) {
-//                mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform("columnNumber", texture.getNumColumns());
-//                mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform("rowNumber", texture.getNumRows());
+                mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform(
+                        "textureColumnCount",
+                        texture.getNumColumns()
+                );
+                mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform(
+                        "textureRowCount",
+                        texture.getNumRows()
+                );
             }
 
             mFilteredGameItemList.clear();
@@ -537,16 +549,16 @@ public class Renderer implements IUsesResources {
                 Matrix4f modelMatrix =
                         mTransformation.generateModelMatrix(gameItem);
 
-                if (isDepthShader) {
-                    Matrix4f modelLightViewMatrix =
-                            mTransformation.generateModelLightViewMatrix(modelMatrix, lightViewMatrix);
-
-
-                    shaderProgram.setUniform(
-                            "nonInstancedModelLightViewMatrix",
-                            modelLightViewMatrix
-                    );
-                }
+//                if (isDepthShader) {
+//                    Matrix4f modelLightViewMatrix =
+//                            mTransformation.generateModelLightViewMatrix(modelMatrix, lightViewMatrix);
+//
+//
+//                    shaderProgram.setUniform(
+//                            "nonInstancedModelLightViewMatrix",
+//                            modelLightViewMatrix
+//                    );
+//                }
 
                 if (viewMatrix != null) {
                     mShaderProgramMap.get(SCENE_SHADER_KEY).setUniform(
@@ -573,13 +585,13 @@ public class Renderer implements IUsesResources {
     TODO:
     Currently does not support animations
      */
-    protected void renderInstancedMeshes(
+    private void renderInstancedMeshes(
             Scene scene,
             ShaderProgram shaderProgram,
             Matrix4f viewMatrix,
             Matrix4f lightViewMatrix
     ) {
-        boolean isDepthShader = shaderProgram == mShaderProgramMap.get(DEPTH_SHADER_KEY);
+//        boolean isDepthShader = shaderProgram == mShaderProgramMap.get(DEPTH_SHADER_KEY);
 
         shaderProgram.setUniform("isInstanced", 1);
 
@@ -589,8 +601,8 @@ public class Renderer implements IUsesResources {
             Texture texture = mesh.getMaterial().getTexture();
 
             if (texture != null) {
-//                shaderProgram.setUniform("columnNumber", texture.getNumColumns());
-//                shaderProgram.setUniform("rowNumber", texture.getNumRows());
+                shaderProgram.setUniform("textureColumnCount", texture.getNumColumns());
+                shaderProgram.setUniform("textureRowCount", texture.getNumRows());
             }
 
             if (viewMatrix != null) {
@@ -602,7 +614,7 @@ public class Renderer implements IUsesResources {
 //                }
             }
 
-            if (lightViewMatrix != null && !isDepthShader) {
+            if (lightViewMatrix != null /*&& !isDepthShader*/) {
                 shaderProgram.setUniform("lightViewMatrix", lightViewMatrix);
             }
 
@@ -620,7 +632,7 @@ public class Renderer implements IUsesResources {
         }
     }
 
-    protected void renderHud(Window window, Camera camera, Scene scene) {
+    private void renderHud(Window window, Camera camera, Scene scene) {
         ShaderProgram hudShaderProgram = mShaderProgramMap.get(HUD_SHADER_KEY);
         hudShaderProgram.bind();
 
@@ -650,7 +662,7 @@ public class Renderer implements IUsesResources {
         hudShaderProgram.unbind();
     }
 
-    protected void renderSkyBox(Window window, Camera camera, Scene scene) {
+    private void renderSkyBox(Window window, Camera camera, Scene scene) {
         SkyBox skybox = scene.getSkyBox();
         Matrix4f vm = camera.getViewMatrix();
         ShaderProgram skyBoxShaderProgram = mShaderProgramMap.get(SKY_BOX_SHADER_KEY);
@@ -701,7 +713,7 @@ public class Renderer implements IUsesResources {
         skyBoxShaderProgram.unbind();
     }
 
-    protected void renderParticles(
+    private void renderParticles(
             Window window,
             Camera camera,
             Scene scene
@@ -738,7 +750,7 @@ public class Renderer implements IUsesResources {
         particleShaderProgram.unbind();
     }
 
-    protected void renderParticleEmitters(
+    private void renderParticleEmitters(
             List<IParticleEmitter> particleEmitterList,
             Matrix4f viewMatrix,
             ShaderProgram particleShaderProgram
@@ -757,11 +769,11 @@ public class Renderer implements IUsesResources {
             Texture texture = mesh.getMaterial().getTexture();
 
             particleShaderProgram.setUniform(
-                    "numColumns",
+                    "textureColumnCount",
                     useTexture ? texture.getNumColumns() : 1
             );
             particleShaderProgram.setUniform(
-                    "numRows",
+                    "textureRowCount",
                     useTexture ? texture.getNumRows() : 1
             );
             particleShaderProgram.setUniform(
@@ -791,7 +803,7 @@ public class Renderer implements IUsesResources {
         }
     }
 
-    protected void renderInstancedParticleEmitter(
+    private void renderInstancedParticleEmitter(
             ShaderProgram particleShaderProgram,
             IParticleEmitter emitter,
             Mesh mesh,
@@ -821,7 +833,7 @@ public class Renderer implements IUsesResources {
         );
     }
 
-    protected void renderNonInstancedParticleEmitter(
+    private void renderNonInstancedParticleEmitter(
             ShaderProgram particleShaderProgram,
             IParticleEmitter emitter,
             Mesh mesh,

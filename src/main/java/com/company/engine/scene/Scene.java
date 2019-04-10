@@ -25,11 +25,17 @@ public class Scene implements IUsesResources {
     private KeyboardInput mKeyboardInput;
     private SceneLighting mSceneLighting;
     private SkyBox mSkyBox;
+    private boolean mRenderingParticleEmitters;
+    private boolean mRenderingHud;
+    private boolean mRenderingSkyBox;
 //    private boolean mRenderingShadows;
 
     public Scene() {
         mGameItemMeshMap = new HashMap<>();
         mGameItemInstancedMesh = new HashMap<>();
+        mRenderingParticleEmitters = true;
+        mRenderingHud = true;
+        mRenderingSkyBox = true;
 //        mRenderingShadows = true;
     }
 
@@ -140,6 +146,30 @@ public class Scene implements IUsesResources {
 
     public Map<InstancedMesh, List<GameItem>> getGameItemInstancedMeshMap() {
         return mGameItemInstancedMesh;
+    }
+
+    public boolean isRenderingParticleEmitters() {
+        return mRenderingParticleEmitters;
+    }
+
+    public boolean isRenderingHud() {
+        return mRenderingHud;
+    }
+
+    public boolean isRenderingSkyBox() {
+        return mRenderingSkyBox;
+    }
+
+    public void setRenderingParticleEmitters(boolean renderingParticleEmitters) {
+        mRenderingParticleEmitters = renderingParticleEmitters;
+    }
+
+    public void setRenderingHud(boolean renderingHud) {
+        mRenderingHud = renderingHud;
+    }
+
+    public void setRenderingSkyBox(boolean renderingSkyBox) {
+        mRenderingSkyBox = renderingSkyBox;
     }
 
 //    public boolean isRenderingShadows() {

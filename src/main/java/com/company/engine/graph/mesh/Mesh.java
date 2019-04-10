@@ -30,6 +30,8 @@ public class Mesh implements IUsesResources {
     private boolean mUsingWeights;
     private boolean mUsingJointIndices;
 
+    private boolean mCullingFaces;
+
     private float mBoundingRadius;
 
     public Mesh(
@@ -64,6 +66,7 @@ public class Mesh implements IUsesResources {
                 jointIndexArray,
                 weightArray
         );
+        mCullingFaces = true;
     }
 
     /**
@@ -338,5 +341,13 @@ public class Mesh implements IUsesResources {
 
     public float getBoundingRadius() {
         return mBoundingRadius;
+    }
+
+    public void setCullingFaces(boolean cullingFaces) {
+        mCullingFaces = cullingFaces;
+    }
+
+    public boolean isCullingFaces() {
+        return mCullingFaces;
     }
 }

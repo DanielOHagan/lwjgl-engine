@@ -14,6 +14,7 @@ public interface IParticleEmitter extends IUsesResources {
     List<GameItem> getParticleList();
 
     boolean isActive();
+    boolean isRendering();
     boolean isInsideFrustum();
     boolean ignoresFrustumCulling();
     boolean isFrustumCullingParticles();
@@ -22,6 +23,7 @@ public interface IParticleEmitter extends IUsesResources {
     void setIgnoresFrustumCulling(boolean ignoresFrustumCulling);
     void setInsideFrustum(boolean insideFrustum);
     void setActive(boolean active);
+    void setRendering(boolean rendering);
     void setFrustumCullingParticles(boolean frustumCullingParticles);
     void setMaxParticleCount(int maxParticleCount);
 }

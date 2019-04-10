@@ -1,6 +1,7 @@
 package com.company.engine.graph.lighting;
 
 public class OrthoCoords {
+
     private float mLeft;
     private float mRight;
     private float mBottom;
