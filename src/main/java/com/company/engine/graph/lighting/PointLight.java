@@ -29,8 +29,6 @@ public class PointLight {
         mAttenuation = attenuation;
     }
 
-
-
     public PointLight(PointLight pointLight) {
         this(
                 pointLight.getPosition(),

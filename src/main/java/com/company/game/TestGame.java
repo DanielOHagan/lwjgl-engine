@@ -13,7 +13,7 @@ import com.company.engine.graph.rendering.Camera;
 import com.company.engine.graph.rendering.Renderer;
 import com.company.engine.loaders.ObjLoader;
 import com.company.engine.loaders.assimp.StaticMeshesLoader;
-import com.company.engine.scene.SceneLighting;
+import com.company.engine.scene.items.SceneLighting;
 import com.company.engine.scene.items.*;
 import com.company.engine.utils.MeshUtils;
 import com.company.engine.window.Window;
@@ -232,7 +232,7 @@ public class TestGame implements IGameLogic {
                 "src/main/resources/models/house/house.obj",
                 "src/main/resources/models/house",
                 1,
-                MeshType.STANDARD
+                MeshType.INSTANCED
         );
         MeshUtils.setCullingFaces(houseMeshCulled, true);
         GameItem houseCullFaceTrue = new GameItem(houseMeshCulled);
@@ -242,7 +242,7 @@ public class TestGame implements IGameLogic {
                 "src/main/resources/models/house/house.obj",
                 "src/main/resources/models/house",
                 1,
-                MeshType.STANDARD
+                MeshType.INSTANCED
         );
         MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
         GameItem houseCullFaceFalse = new GameItem(houseMeshCulledFalse);

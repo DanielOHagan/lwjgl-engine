@@ -5,7 +5,7 @@ import com.company.engine.graph.lighting.*;
 import com.company.engine.graph.material.Texture;
 import com.company.engine.graph.Transformation;
 import com.company.engine.graph.particles.Particle;
-import com.company.engine.scene.SceneLighting;
+import com.company.engine.scene.items.SceneLighting;
 import com.company.engine.utils.FileUtils;
 import com.company.engine.graph.mesh.InstancedMesh;
 import com.company.engine.graph.mesh.Mesh;
@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL30.*;
 
 public class Renderer implements IUsesResources {
 

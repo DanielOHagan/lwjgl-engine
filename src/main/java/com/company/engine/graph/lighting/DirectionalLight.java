@@ -4,7 +4,7 @@ import org.joml.Vector3f;
 
 public class DirectionalLight {
 
-    private final static float DEFAULT_SHADOW_POTION_MULTIPLIER = 1;
+    private final static float DEFAULT_SHADOW_POSITION_MULTIPLIER = 1;
 
     private Vector3f mColour;
     private Vector3f mDirection;
@@ -17,7 +17,7 @@ public class DirectionalLight {
         mDirection = direction;
         mIntensity = intensity;
         mOrthoCoords = new OrthoCoords();
-        mShadowPositionMultiplier = DEFAULT_SHADOW_POTION_MULTIPLIER;
+        mShadowPositionMultiplier = DEFAULT_SHADOW_POSITION_MULTIPLIER;
     }
 
     public DirectionalLight(DirectionalLight directionalLight) {

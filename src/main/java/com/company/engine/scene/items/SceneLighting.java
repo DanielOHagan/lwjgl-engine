@@ -1,4 +1,4 @@
-package com.company.engine.scene;
+package com.company.engine.scene.items;
 
 import com.company.engine.graph.lighting.DirectionalLight;
 import com.company.engine.graph.lighting.PointLight;

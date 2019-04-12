@@ -90,7 +90,7 @@ public class InstancedMesh extends Mesh {
         }
     }
 
-    protected void initialiseInstancedMesh() {
+    private void initialiseInstancedMesh() {
         glBindVertexArray(mVaoId);
         int start = 5;
         int strideStart = 0;

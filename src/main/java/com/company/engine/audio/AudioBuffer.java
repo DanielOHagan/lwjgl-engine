@@ -1,5 +1,6 @@
 package com.company.engine.audio;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.utils.FileUtils;
 import org.lwjgl.stb.STBVorbisInfo;
 import org.lwjgl.system.MemoryStack;
@@ -13,7 +14,7 @@ import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.stb.STBVorbis.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class AudioBuffer {
+public class AudioBuffer implements IUsesResources {
 
     private final int mBufferId;
 

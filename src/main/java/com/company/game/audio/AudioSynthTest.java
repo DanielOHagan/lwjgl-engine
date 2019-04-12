@@ -24,6 +24,7 @@ public class AudioSynthTest /*implements IGameLogic */{
 
     /*
     Simple Monophonic audio synth with 12 notes and 8 pitch levels
+    REQUIRES BEADS PROJECT
      */
 
 //    private static final float MIN_GAIN = 0;
@@ -63,7 +64,7 @@ public class AudioSynthTest /*implements IGameLogic */{
 //        mMixerInfoArray = AudioSystem.getMixerInfo();
 //        mUsableMixersInfo = new ArrayList<>();
 //        mSuitableMixerIndexes = getSuitableMixerIndexes(mMixerInfoArray);
-////        mWavePlayerMap = new HashMap<>();
+//        mWavePlayerMap = new HashMap<>();
 //
 //        mGainValue = 1;
 //        mGainValueInc = 0.01f;
@@ -226,7 +227,7 @@ public class AudioSynthTest /*implements IGameLogic */{
 //    }
 //
 //    private void playNote(MusicNote note) {
-////        WavePlayer wavePlayer = mWavePlayerMap.get(note);
+//        WavePlayer wavePlayer = mWavePlayerMap.get(note);
 //        WavePlayer wavePlayer = mWavePlayer;
 //
 //        if (wavePlayer != null) {
@@ -241,7 +242,7 @@ public class AudioSynthTest /*implements IGameLogic */{
 //    }
 //
 //    private void stopPlayingNote(MusicNote note) {
-////        WavePlayer wavePlayer = mWavePlayerMap.get(note);
+//        WavePlayer wavePlayer = mWavePlayerMap.get(note);
 //        WavePlayer wavePlayer = mWavePlayer;
 //
 //        if (wavePlayer != null) {
@@ -264,13 +265,13 @@ public class AudioSynthTest /*implements IGameLogic */{
 //    }
 //
 //    private void setUpAudioInput() {
-////        for (MusicNote note : MusicNote.values()) {
-////            mWavePlayerMap.put(note, new WavePlayer(
-////                    mAudioContext,
-////                    0,
-////                    Buffer.SINE
-////            ));
-////        }
+//        for (MusicNote note : MusicNote.values()) {
+//            mWavePlayerMap.put(note, new WavePlayer(
+//                    mAudioContext,
+//                    0,
+//                    Buffer.SINE
+//            ));
+//        }
 //        mWavePlayer = new WavePlayer(
 //                mAudioContext,
 //                0,
@@ -289,9 +290,9 @@ public class AudioSynthTest /*implements IGameLogic */{
 //                mGlide
 //        );
 //
-////        for (WavePlayer wavePlayer : mWavePlayerMap.values()) {
-////            mGain.addInput(wavePlayer);
-////        }
+//        for (WavePlayer wavePlayer : mWavePlayerMap.values()) {
+//            mGain.addInput(wavePlayer);
+//        }
 //        mGain.addInput(mWavePlayer);
 //
 //

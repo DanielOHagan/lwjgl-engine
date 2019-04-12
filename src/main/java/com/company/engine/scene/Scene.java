@@ -6,6 +6,7 @@ import com.company.engine.graph.mesh.Mesh;
 import com.company.engine.graph.particles.IParticleEmitter;
 import com.company.engine.input.KeyboardInput;
 import com.company.engine.input.MouseInput;
+import com.company.engine.scene.items.SceneLighting;
 import com.company.engine.scene.items.SkyBox;
 import com.company.engine.scene.items.ui.IHud;
 import com.company.engine.scene.items.GameItem;

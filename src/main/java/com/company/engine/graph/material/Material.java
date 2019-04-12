@@ -1,8 +1,9 @@
 package com.company.engine.graph.material;
 
+import com.company.engine.IUsesResources;
 import org.joml.Vector4f;
 
-public class Material {
+public class Material implements IUsesResources {
 
     public static final Vector4f DEFAULT_COLOUR = new Vector4f(1.0f, 1.0f, 1.0f, 1.0f);
     public static final float DEFAULT_REFLECTANCE = 0.0f;
@@ -13,9 +14,6 @@ public class Material {
     private Vector4f mColour;
     private float mReflectance;
     private Texture mTexture;
-    /**
-     * Only object-space normal maps are supported
-     */
     private Texture mNormalMap;
     private boolean mUsingTexture;
 
@@ -96,6 +94,7 @@ public class Material {
         mNormalMap = normalMap;
     }
 
+    @Override
     public void cleanUp() {
         if (mTexture != null) {
             mTexture.cleanUp();

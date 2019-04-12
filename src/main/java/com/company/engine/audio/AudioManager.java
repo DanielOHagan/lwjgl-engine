@@ -1,5 +1,6 @@
 package com.company.engine.audio;
 
+import com.company.engine.IUsesResources;
 import com.company.engine.graph.rendering.Camera;
 import com.company.engine.graph.Transformation;
 import org.joml.Matrix4f;
@@ -19,7 +20,7 @@ import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class AudioManager {
+public class AudioManager implements IUsesResources {
 
     private final List<AudioBuffer> mAudioBufferList;
     private final Map<String, AudioSource> mAudioSourceMap;
@@ -136,6 +137,7 @@ public class AudioManager {
         return mAudioListener;
     }
 
+    @Override
     public void cleanUp() {
         //audio sources
         for (AudioSource audioSource : mAudioSourceMap.values()) {

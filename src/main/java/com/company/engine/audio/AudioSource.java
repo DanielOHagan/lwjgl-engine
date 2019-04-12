@@ -1,12 +1,13 @@
 package com.company.engine.audio;
 
+import com.company.engine.IUsesResources;
 import org.joml.Vector3f;
 
 import java.util.Vector;
 
 import static org.lwjgl.openal.AL10.*;
 
-public class AudioSource {
+public class AudioSource implements IUsesResources {
 
     private final int mSourceId;
 
@@ -93,6 +94,7 @@ public class AudioSource {
         );
     }
 
+    @Override
     public void cleanUp() {
         stop();
         alDeleteBuffers(mSourceId);

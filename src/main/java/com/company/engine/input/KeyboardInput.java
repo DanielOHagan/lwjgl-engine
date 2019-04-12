@@ -6,6 +6,10 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class KeyboardInput {
 
+    /**
+     * NOT IMPLEMENTED SO THERE IS NO REASON TO USE THIS
+     */
+
     private boolean mAcceptingInput;
 
     public KeyboardInput() {
