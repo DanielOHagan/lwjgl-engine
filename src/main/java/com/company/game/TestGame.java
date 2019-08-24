@@ -192,17 +192,17 @@ public class TestGame implements IGameLogic {
 //
 //        mScene.addSceneGameItems(new GameItem[] {gameItem});
 //
-        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
-        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
-        Material particleMaterial = new Material(particleTexture, Material.DEFAULT_REFLECTANCE);
-        particleMaterial.setUsingTexture(true);
-        particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
-        particleMesh.setMaterial(particleMaterial);
-        Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
-        particle.setAnimated(true);
-        testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
-        testParticleEmitter.setActive(true);
-        testParticleEmitter.setFrustumCullingParticles(true);
+//        Mesh particleMesh = ObjLoader.loadMesh("/models/particle.obj", 16, MeshType.INSTANCED);
+//        Texture particleTexture = new Texture("/textures/particle_anim.png", 4, 4);
+//        Material particleMaterial = new Material(particleTexture, Material.DEFAULT_REFLECTANCE);
+//        particleMaterial.setUsingTexture(true);
+//        particleMaterial.setColour(new Vector4f(1, 0, 1, 1));
+//        particleMesh.setMaterial(particleMaterial);
+//        Particle particle = new Particle(particleMesh, new Vector3f(0, 3, 0), 3000, 300);
+//        particle.setAnimated(true);
+//        testParticleEmitter = new TestParticleEmitter(particle, 20, 200);
+//        testParticleEmitter.setActive(true);
+//        testParticleEmitter.setFrustumCullingParticles(true);
 //
 //        mScene.addSceneGameItems(gameItems);
 //
@@ -228,28 +228,28 @@ public class TestGame implements IGameLogic {
         camPointLight = new PointLight(new Vector3f(mCamera.getPosition()), new Vector3f(1, 0, 1), lightIntensity, true);
         pointLightList.add(camPointLight);
 
-        Mesh[] houseMeshCulled = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/house/house.obj",
-                "src/main/resources/models/house",
-                1,
-                MeshType.INSTANCED
-        );
-        MeshUtils.setCullingFaces(houseMeshCulled, true);
-        GameItem houseCullFaceTrue = new GameItem(houseMeshCulled);
-        MeshUtils.setCullingFaces(houseMeshCulled, true);
-
-        Mesh[] houseMeshCulledFalse = StaticMeshesLoader.loadMeshes(
-                "src/main/resources/models/house/house.obj",
-                "src/main/resources/models/house",
-                1,
-                MeshType.INSTANCED
-        );
-        MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
-        GameItem houseCullFaceFalse = new GameItem(houseMeshCulledFalse);
-        MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
-        houseCullFaceFalse.setPosition(0, 0, -50);
-
-        mScene.addSceneGameItems(new GameItem[]{houseCullFaceFalse, houseCullFaceTrue});
+//        Mesh[] houseMeshCulled = StaticMeshesLoader.loadMeshes(
+//                "src/main/resources/models/house/house.obj",
+//                "src/main/resources/models/house",
+//                1,
+//                MeshType.INSTANCED
+//        );
+//        MeshUtils.setCullingFaces(houseMeshCulled, true);
+//        GameItem houseCullFaceTrue = new GameItem(houseMeshCulled);
+//        MeshUtils.setCullingFaces(houseMeshCulled, true);
+//
+//        Mesh[] houseMeshCulledFalse = StaticMeshesLoader.loadMeshes(
+//                "src/main/resources/models/house/house.obj",
+//                "src/main/resources/models/house",
+//                1,
+//                MeshType.INSTANCED
+//        );
+//        MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
+//        GameItem houseCullFaceFalse = new GameItem(houseMeshCulledFalse);
+//        MeshUtils.setCullingFaces(houseMeshCulledFalse, false);
+//        houseCullFaceFalse.setPosition(0, 0, -50);
+//
+//        mScene.addSceneGameItems(new GameItem[]{houseCullFaceFalse, houseCullFaceTrue});
 //
 //        // Spot Light
 //        lightPosition = new Vector3f(0, 0.0f, 10f);
@@ -402,7 +402,7 @@ public class TestGame implements IGameLogic {
 
     @Override
     public void update(float interval, MouseInput mouseInput, KeyboardInput keyboardInput) {
-        testParticleEmitter.update((long) (interval * 1000));
+//        testParticleEmitter.update((long) (interval * 1000));
 //        mAudioManager.updateListenerPosition(mCamera);
         //update camera view matrix each cycle
         mCamera.updateViewMatrix();

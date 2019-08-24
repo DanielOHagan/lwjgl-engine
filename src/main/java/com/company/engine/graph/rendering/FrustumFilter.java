@@ -82,7 +82,7 @@ public class FrustumFilter {
 
     public void filterParticleEmitters(IParticleEmitter[] emitters) {
         for (IParticleEmitter emitter : emitters) {
-            if (!emitter.ignoresFrustumCulling()) {
+            if (emitter != null && !emitter.ignoresFrustumCulling()) {
                 filterParticleEmitter(emitter);
             }
         }
@@ -130,7 +130,10 @@ public class FrustumFilter {
     ) {
         filteredEmitterList.clear();
         for (IParticleEmitter emitter : emitterArray) {
-            if (emitter.isInsideFrustum() || emitter.isFrustumCullingParticles()) {
+            if (
+                    emitter != null &&
+                    (emitter.isInsideFrustum() || emitter.isFrustumCullingParticles())
+            ) {
                 filteredEmitterList.add(emitter);
             }
         }

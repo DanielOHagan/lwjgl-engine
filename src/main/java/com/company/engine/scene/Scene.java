@@ -85,7 +85,9 @@ public class Scene implements IUsesResources {
 
         if (mParticleEmitters != null) {
             for (IParticleEmitter particleEmitter : mParticleEmitters) {
-                particleEmitter.cleanUp();
+                if (particleEmitter != null) {
+                    particleEmitter.cleanUp();
+                }
             }
         }
     }
